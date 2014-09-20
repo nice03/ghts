@@ -3,13 +3,13 @@ exp
 
 실험적인 소스코드.
 
-많은 변경이 예상되므로 타인이 실제 사용하는 것은 권장되지 않음.
+개발 초기 단계이며 앞으로 많은 변경이 예상되므로 아직 실제로 사용하는 것은 권장되지 않음.
 
 Experimental
 
 All of the code in this (including subdirectories) are experimental and will change a lot.
 
-It is NOT RECOMMENDED to use in ANY real use.
+It is NOT RECOMMENDED for any real use.
 
 ====
 ghts
