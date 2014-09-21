@@ -26,14 +26,10 @@ type I같음 interface {
 	G같음(비교값 interface{}) bool
 }
 
-type I기본_문자열 interface {
-	String() string
-}
+type I기본_문자열 interface { String() string }
 
 type I자료형_공통 interface {
 	I기본_문자열
-	I값_복사본
-	I같음
 }
 
 type I상수형 interface {
@@ -51,14 +47,6 @@ type I문자열형 interface {
 }
 
 type I수치형 interface {
-	수치형임()
-}
-type I큰정수형 interface {
-	I수치형
-	G큰정수() *big.Int
-}
-type I정밀수형 interface {
-	I수치형
 	G정밀수() *big.Rat
 }
 
