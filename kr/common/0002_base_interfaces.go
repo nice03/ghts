@@ -4,7 +4,9 @@ import (
 	"math/big"
 )
 
-type I테스트용_가상_객체 interface { 테스트용_가상_객체() }
+type I테스트용_가상_객체 interface {
+	테스트용_가상_객체()
+}
 
 type I정수_식별코드 interface {
 	G식별코드() uint64

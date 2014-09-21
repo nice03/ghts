@@ -2,9 +2,9 @@ package temp
 
 import (
 	//. "exp/kr/common"
-	"path/filepath"
 	"fmt"
 	"math/big"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"strconv"
@@ -17,7 +17,7 @@ func F부호없는_정수2정밀수(값 uint64) *big.Rat {
 	return new(big.Rat).SetInt(F부호없는_정수2큰정수(값))
 }
 func F정수2정밀수(값 int64) *big.Rat { return new(big.Rat).SetInt64(값) }
-func F실수2문자열(값 float64) string { 
+func F실수2문자열(값 float64) string {
 	return strconv.FormatFloat(값, 'f', -1, 64)
 }
 func F실수2정밀수(값 float64) *big.Rat {
@@ -26,7 +26,7 @@ func F실수2정밀수(값 float64) *big.Rat {
 
 	if !변환_성공 {
 		fmt.Printf("%s:%d: common.F정밀수() : 문자열을 정밀수로 변환 실패. 값 %v", 값)
-		
+
 		정밀값 = new(big.Rat).SetFloat64(값)
 	}
 
@@ -39,7 +39,7 @@ func F정밀수(값 interface{}) (*big.Rat, error) {
 		파일명, 행 := F소스코드_위치(2)
 		fmt.Printf("%s:%d: F정밀수() nil값. 입력값 %v.\n", 파일명, 행, 값)
 		에러 := fmt.Errorf("%s:%d: F정밀수() nil값. 입력값 %v.\n", 파일명, 행, 값)
-		
+
 		return nil, 에러
 	case uint:
 		return F부호없는_정수2정밀수(uint64(값.(uint))), nil
@@ -60,7 +60,7 @@ func F정밀수(값 interface{}) (*big.Rat, error) {
 	case int32:
 		return F정수2정밀수(int64(값.(int32))), nil
 	case int64:
-		return F정수2정밀수(값.(int64)), nil	
+		return F정수2정밀수(값.(int64)), nil
 	case float32:
 		return F실수2정밀수(float64(값.(float32))), nil
 	case float64:
@@ -82,18 +82,20 @@ func F정밀수(값 interface{}) (*big.Rat, error) {
 		파일명, 행 := F소스코드_위치(2)
 		fmt.Printf("%s:%d: F정밀수() 변환 에러. 입력값 %v.\n", 파일명, 행, 값)
 		에러 := fmt.Errorf("%s:%d: F정밀수() 변환 에러. 입력값 %v.\n", 파일명, 행, 값)
-		
+
 		return nil, 에러
 	}
 }
 
 func F정밀수_같음(값1, 값2 *big.Rat) bool {
-	if 값1.Cmp(값2) == 0 { return true }
+	if 값1.Cmp(값2) == 0 {
+		return true
+	}
 
 	차이_절대값 := new(big.Rat)
 	차이_절대값.Sub(값1, 값2)
 	차이_절대값.Abs(차이_절대값)
-	
+
 	차이_한도, _ := new(big.Rat).SetString("1/100000000000000000000000000000000")
 
 	if 차이_절대값.Cmp(차이_한도) == -1 {
@@ -104,23 +106,23 @@ func F정밀수_같음(값1, 값2 *big.Rat) bool {
 	return false
 }
 
-func F값_일치(값1, 값2 interface{}) bool {	
+func F값_일치(값1, 값2 interface{}) bool {
 	i := 1
-	
-	// 'I같음', 'I수치형', 'I큰정수형', 'I정밀수형', 기타 수치형의 경우 
+
+	// 'I같음', 'I수치형', 'I큰정수형', 'I정밀수형', 기타 수치형의 경우
 	// 서로 다른 타입끼리도 값을 비교할 수 있으므로 가장 우선적으로 시도함.
 	switch 값1.(type) {
 	case I수치형, I큰정수형, I정밀수형,
-			uint, uint8, uint16, uint32, uint64,
-			int, int8, int16, int32, int64,
-			float32, float64,
-			big.Int, *big.Int,
-			big.Rat, *big.Rat:
+		uint, uint8, uint16, uint32, uint64,
+		int, int8, int16, int32, int64,
+		float32, float64,
+		big.Int, *big.Int,
+		big.Rat, *big.Rat:
 		값_일치 := false
-		
+
 		정밀값1, 에러1 := F정밀수(값1)
 		정밀값2, 에러2 := F정밀수(값2)
-		
+
 		switch {
 		case 에러1 != nil, 에러2 != nil:
 			값_일치 = false
@@ -132,31 +134,31 @@ func F값_일치(값1, 값2 interface{}) bool {
 			값_일치 = false
 			//F체크포인트(&i, "F값_일치() : default")
 		}
-		
-		F체크포인트(&i, "F값_일치() : 값_일치 '%v', F정밀수_같음() A. 값1 %v, 값2 %v.", 
-							값_일치, 값1, 값2)
-		
+
+		F체크포인트(&i, "F값_일치() : 값_일치 '%v', F정밀수_같음() A. 값1 %v, 값2 %v.",
+			값_일치, 값1, 값2)
+
 		return 값_일치
 	case I같음:
 		값_일치 := 값1.(I같음).G같음(값2)
-		
+
 		F체크포인트(&i, "F값_일치() : 값_일치 '%v', 값1.G같음(값2). 값1 %v, 값2 %v.", 값_일치, 값1, 값2)
-		
+
 		return 값_일치
 	}
-	
+
 	switch 값2.(type) {
 	case I수치형, I큰정수형, I정밀수형,
-			uint, uint8, uint16, uint32, uint64,
-			int, int8, int16, int32, int64,
-			float32, float64,
-			big.Int, *big.Int,
-			big.Rat, *big.Rat:
+		uint, uint8, uint16, uint32, uint64,
+		int, int8, int16, int32, int64,
+		float32, float64,
+		big.Int, *big.Int,
+		big.Rat, *big.Rat:
 		값_일치 := false
-		
+
 		정밀값1, 에러1 := F정밀수(값1)
 		정밀값2, 에러2 := F정밀수(값2)
-		
+
 		switch {
 		case 에러1 != nil, 에러2 != nil:
 			값_일치 = false
@@ -168,32 +170,32 @@ func F값_일치(값1, 값2 interface{}) bool {
 			값_일치 = false
 			//F체크포인트(&i, "F값_일치() : default")
 		}
-		
-		F체크포인트(&i, "F값_일치() : 값_일치 '%v', F정밀수_같음() B. 값1 %v, 값2 %v.", 
-							값_일치, 값1, 값2)
-		
+
+		F체크포인트(&i, "F값_일치() : 값_일치 '%v', F정밀수_같음() B. 값1 %v, 값2 %v.",
+			값_일치, 값1, 값2)
+
 		return 값_일치
 	case I같음:
 		값_일치 := 값2.(I같음).G같음(값1)
-		
+
 		F체크포인트(&i, "F값_일치() : 값_일치 '%v', 값2.G같음(값1). 값1 %v, 값2 %v.", 값_일치, 값1, 값2)
-		
+
 		return 값_일치
 	}
-	
+
 	// 이제 형식이 다르면 같을 수 없다고 판정.
 	값1_형식 := reflect.TypeOf(값1)
 	값2_형식 := reflect.TypeOf(값2)
-	
+
 	if 값1_형식 != 값2_형식 {
 		return false
 	}
 
 	// 나머지는 reflect.DeepEqual의 힘을 빌림.
 	값_일치 := reflect.DeepEqual(값1, 값2)
-		
+
 	F체크포인트(&i, "F값_일치() : 값_일치 '%v', reflect.DeepEqual. 값1 %v, 값2 %v.", 값_일치, 값1, 값2)
-	
+
 	return 값_일치
 }
 
@@ -244,8 +246,8 @@ type I정밀수 interface {
 	G값() *big.Rat
 	G실수값() float64
 	G반올림값(소숫점_이하_자릿수 int) float64
-	G반올림_문자열(소숫점_이하_자릿수 int) string	
-	G부호() int	// 음수 -1, 제로 0, 양수 1.
+	G반올림_문자열(소숫점_이하_자릿수 int) string
+	G부호() int // 음수 -1, 제로 0, 양수 1.
 }
 
 type I값_복사본 interface {
@@ -254,8 +256,9 @@ type I값_복사본 interface {
 type I같음 interface {
 	G같음(비교값 interface{}) bool
 }
-type I테스트용_가상_객체 interface { 테스트용_가상_객체() }
-
+type I테스트용_가상_객체 interface {
+	테스트용_가상_객체()
+}
 
 func F소스코드_위치(건너뛰는_단계 int) (파일명 string, 행_번호 int) {
 	_, 파일_경로, 행_번호, _ := runtime.Caller(건너뛰는_단계)
@@ -267,7 +270,7 @@ func F소스코드_위치(건너뛰는_단계 int) (파일명 string, 행_번호
 // 디버깅 할 때 각 체크포인트의 위치와 번호를 출력해주는 편의 함수.
 func F체크포인트(체크포인트_번호 *int, 포맷_문자열 string, 기타 ...interface{}) {
 	파일명, 행_번호 := F소스코드_위치(2)
-	fmt.Printf("%s:%d: 체크포인트 %v " + 포맷_문자열 + "\n\n", append([]interface{}{파일명, 행_번호, *체크포인트_번호}, 기타...)...)
+	fmt.Printf("%s:%d: 체크포인트 %v "+포맷_문자열+"\n\n", append([]interface{}{파일명, 행_번호, *체크포인트_번호}, 기타...)...)
 	(*체크포인트_번호)++
 }
 
@@ -281,7 +284,7 @@ func F같은값_확인(테스트 testing.TB, 기대값, 실제값 interface{}) {
 			파일명, 행_번호 := F소스코드_위치(2)
 			fmt.Printf("%s:%d: 값 불일치. 기대값: %#v 실제값: %#v.\n\n", 파일명, 행_번호, 기대값, 실제값)
 		}
-		
+
 		//테스트.FailNow()
 		테스트.Fail()
 	}
@@ -297,7 +300,7 @@ func F다른값_확인(테스트 testing.TB, 기대값, 실제값 interface{}) {
 			파일명, 행_번호 := F소스코드_위치(2)
 			fmt.Printf("%s:%d: 값 일치. 기대값: %#v 실제값: %#v.\n\n", 파일명, 행_번호, 기대값, 실제값)
 		}
-		
+
 		//테스트.FailNow()
 		테스트.Fail()
 	}

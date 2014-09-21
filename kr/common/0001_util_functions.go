@@ -98,40 +98,40 @@ func F고정값임(값 interface{}) (고정값임 bool) {
 	return true
 } */
 
-func F값_일치(기대값, 실제값 interface{}) bool {	
+func F값_일치(기대값, 실제값 interface{}) bool {
 	/*
-	i := 1
-	
-	switch 기대값.(type) {
-	case I같음:
-		값_일치 := 기대값.(I같음).G같음(실제값)
-		
-		F체크포인트(&i, "F값_일치() : 값_일치 '%v', 2 기대값.G같음(실제값). 기대값 %v, 실제값 %v.", 값_일치, 기대값, 실제값)
-		
-		return 값_일치
-	}
+		i := 1
 
-	switch 실제값.(type) {
-	case I같음:
-		값_일치 := 실제값.(I같음).G같음(기대값)
-		
-		F체크포인트(&i, "F값_일치() :  값_일치 '%v', 1 실제값.G같음(기대값). 기대값 %v, 실제값 %v.", 값_일치, 기대값, 실제값)
-		
-		return 값_일치
-	}
-	
-	기대값_형식 := reflect.TypeOf(기대값)
-	실제값_형식 := reflect.TypeOf(실제값)
-	if 기대값_형식 != 실제값_형식 {
-		return false
-	}
-	
-	값_일치 := reflect.DeepEqual(기대값, 실제값)
-		
-	F체크포인트(&i, "F값_일치() : 값_일치 '%v', 3 reflect.DeepEqual. 기대값 %v, 실제값 %v.", 값_일치, 기대값, 실제값)
-	
-	return 값_일치 */
-	
+		switch 기대값.(type) {
+		case I같음:
+			값_일치 := 기대값.(I같음).G같음(실제값)
+
+			F체크포인트(&i, "F값_일치() : 값_일치 '%v', 2 기대값.G같음(실제값). 기대값 %v, 실제값 %v.", 값_일치, 기대값, 실제값)
+
+			return 값_일치
+		}
+
+		switch 실제값.(type) {
+		case I같음:
+			값_일치 := 실제값.(I같음).G같음(기대값)
+
+			F체크포인트(&i, "F값_일치() :  값_일치 '%v', 1 실제값.G같음(기대값). 기대값 %v, 실제값 %v.", 값_일치, 기대값, 실제값)
+
+			return 값_일치
+		}
+
+		기대값_형식 := reflect.TypeOf(기대값)
+		실제값_형식 := reflect.TypeOf(실제값)
+		if 기대값_형식 != 실제값_형식 {
+			return false
+		}
+
+		값_일치 := reflect.DeepEqual(기대값, 실제값)
+
+		F체크포인트(&i, "F값_일치() : 값_일치 '%v', 3 reflect.DeepEqual. 기대값 %v, 실제값 %v.", 값_일치, 기대값, 실제값)
+
+		return 값_일치 */
+
 	return false
 }
 
@@ -188,7 +188,7 @@ func F슬라이스_복사(원본slice interface{}) interface{} {
 // 디버깅 할 때 각 체크포인트의 위치와 번호를 출력해주는 편의 함수.
 func F체크포인트(체크포인트_번호 *int, 포맷_문자열 string, 기타 ...interface{}) {
 	파일명, 행_번호 := F소스코드_위치(2)
-	fmt.Printf("%s:%d: 체크포인트 %v " + 포맷_문자열 + "\n\n", append([]interface{}{파일명, 행_번호, *체크포인트_번호}, 기타...)...)
+	fmt.Printf("%s:%d: 체크포인트 %v "+포맷_문자열+"\n\n", append([]interface{}{파일명, 행_번호, *체크포인트_번호}, 기타...)...)
 	(*체크포인트_번호)++
 }
 
@@ -219,8 +219,8 @@ func F참인지_확인(테스트 testing.TB, 참거짓 bool, 포맷_문자열 st
 			// PASS
 		default:
 			파일명, 행_번호 := F소스코드_위치(2)
-			fmt.Printf("%s:%d: "+포맷_문자열+"\n\n", 
-						append([]interface{}{파일명, 행_번호}, 추가_매개변수...)...)
+			fmt.Printf("%s:%d: "+포맷_문자열+"\n\n",
+				append([]interface{}{파일명, 행_번호}, 추가_매개변수...)...)
 		}
 
 		//테스트.FailNow()
@@ -237,10 +237,10 @@ func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 포맷_문자열
 			// PASS
 		default:
 			파일명, 행_번호 := F소스코드_위치(2)
-			fmt.Printf("%s:%d: "+포맷_문자열+"\n\n", 
-						append([]interface{}{파일명, 행_번호}, 추가_매개변수...)...)
+			fmt.Printf("%s:%d: "+포맷_문자열+"\n\n",
+				append([]interface{}{파일명, 행_번호}, 추가_매개변수...)...)
 		}
-		
+
 		//테스트.FailNow()
 		테스트.Fail()
 	}
@@ -256,7 +256,7 @@ func F에러없음_확인(테스트 testing.TB, 에러 error) {
 			파일명, 행_번호 := F소스코드_위치(2)
 			fmt.Printf("%s:%d: 에러 발생. : %s \n\n", 파일명, 행_번호, 에러.Error())
 		}
-		
+
 		//테스트.FailNow()
 		테스트.Fail()
 	}
@@ -272,7 +272,7 @@ func F에러발생_확인(테스트 testing.TB, 에러 error) {
 			파일명, 행_번호 := F소스코드_위치(2)
 			fmt.Printf("%s:%d: 에러 발생. : %s \n\n", 파일명, 행_번호, 에러.Error())
 		}
-		
+
 		//테스트.FailNow()
 		테스트.Fail()
 	}
@@ -289,7 +289,7 @@ func F같은값_확인(테스트 testing.TB, 기대값, 실제값 interface{}) {
 			파일명, 행_번호 := F소스코드_위치(2)
 			fmt.Printf("%s:%d: 값 불일치. 기대값: %#v 실제값: %#v.\n\n", 파일명, 행_번호, 기대값, 실제값)
 		}
-		
+
 		//테스트.FailNow()
 		테스트.Fail()
 	}
@@ -306,7 +306,7 @@ func F다른값_확인(테스트 testing.TB, 기대값, 실제값 interface{}) {
 			파일명, 행_번호 := F소스코드_위치(2)
 			fmt.Printf("%s:%d: 값 일치. 기대값: %#v 실제값: %#v.\n\n", 파일명, 행_번호, 기대값, 실제값)
 		}
-		
+
 		//테스트.FailNow()
 		테스트.Fail()
 	}
