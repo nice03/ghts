@@ -26,7 +26,9 @@ type I같음 interface {
 	G같음(비교값 interface{}) bool
 }
 
-type I기본_문자열 interface { String() string }
+type I기본_문자열 interface {
+	String() string
+}
 
 type I자료형_공통 interface {
 	I기본_문자열
@@ -46,15 +48,22 @@ type I문자열형 interface {
 	G문자열() string
 }
 
-type I수치형 interface {
+type I실수형 interface {
+	G실수() float64
+	G정밀수() *big.Rat
+}
+
+type I정수형 interface {
+	G정수() int64
+	G큰정수() *big.Int
+	G실수() float64
 	G정밀수() *big.Rat
 }
 
 /*
 type I고정소숫점형 interface {
 	I수치형
-	G정밀수() *big.Rat
-	G고정소숫점(소숫점_이하_자릿수 int) C고정소숫점
+	G값() *big.Rat
 }
 
 type I통화형 interface { G통화() C통화 }
