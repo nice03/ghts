@@ -7,10 +7,23 @@ import (
 	"reflect"
 	"runtime"
 	"strconv"
-	//"strings"
+	"strings"
 	"testing"
-	//"time"
+	"time"
 )
+
+func F_nil_존재함(검사대상들 ...interface{}) bool {
+	for _, 검사대상 := range 검사대상들 {
+		if 검사대상 == nil {
+			return true
+		}
+	}
+	
+	return false
+}
+
+
+
 
 /*
 func F공유해도_안전함(값 interface{}) (안전함 bool) {
@@ -101,8 +114,43 @@ func F부호없는_정수2큰정수(값 uint64) *big.Int { return new(big.Int).S
 func F부호없는_정수2정밀수(값 uint64) *big.Rat {
 	return new(big.Rat).SetInt(F부호없는_정수2큰정수(값))
 }
+func F부호없는_정수2문자열(값 uint64) string    { return strconv.FormatUint(값, 10) }
+
+func F정수2큰정수(값 int64) *big.Int { return big.NewInt(값) }
 func F정수2정밀수(값 int64) *big.Rat { return new(big.Rat).SetInt64(값) }
-func F정수2문자열(값 int64) string { return strconv.FormatInt(값, 10) }
+func F정수2문자열(값 int64) string   { return strconv.FormatInt(값, 10) }
+func F정수2월(값 int) (time.Month, error) {
+	switch 값 {
+	case 1:
+		return time.January, nil
+	case 2:
+		return time.February, nil
+	case 3:
+		return time.March, nil
+	case 4:
+		return time.April, nil
+	case 5:
+		return time.May, nil
+	case 6:
+		return time.June, nil
+	case 7:
+		return time.July, nil
+	case 8:
+		return time.August, nil
+	case 9:
+		return time.September, nil
+	case 10:
+		return time.October, nil
+	case 11:
+		return time.November, nil
+	case 12:
+		return time.December, nil
+	default:
+		에러 := fmt.Errorf("%scommon.F정수2월() : 예상치 못한 월. 입력값 %v.", F소스코드_위치(2), 값)
+		return time.January, 에러
+	}
+}
+
 func F실수2정밀수(값 float64) *big.Rat {
 	값_문자열 := strconv.FormatFloat(값, 'f', -1, 64)
 	정밀값, 변환_성공 := new(big.Rat).SetString(값_문자열)
@@ -113,7 +161,75 @@ func F실수2정밀수(값 float64) *big.Rat {
 
 	return 정밀값
 }
-func F큰정수2정밀수(값 *big.Int) *big.Rat { return new(big.Rat).SetInt(값) }
+func F실수2문자열(숫자 float64) string { 
+	return strconv.FormatFloat(숫자, 'f', -1, 64)
+}
+
+func F큰정수2정밀수(값 *big.Int) *big.Rat {
+	return new(big.Rat).SetInt(값)
+}
+
+func F정밀수_복사(값 *big.Rat) *big.Rat {
+	return new(big.Rat).Set(값)
+}
+
+func F정밀수2실수(값 *big.Rat) float64 {
+	// 소숫점 이하 아주 미세한 에러를 줄이기 위해서 문자열로 바꾼 후 변환.
+	실수값, 에러 := F문자열2실수(F정밀수2문자열(값))		
+	
+	if 에러 != nil {
+		실수값, _ = 값.Float64()
+	}	
+	
+	return 실수값
+}
+
+func F정밀수2문자열(값 *big.Rat) string {
+	//실수값, _ := 값.Float64(); return F실수2문자열()	// 예전 방식
+
+	문자열 := F정밀수_반올림_문자열(값, 30)
+
+	if strings.Contains(문자열, ".") {
+		for strings.HasSuffix(문자열, "0") {
+			문자열 = strings.TrimSuffix(문자열, "0")
+		}
+
+		if strings.HasSuffix(문자열, ".") {
+			문자열 = 문자열 + "0"
+		}
+	}
+
+	return 문자열
+}
+
+func F정밀수_반올림_문자열(값 *big.Rat, 소숫점_이하_자릿수 int) string {
+	return 값.FloatString(소숫점_이하_자릿수)
+}
+
+func F참거짓2문자열(값 bool) string { return strconv.FormatBool(값) }
+
+func F문자열2실수(문자열 string) (float64, error) {
+	숫자, 에러 := strconv.ParseFloat(strings.Replace(문자열, ",", "", -1), 64)
+	if 에러 != nil {
+		return 0.0, 에러
+	}
+
+	return 숫자, nil
+}
+
+func F문자열2일자(일자_문자열 string) (time.Time, error) {
+	일자, 에러 := time.Parse("2006-01-02", 일자_문자열)
+	if 에러 != nil {
+		제로값 := reflect.Zero(reflect.TypeOf(time.Now())).Interface().(time.Time)
+		return 제로값, 에러
+	}
+
+	return 일자, nil
+}
+
+func F일자2문자열(일자 time.Time) string {
+	return 일자.Format("2006-01-02")
+}
 
 
 // 인터페이스 Type 구하는 법 : 타입 := reflect.TypeOf((*인터페이스)(nil)).Elem()
@@ -204,10 +320,10 @@ func F참인지_확인(테스트 testing.TB, 참거짓 bool, 포맷_문자열 st
 
 		테스트.FailNow()
 		//테스트.Fail()
-		
+
 		return false
 	}
-	
+
 	return true
 }
 
@@ -225,10 +341,10 @@ func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 포맷_문자열
 
 		테스트.FailNow()
 		//테스트.Fail()
-		
+
 		return false
 	}
-	
+
 	return true
 }
 
@@ -244,10 +360,10 @@ func F에러없음_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 
 		테스트.FailNow()
 		//테스트.Fail()
-		
+
 		return false
 	}
-	
+
 	return true
 }
 
@@ -263,49 +379,49 @@ func F에러발생_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 
 		테스트.FailNow()
 		//테스트.Fail()
-		
+
 		return false
 	}
-	
+
 	return true
 }
 
 // 기대값과 실제값이 다르면 Fail하는 테스트용 편의 함수.
-func F같은값_확인(테스트 testing.TB, 기대값, 실제값 interface{}) (테스트_통과 bool) {
-	//if !F값_일치(기대값, 실제값) &&
-	if !reflect.DeepEqual(기대값, 실제값) {
+func F같은값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_통과 bool) {
+	//if !F값_일치(값1, 값2) &&
+	if !reflect.DeepEqual(값1, 값2) {
 		switch 테스트.(type) {
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			fmt.Printf("%s값 불일치. 기대값: %#v 실제값: %#v.\n\n", F소스코드_위치(2), 기대값, 실제값)
+			fmt.Printf("%s값 불일치. 값1: %#v 값2: %#v.\n\n", F소스코드_위치(2), 값1, 값2)
 		}
 
 		테스트.FailNow()
 		//테스트.Fail()
-		
+
 		return false
 	}
-	
+
 	return true
 }
 
 // 기대값과 실제값이 같으면 Fail하는 테스트용 편의 함수.
-func F다른값_확인(테스트 testing.TB, 기대값, 실제값 interface{}) (테스트_통과 bool) {
+func F다른값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_통과 bool) {
 	//if F값_일치(기대값, 실제값) ||
-	if reflect.DeepEqual(기대값, 실제값) {
+	if reflect.DeepEqual(값1, 값2) {
 		switch 테스트.(type) {
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			fmt.Printf("%s값 일치. 기대값: %#v 실제값: %#v.\n\n", F소스코드_위치(2), 기대값, 실제값)
+			fmt.Printf("%s값 일치. 값1: %#v 값2: %#v.\n\n", F소스코드_위치(2), 값1, 값2)
 		}
 
 		테스트.FailNow()
 		//테스트.Fail()
-		
+
 		return false
 	}
-	
+
 	return true
 }

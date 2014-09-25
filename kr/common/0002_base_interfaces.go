@@ -2,6 +2,7 @@ package common
 
 import (
 	"math/big"
+	"testing/quick"
 )
 
 type I테스트용_가상_객체 interface {
@@ -18,25 +19,18 @@ type I문자열_식별코드 interface {
 // 원본과 복사본은 서로 독립성을 가져야 함.
 // 즉, 멤버 필드 중에 참조형이 있으면
 // 같은 타입의 새로운 인스턴스를 생성한 후, 값을 복사해야 함.
-
-type I값_복사본 interface {
-	G값_복사본() interface{}
-}
-type I같음 interface {
-	G같음(비교값 interface{}) bool
-}
-
 type I기본_문자열 interface {
 	String() string
 }
 
 type I자료형_공통 interface {
 	I기본_문자열
+	quick.Generator
 }
 
 type I상수형 interface {
 	I자료형_공통
-	상수형임()
+	상수형임()	
 }
 
 type I변수형 interface {

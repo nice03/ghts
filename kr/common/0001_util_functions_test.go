@@ -7,129 +7,153 @@ import (
 	"runtime"
 	"strings"
 	"testing"
-	//"time"
+	"time"
 )
 
-/*
-type s진짜_상수 struct{}
-func (s *s진짜_상수) 상수형임()          {}
-func (s *s진짜_상수) G같음(값 interface{}) bool { return false }
-func (s *s진짜_상수) String() string { return "" }
-
-type s가짜_상수_1 struct{}
-
-func (s *s가짜_상수_1) G값() int { return 0 }
-
-type s가짜_상수_2 struct{}
-
-func (s *s가짜_상수_2) 상수형임()   {}
-func (s *s가짜_상수_2) G값() int { return 0 }
-func (s *s가짜_상수_2) G같음(값 interface{}) bool { return false }
-func (s *s가짜_상수_2) S값()     {}
-
-type s가짜_상수_3 struct{}
-
-func (s *s가짜_상수_3) 상수형임()   {}
-func (s *s가짜_상수_3) G값() int { return 0 }
-func (s *s가짜_상수_3) G같음(값 interface{}) bool { return false }
-func (s *s가짜_상수_3) String() {}
-
-type s가짜_상수_4 struct{}
-
-func (s *s가짜_상수_4) 상수형임()                    {}
-func (s *s가짜_상수_4) G값() int                  { return 0 }
-func (s *s가짜_상수_4) G같음(값 interface{}) bool { return false }
-func (s *s가짜_상수_4) String(문자열 string) string { return "" }
-
-type s가짜_상수_5 struct{}
-
-func (s *s가짜_상수_5) 상수형임()          {}
-func (s *s가짜_상수_5) 변수형임()          {}
-func (s *s가짜_상수_5) G값() int        { return 0 }
-func (s *s가짜_상수_5) G같음(값 interface{}) bool { return false }
-func (s *s가짜_상수_5) String() string { return "" }
-
-
-func TestF공유해도_안전함(테스트 *testing.T) {
-	F참인지_확인(테스트, F공유해도_안전함(uint(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(uint8(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(uint16(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(uint32(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(uint64(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(int(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(int8(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(int16(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(int32(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(int64(0)), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(true), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(false), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함("문자열"), "TestF상수형임() : false negative.")
-	F참인지_확인(테스트, F공유해도_안전함(time.Now()), "TestF상수형임() : false negative.")
-
-	F참인지_확인(테스트, F공유해도_안전함(&s진짜_상수{}), "TestF상수형임() : false negative.")
-
-	i := big.NewInt(0)
-	r := big.NewRat(1,1)
-
-	F거짓인지_확인(테스트, F공유해도_안전함(*i), "TestF상수형임() : false positive.")
-	F거짓인지_확인(테스트, F공유해도_안전함(big.NewInt(0)), "TestF상수형임() : false positive.")
-	F거짓인지_확인(테스트, F공유해도_안전함(*r), "TestF상수형임() : false positive.")
-	F거짓인지_확인(테스트, F공유해도_안전함(big.NewRat(1,1)), "TestF상수형임() : false positive.")
-
-	F거짓인지_확인(테스트, F공유해도_안전함(&s가짜_상수_1{}), "TestF상수형임() : false positive.")
-	F거짓인지_확인(테스트, F공유해도_안전함(&s가짜_상수_2{}), "TestF상수형임() : false positive.")
-	F거짓인지_확인(테스트, F공유해도_안전함(&s가짜_상수_3{}), "TestF상수형임() : false positive.")
-	F거짓인지_확인(테스트, F공유해도_안전함(&s가짜_상수_4{}), "TestF상수형임() : false positive.")
-	F거짓인지_확인(테스트, F공유해도_안전함(&s가짜_상수_5{}), "TestF상수형임() : false positive.")
-} */
-
+func TestF_nil_존재함(테스트 *testing.T) {
+	F참인지_확인(테스트, F_nil_존재함(nil), "")
+	F참인지_확인(테스트, F_nil_존재함(1, nil, "test", 1.1), "")
+	F거짓인지_확인(테스트, F_nil_존재함(1, "test", 1.1), "")
+}
 
 func TestF부호없는_정수2큰정수(테스트 *testing.T) {
 	원래값 := uint64(1001)
 	var 변환값 *big.Int = F부호없는_정수2큰정수(원래값)
-	
+
 	참거짓 := 변환값.Cmp(new(big.Int).SetUint64(원래값)) == 0
-	
+
 	F참인지_확인(테스트, 참거짓, "TestF부호없는_정수2큰정수() : 원래값  %v, 변환값 %v", 원래값, 변환값)
 }
 
 func TestF부호없는_정수2정밀수(테스트 *testing.T) {
 	원래값 := uint64(1001)
 	var 변환값 *big.Rat = F부호없는_정수2정밀수(원래값)
-	
+
 	참거짓 := 변환값.Cmp(new(big.Rat).SetInt(F부호없는_정수2큰정수(원래값))) == 0
-	
+
 	F참인지_확인(테스트, 참거짓, "TestF부호없는_정수2정밀수() : 원래값  %v, 변환값 %v", 원래값, 변환값)
+}
+
+func TestF부호없는_정수2문자열(테스트 *testing.T) {
+	F같은값_확인(테스트, F부호없는_정수2문자열(100), "100")
+}
+
+func TestF정수2큰정수(테스트 *testing.T) {
+	원래값 := int64(100)
+	var 변환값 *big.Int = F정수2큰정수(원래값)
+	
+	참거짓 := 변환값.Cmp(big.NewInt(원래값)) == 0
+	
+	F참인지_확인(테스트, 참거짓, "TestF정수2큰정수() : 원래값 %v, 변환값 %v", 원래값, 변환값)
 }
 
 func TestF정수2정밀수(테스트 *testing.T) {
 	원래값 := int64(1001)
 	var 변환값 *big.Rat = F정수2정밀수(원래값)
-	
+
 	참거짓 := 변환값.Cmp(new(big.Rat).SetInt64(원래값)) == 0
-	
+
 	F참인지_확인(테스트, 참거짓, "TestF정수2정밀수() : 원래값  %v, 변환값 %v", 원래값, 변환값)
 }
+
 func TestF정수2문자열(테스트 *testing.T) {
 	F같은값_확인(테스트, F정수2문자열(int64(100)), "100")
+}
+
+func TestF정수2월(테스트 *testing.T) {
+	월, 에러 := F정수2월(1)
+	F에러없음_확인(테스트, 에러)
+	F같은값_확인(테스트, 월, time.January)
+	
+	월, 에러 = F정수2월(13)
+	F에러발생_확인(테스트, 에러)
 }
 
 func TestF실수2정밀수(테스트 *testing.T) {
 	원래값 := float64(1001.020023)
 	var 변환값 *big.Rat = F실수2정밀수(원래값)
-	
+
 	참거짓 := 변환값.FloatString(6) == "1001.020023"
-	
+
 	F참인지_확인(테스트, 참거짓, "TestF실수2정밀수() : 원래값  %v, 변환값 %v", 원래값, 변환값)
+}
+
+func TestF실수2문자열(테스트 *testing.T) {
+	F같은값_확인(테스트, F실수2문자열(100.25), "100.25")
 }
 
 func TestF큰정수2정밀수(테스트 *testing.T) {
 	원래값 := big.NewInt(1001)
 	var 변환값 *big.Rat = F큰정수2정밀수(원래값)
-	
+
 	참거짓 := 변환값.Cmp(big.NewRat(원래값.Int64(), 1)) == 0
-	
+
 	F참인지_확인(테스트, 참거짓, "TestF큰정수2정밀수() : 원래값  %v, 변환값 %v", 원래값, 변환값)
+}
+
+func TestF정밀수_복사(테스트 *testing.T) {
+	원래값 := big.NewRat(1001, 10)
+	예상값 := big.NewRat(1001, 10)
+	복사값 := F정밀수_복사(원래값)
+	
+	F같은값_확인(테스트, 복사값, 예상값)
+	
+	원래값.Add(원래값, big.NewRat(100, 1))
+	
+	F같은값_확인(테스트, 복사값, 예상값)
+
+}
+
+func TestF정밀수2실수(테스트 *testing.T) {
+	실수 := F정밀수2실수(big.NewRat(1001, 10))
+	
+	F같은값_확인(테스트, 실수, 100.1)
+}
+
+func TestF정밀수2문자열(테스트 *testing.T) {
+	F같은값_확인(테스트, F정밀수2문자열(big.NewRat(100340, 1000)), "100.34")
+}
+
+func TestF정밀수_반올림_문자열(테스트 *testing.T) {
+	정밀수 := big.NewRat(104594, 10000)
+	F같은값_확인(테스트, F정밀수_반올림_문자열(정밀수, 4), "10.4594")
+	F같은값_확인(테스트, F정밀수_반올림_문자열(정밀수, 3), "10.459")
+	F같은값_확인(테스트, F정밀수_반올림_문자열(정밀수, 2), "10.46")
+	F같은값_확인(테스트, F정밀수_반올림_문자열(정밀수, 1), "10.5")
+	F같은값_확인(테스트, F정밀수_반올림_문자열(정밀수, 0), "10")
+}
+
+func TestF참거짓2문자열(테스트 *testing.T) {
+	F같은값_확인(테스트, F참거짓2문자열(true), "true")
+	F같은값_확인(테스트, F참거짓2문자열(false), "false")
+}
+
+func TestF문자열2실수(테스트 *testing.T) {
+	실수, 에러 := F문자열2실수("18.593")
+
+	F에러없음_확인(테스트, 에러)
+	F같은값_확인(테스트, 실수, 18.593)
+	
+	실수, 에러 = F문자열2실수("실수로 변환 불가능한 문자열")
+	
+	F에러발생_확인(테스트, 에러)
+}
+
+func TestF문자열2일자(테스트 *testing.T) {
+	일자, 에러 := F문자열2일자("2000-01-01")
+	
+	F에러없음_확인(테스트, 에러)
+	F같은값_확인(테스트, 일자.Format("2006-01-02"), "2000-01-01")
+
+	일자, 에러 = F문자열2일자("변환 불가능한 문자열")
+	F에러발생_확인(테스트, 에러)
+}
+
+func TestF일자2문자열(테스트 *testing.T) {
+	월, _ := F정수2월(1)
+	일자 := time.Date(2000, 월, 1, 0, 0, 0, 0, time.Now().Location())
+
+	F같은값_확인(테스트, F일자2문자열(일자), "2000-01-01")
 }
 
 type i테스트_인터페이스를_구현함_a interface {
@@ -193,10 +217,7 @@ func TestF체크포인트(테스트 *testing.T) {
 
 func TestF소스코드_위치(테스트 *testing.T) {
 	소스코드_위치 := strings.Split(F소스코드_위치(0), ":")
-	파일명, 행_번호 :=  소스코드_위치[0], 소스코드_위치[1]
-	
-	fmt.Printf("파일명 '%v', 행_번호 '%v'. \n\n", 파일명, 행_번호)
-	fmt.Printf("파일명 '%v', 행_번호 '%v', 나머지 '%v'. \n\n", 소스코드_위치[0], 소스코드_위치[1], 소스코드_위치[2])
+	파일명, 행_번호 := 소스코드_위치[0], 소스코드_위치[1]
 	
 	F참인지_확인(테스트, strings.HasPrefix(파일명, "0001_"),
 		"TestF소스코드_위치() : F소스코드_위치() 파일명_에러. 값 %v", 파일명)
@@ -205,11 +226,8 @@ func TestF소스코드_위치(테스트 *testing.T) {
 		"TestF소스코드_위치() : F소스코드_위치() 파일명_에러. 값 %v", 파일명)
 
 	소스코드_위치 = strings.Split(F소스코드_위치(1), ":")
-	파일명, 행_번호 =  소스코드_위치[0], 소스코드_위치[1]
+	파일명, 행_번호 = 소스코드_위치[0], 소스코드_위치[1]
 	_, _, 행_번호_예상값, _ := runtime.Caller(0)
-	
-	fmt.Printf("파일명 '%v', 행_번호 '%v'. \n\n", 파일명, 행_번호)
-	fmt.Printf("파일명 '%v', 행_번호 '%v', 나머지 '%v'. \n\n", 소스코드_위치[0], 소스코드_위치[1], 소스코드_위치[2])
 
 	F참인지_확인(테스트, strings.HasPrefix(파일명, "0001_"),
 		"TestF소스코드_위치() : F소스코드_위치() 파일명_에러. 값 %v", 파일명)
@@ -295,7 +313,7 @@ func TestF참인지_확인(테스트 *testing.T) {
 	}
 
 	테스트_통과 = true
-	테스트_결과_반환값  = F참인지_확인(가상_테스트, false, "")
+	테스트_결과_반환값 = F참인지_확인(가상_테스트, false, "")
 	if 테스트_통과 || 테스트_결과_반환값 {
 		테스트.Errorf("%s예상치 못한 테스트 통과.", F소스코드_위치(1))
 	}
@@ -311,7 +329,7 @@ func TestF거짓인지_확인(테스트 *testing.T) {
 	}
 
 	테스트_통과 = true
-	테스트_결과_반환값  = F거짓인지_확인(가상_테스트, false, "")
+	테스트_결과_반환값 = F거짓인지_확인(가상_테스트, false, "")
 	if !테스트_통과 || !테스트_결과_반환값 {
 		테스트.Errorf("%s예상치 못한 테스트 실패.", F소스코드_위치(1))
 	}
@@ -354,7 +372,7 @@ func TestF같은값_확인(테스트 *testing.T) {
 
 	테스트_통과 = true
 	테스트_결과_반환값 := F같은값_확인(가상_테스트, 1, 1)
-	if !테스트_통과 || !테스트_결과_반환값{
+	if !테스트_통과 || !테스트_결과_반환값 {
 		테스트.Errorf("%s예상치 못한 테스트 실패.", F소스코드_위치(1))
 	}
 
