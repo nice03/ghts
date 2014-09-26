@@ -7,10 +7,13 @@ import (
 	"math/rand"
 	"reflect"
 	"strings"
-	//"time"
+	"time"
 )
 
 func init() {
+	c참 = &sC참거짓{true}
+	c거짓 = &sC참거짓{false}
+	
 	후보값_문자열 := "1234567890" +
 			"abcdefghijklmnopqrstuvwxyz" +
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
@@ -18,14 +21,11 @@ func init() {
 			"가나다라마바사하자차카타파하" // 한자도 포함시킬 것.
 	
 	문자열_후보값_모음 = strings.Split(후보값_문자열, "")
-	
-	c참 = &sC참거짓{true}
-	c거짓 = &sC참거짓{false}
 }
 
+var c참, c거짓 *sC참거짓
 var 문자열_후보값_모음 []string
 
-var c참, c거짓 *sC참거짓
 
 // 상수형이 immutable 하기 위해서는 생성할 때 입력되는 참조형 값이
 // 적절하게 복사되는 것을 보장해야 함.
@@ -141,4 +141,147 @@ func (s *sC문자열) Generate(
 	}
 	
 	return reflect.ValueOf(NC문자열(임의_문자열.String()))
+}
+
+// 시점 (time.Time)
+type s시점 struct{ 값 time.Time }
+func (s *s시점) G값() time.Time  { return s.값 }
+func (s *s시점) G변수형() V시점 { return NV시점(s.값) }
+func (s *s시점) String() string { return s.값.String() }
+
+func NC시점(값 time.Time) C시점 { return &sC시점{&s시점{값}} }
+type sC시점 struct{ *s시점 }
+func (s *sC시점) 상수형임() {}
+func (s *sC시점) G변수형() V시점 { return NV시점(s.s시점.값) }
+func (s *sC시점) Generate(임의값_생성기 *rand.Rand, 
+						크기 int) reflect.Value {
+	연도 := int(1900 + 임의값_생성기.Int31n(300))
+	월, _ := F정수2월(int(1 + 임의값_생성기.Int31n(11)))
+	일 := int(1 + 임의값_생성기.Int31n(30))
+	시 := int(임의값_생성기.Int31n(24))
+	분 := int(임의값_생성기.Int31n(59))
+	초 := int(임의값_생성기.Int31n(59))
+	나노초 := 임의값_생성기.Int()
+	
+	값 := time.Date(연도, 월, 일, 시, 분, 초, 나노초, time.Now().Location())
+	
+	return reflect.ValueOf(NC시점(값))							
+}
+
+func NV시점(값 time.Time) V시점 { return &sV시점{&s시점{값}} }
+type sV시점 struct{ *s시점 }
+func (s *sV시점) 변수형임()          {}
+func (s *sV시점) S값(값 time.Time) { s.s시점.값 = 값 }
+func (s *sV시점) G상수형() C시점      { return NC시점(s.s시점.값) }
+func (s *sV시점) Generate(임의값_생성기 *rand.Rand, 
+						크기 int) reflect.Value {
+	연도 := int(1900 + 임의값_생성기.Int31n(300))
+	월, _ := F정수2월(int(1 + 임의값_생성기.Int31n(11)))
+	일 := int(1 + 임의값_생성기.Int31n(30))
+	시 := int(임의값_생성기.Int31n(24))
+	분 := int(임의값_생성기.Int31n(59))
+	초 := int(임의값_생성기.Int31n(59))
+	나노초 := 임의값_생성기.Int()
+	
+	값 := time.Date(연도, 월, 일, 시, 분, 초, 나노초, time.Now().Location())
+	
+	return reflect.ValueOf(NV시점(값))							
+}
+
+// 큰 정수 (*big.Int)
+type s큰정수 struct{ 값 *big.Int }
+func (s *s큰정수) G값() *big.Int   { return F큰정수_복사(s.값) }
+func (s *s큰정수) G정수() int64    { return s.값.Int64() }
+func (s *s큰정수) G큰정수() *big.Int { return s.G값() }
+func (s *s큰정수) G실수() float64 { return F큰정수2실수(s.값) }
+func (s *s큰정수) G정밀수() *big.Rat { return new(big.Rat).SetInt(s.값) }
+func (s *s큰정수) G문자열() string { return s.값.String() }
+func (s *s큰정수) String() string { return s.값.String() }
+
+func NC큰정수(값 int64) C큰정수 { return NC큰정수Big(F정수2큰정수(값)) }
+func NC큰정수Big(값 *big.Int) C큰정수 { return &sC큰정수{&s큰정수{F큰정수_복사(값)}} }
+type sC큰정수 struct{ *s큰정수 }
+func (s *sC큰정수) 상수형임() {}
+func (s *sC큰정수) G변수형() V큰정수 { return NV큰정수Big(s.s큰정수.값) }
+func (s *sC큰정수) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
+	값 := 임의값_생성기.Int63()
+	
+	// 0.0 ~ 1.0 임의값 생성 후 0.5 기준으로 부호 결정.
+	if 임의값_생성기.Float32() < 0.5 {
+		값 = 값 * -1
+	}
+	
+	return reflect.ValueOf(NC큰정수(값))							
+}
+
+func NV큰정수(값 int64) V큰정수 { return NV큰정수Big(F정수2큰정수(값)) }
+func NV큰정수Big(값 *big.Int) V큰정수 { return &sV큰정수{&s큰정수{F큰정수_복사(값)}} }
+type sV큰정수 struct{ *s큰정수 }
+func (s *sV큰정수) 변수형임() {}
+func (s *sV큰정수) G상수형() C큰정수 { return NC큰정수Big(s.s큰정수.값) }
+func (s *sV큰정수) S값(값 int64) { s.s큰정수.값.SetInt64(값) }
+func (s *sV큰정수) S값Big(값 *big.Int) { s.s큰정수.값.Set(값) }
+
+func (s *sV큰정수) S절대값(큰정수 I큰정수) V큰정수 {
+	s.S값Big(F큰정수_절대값(s.s큰정수.값)); return s
+}
+func (s *sV큰정수) S더하기(큰정수1 I큰정수, 큰정수2 I큰정수) V큰정수 {
+	s.S값Big(F큰정수_더하기(큰정수1.G값(), 큰정수2.G값())); return s
+}
+func (s *sV큰정수) S빼기(큰정수1 I큰정수, 큰정수2 I큰정수) V큰정수 {
+	s.S값Big(F큰정수_빼기(큰정수1.G값(), 큰정수2.G값())); return s
+}
+func (s *sV큰정수) S곱하기(큰정수1 I큰정수, 큰정수2 I큰정수) V큰정수 {
+	s.S값Big(F큰정수_곱하기(큰정수1.G값(), 큰정수2.G값())); return s
+}
+func (s *sV큰정수) S나누기(분자 I큰정수, 분모 I큰정수) (V큰정수, error) {
+	값, 에러 := F큰정수_나누기(분자.G값(), 분모.G값())
+	
+	if 에러 != nil {
+		return nil, 에러
+	}
+	
+	s.S값Big(값)
+	
+	return s, nil
+}
+func (s *sV큰정수) S반대부호값(큰정수 I큰정수) V큰정수 {
+	s.S값Big(F큰정수_반대부호값(큰정수.G값())); return s
+}
+
+func (s *sV큰정수) S셀프_절대값() V큰정수 {
+	s.S값Big(F큰정수_절대값(s.s큰정수.값)); return s
+}
+func (s *sV큰정수) S셀프_더하기(큰정수 I큰정수) V큰정수 {
+	s.S값Big(F큰정수_더하기(s.s큰정수.값, 큰정수.G값())); return s
+}
+func (s *sV큰정수) S셀프_빼기(큰정수 I큰정수) V큰정수 {
+	s.S값Big(F큰정수_빼기(s.s큰정수.값, 큰정수.G값())); return s
+}
+func (s *sV큰정수) S셀프_곱하기(큰정수 I큰정수) V큰정수 {
+	s.S값Big(F큰정수_곱하기(s.s큰정수.값, 큰정수.G값())); return s
+}
+func (s *sV큰정수) S셀프_나누기(큰정수 I큰정수) (V큰정수, error) {
+	값, 에러 := F큰정수_나누기(s.s큰정수.값, 큰정수.G값())
+	
+	if 에러 != nil {
+		return nil, 에러
+	}
+	
+	s.S값Big(값)
+	
+	return s, nil
+}
+func (s *sV큰정수) S셀프_반대부호값() V큰정수 {
+	s.S값Big(F큰정수_반대부호값(s.s큰정수.값)); return s
+}
+func (s *sV큰정수) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
+	값 := 임의값_생성기.Int63()
+	
+	// 0.0 ~ 1.0 임의값 생성 후 0.5 기준으로 부호 결정.
+	if 임의값_생성기.Float32() < 0.5 {
+		값 = 값 * -1
+	}
+	
+	return reflect.ValueOf(NV큰정수(값))							
 }
