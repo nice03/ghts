@@ -85,6 +85,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 Translation is provided for the convenience of non-English users.
 English version of original LGPL licensing term have priority over translation(s).
+
 ---------------------------------------------------------------------
 
 Copyright (C) 2014 김운하 <kuh74@daum.net>
@@ -105,6 +106,7 @@ Copyright (C) 2014 김운하 <kuh74@daum.net>
 - 사용 불능
 - 데이터 손실
 - 금전적 손실
+
 등을 포함한 (그러나, 이에 국한되지 않은) 이 소프트웨어를 사용하면서 발생된 
 그 어떠한 손상 및 손실에 대해서도 책임을 지지 않습니다.
 
@@ -119,4 +121,5 @@ GNU LGPL 및 GNU GPL 라이센스의 복사본이 이 소프트웨어에 포함�
 
 Translation is provided for the convenience of non-English users.
 English version of original LGPL licensing term have priority over translation(s).
+
 ---------------------------------------------------------------------
