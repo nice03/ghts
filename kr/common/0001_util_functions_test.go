@@ -534,7 +534,7 @@ func TestF시점_복사(테스트 *testing.T) {
 }
 
 func TestF값_같음(테스트 *testing.T) {
-	F_TODO("TestF값_같음() 통화 추가할 것.")
+	F_TODO("TestF값_같음() 실수값 비교 및 통화 형식 추가할 것.")
 	
 	값 := []interface{}{
 			uint(100), uint8(100), uint16(100), uint32(100), uint64(100),

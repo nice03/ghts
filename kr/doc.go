@@ -2,127 +2,92 @@
 
 GHTS : GH Trading System. GH 매매 시스템.
 
-자동으로 주식를 거래하는 프로그램을 만들어 보고 싶어서 진행 중인 개인 프로젝트임.
-'프로그램 매매'라는 단어를 많이 들어봤을 텐데, 이 프로젝트의 목표가
-그런 프로그램을 개발하는 것임.
 
-프로그램 매매에 관심있는 사람에게 유용할 수 있을 것 같아서 소스코드를 공개함.
-소스코드는 LGPL V3 라이센스를 따름.
+'프로그램 매매'를 하는 소프트웨어를 개발하기 위한 라이브러리.
 
-LGPL V3 라이센스를 간단히 설명하면,
-- 마음대로 고쳐쓰던,
-- 자기만 쓰던,
-- 다른 사람에게 공짜로 주던,
-- 다른 사람에게 돈 받고 팔던
-모두 다 자유임.
 
-단,
-- GHTS 자체에 문제점을 발견하고 수정하거나 개선한 경우에는 변경된 GHTS 소스코드를 공개해야 함.
-- 외부에서 GHTS의 기능을 불러다 사용한 소스 코드는 원하지 않는다면 공개할 필요가 없음.
-- 외부에 공개하고 싶지 않은 소스코드는 별도의 폴더(내지 디렉토리)에 위치시켜서 GHTS와 구분 요망.
-- 마지막으로, GHTS에 대해서 특허소송을 제기하는 사람 혹은 법인은 GHTS를 사용할 권리를 잃게 됨.
+라이브러리의 의미는 그 자체로 완성된 시스템이 "아니라",
 
-LGPL V3 라이센스를 채택한 이유는 기본적인 기능은 소스코드를 공개하여서,
-사용 상의 문제점도 함께 찾고, 고치고, 개선해 나가되,
-매매 전략, 위험관리 전략등 각자 자신만의 노하우 및 경쟁우위 요소는 외부에 유출해야 되는
-상황이 생기지 않도록 하고자 하는 의도임.
+시스템을 개발할 때 유용한 (혹은 유용할 수도 있는) 기능을 가진 소스코드를 모아놓았다는 의미임.
 
-아무리 컴퓨터로 주식매매를 하더라도 가장 어려운 것은 컴퓨터 프로그래밍 기술이 아니라,
-위험관리 원칙을 지키고, 항상 평정심을 유지하는 것임.
-과도한 욕심을 부리거나, 원칙을 어기면 아무리 컴퓨터가 도와줘도 별 도움이 안 됨.
-어차피, 컴퓨터는 사람이 시키는 대로 할 뿐임.
+매매전략과 위험관리 원칙은 각자 스스로 개발해야 함.
 
-그 외, 추가적인 정보는 doc 디렉토리의 파일을 참고할 것.
 
-********************************************************************************
+흔히 '프로그램 매매'로 칭해지는 시스템 트레이딩(System Trading)에 
 
-소프트웨어 개발자(들)의 법적 책임 면제.
+관심있는 사람들에게 유용할 (수도 있을) 것 같아서 소스코드를 공개함.
 
-'ghts', GHTS, 'GH Trading System', 'GH 매매 시스템', 'GH 거래 시스템',
-'GH 자동 매매 시스템', 'GH 자동 거래 시스템' 및  일부분 혹은 전부를 띄워쓰기 없이 붙여쓴 것은
-모두 같은 소스코드 및 그 패키지를 지칭함.
 
-GHTS 소스코드는 "as is" 현재 상태 그대로 제공됨.
+이 소프트웨어는 GNU LGPL V3 라이센스를 따름.
 
-GHTS의 개발자(들) 혹은 저자(들)은
-명확하게 표현되었거나, 묵시적으로 암시되었거나에 상관없이
-모든 보증에 대한 책임을 법에 의해서 허용되는 최대한도까지 법적인 책임을 면제 받음.
+저작권자 및 개발자들은 이 소프트웨어에 대한 그 어떠한 보증도 하지 않으며,
 
-다음 사항들은 모두 사용자의 책임이며,
-GHTS의 개발자(들)은 다음 사항에 대해서 어떠한 책임도 지지 않는다는 전제 하에,
-GHTS의 다운로드, 컴파일, 설치, 수정, 배포 및 사용을 허가함.
-- 데이터 백업을 하지 않아서 발생한 모든 손상, 손실, 피해.
-- GHTS를 운용하면서 발생한 관련 하드웨어나 소프트웨어에 대한 손상, 손실, 피해.
-- 기타 GHTS를 사용함으로 생긴 모든 금전적, 물질적, 정신적 손상, 손실, 피해
+이 소프트웨어를 사용하면서 발생하는 그 어떠한 손실 및 손상에 대해서도 책임지지 않음.
 
-다음 경로를 통해서 얻은 구두 및 문서 형태의 조언, 정보에 대해서 어떠한 보증도 성립하지 않음.
-- GHTS의 개발자(들)
-- GHTS의 개발자(들)이 운영하는 웹사이트, 메일, 블로그, SNS, 메신저, 채팅, 기타 인터넷 매체.
-- GHTS 소스코드
-- GHTS 관련 문서
+---------------------------------------------------------------------
 
-위에서 언급한 사항 이외에도 명백히 표현되었던지, 묵시적으로 암시되었던 상관없이
-GHTS의 개발자(들)은
-- 금전적 이득을 가져다 줄 것이라던 지,
-- 특정 목적에 적합하다던지,
-- 사용자의 요구사항과 기대를 만족시킨다던지,
-- 버그, 에러, 바이러스 및 기타 결함이 없다던지,
-- 소스코드가 생성한 결과물, 출력물, 데이터가 정확하던가,
-    최신의 것이라던가, 완전하다거나, 신뢰할 수 있다던지,
-- 소스코드가 다른 소프트웨어와 호환된다던지,
-- 에러가 수정될 것이라던 지,
-등을 포함한 그 어떠한 보증도 하지 않음.
+Copyright (C) 2014 UnHa Kim <kuh74@daum.net>
 
-GHTS를 사용하다가 어떠한 이유에서건 금전적, 정신적 손실이 발생하더라도
-GHTS개발자(들)은 책임지지 않음.
-설사, 그 이유가 이 프로그램의 오류, 잘못된 설계등으로 인해 발생한 것이어도 책임지지 않음.
-심지어, 그런 오류, 잘못된 설계가 개발자가 고의로 한 것이더라도 책임지지 않음.
+This program is free software: 
+you can redistribute it and/or modify it under the terms of the 
+Version 3 of GNU Lesser General Public License
+as published by the Free Software Foundation.
 
-**************************************************************************
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Disclaimer of Warranties.
+See the GNU General Public License for more details.
 
-All of the terms, 'ghts', 'GHTS', 'GH Trading System', means
-same source code, or package of source code.
+You should have received a copy of the 
+GNU Lesser General Public License (GNU LGPL)
+and GNU General Public License (GNU GPL) along with this program.  
+If not, see <http://www.gnu.org/licenses/>.
 
-Source code available in GHTS are provided "as is"
-  without warranty of any kind,
-  either expressed or implied
-  and such software is to be used at your own risk.
+---------------------------------------------------------------------
+한글로 된 저작권 관련 내용은 한국어 사용자의 편의를 위하여 제공되었을 뿐이며,
+실제 법적 내용은 영문판 원본이 한글판보다 우선합니다.
+(영문판 원본은 변호사를 포함한 다수의 저작권법 관련 전문가에 의해서 작성되었음.)
+---------------------------------------------------------------------
 
-Authors(or developers) of GHTS disclaims to the fullest extent
-  authorized by law any and all other warranties,
-  whether express or implied,
-  including, without limitation, any implied warranties
-  of merchantability or fitness for a particular purpose.
+Copyright (C) 2014 김운하 <kuh74@daum.net>
 
-The use of GHTS is done at your own discretion
-  and risk and with agreement
-  that you will be solely responsible for any damage or loss
-  to you and your computer hardware and software.
+이 프로그램은 자유 소프트웨어입니다.
+자유 소프트웨어 재단 FSF가 배포한 "GNU LGPL 버전 3"에 의거하여,
+자유롭게 수정 및 배포할 수 있습니다.
 
-You are solely responsible for adequate protection and backup of the data
-  and equipment used in any of the software related to GHTS.
-  and we will not be liable for any damages
-  that you may suffer in connection with downloading, installing, using,
-  modifying or distributing GHTS.
+이 소프트웨어는 저작권자와 개발에 기여한 사람들에 의해서 "현재 상태로(AS IS)" 제공됩니다.
+명시적으로 표현되었건, 암시적으로 표현되었건 간에 상관없이 '상업성' 및 
+'특정 목적에의 적합성'을 포함한 (그러나, 그에 국한되지 않은) 어떠한 보증도 하지 않습니다.
 
-No advice or information, whether oral or written,
-obtained by you from authors(or developers) of GHTS
-or from websites,
-or from source code,
-or related documents
-shall create any warranty for the software.
+저작권자와 개발에 참여한 개발자들은
+문서상 계약, 구두상 계약, 엄격한 법적 책임, (태만, 무관심, 부주의 혹은 다른 이유로 인한) 불법행위등
+그 어떠한 책임소재의 근거에 상관없이, 발생 원인이 무엇이든 간에 상관없이,
+직접적이거나, 간접적이거나, 우발적이거나, 특수하거나, 전형적이거나에 상관없이 
+- 대체재 및 대체 서비스의 구입
+- 사용 불능
+- 데이터 손실
+- 금전적 손실
+등을 포함한 (그러나, 이에 국한되지 않은) 이 소프트웨어를 사용하면서 발생된 
+그 어떠한 손상 및 손실에 대해서도 책임을 지지 않습니다.
 
-Without limitation of the foregoing,
-authors(or developers) of GHTS expressly does not warrant that:
+자세한 내용은 GNU LGPL 및 GNU GPL을 참고하십시오.
 
-1. the software will meet your requirements or expectations.
-2. the software or the software content will be free of bugs, errors,
-     viruses or other defects.
-3. any results, output, or data provided through or generated
-     by the software will be accurate, up-to-date, complete or reliable.
-4. the software will be compatible with third party software.
-5. any errors in the software will be corrected.
+GNU LGPL 및 GNU GPL 라이센스의 복사본이 이 소프트웨어에 포함되어 있을 것입니다.
+만약, 그렇지 않다면 <http://www.gnu.org/licenses/> 을 참조하십시오.
+
+---------------------------------------------------------------------
+한글판 저작권 관련 내용은 한국어 사용자의 편의를 위하여 제공되었으며,
+실제 저작권법 관련 내용은 영문판 원본이 한글판보다 우선합니다.
+(영문판 원본은 변호사를 포함한 다수의 저작권법 관련 전문가에 의해서 작성됨.)
+---------------------------------------------------------------------
 ***************************************************************************/
 package kr

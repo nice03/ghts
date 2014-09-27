@@ -2,63 +2,44 @@
 ghts
 ====
 
-Chinese version of GHTS(GH Trading System).
-
-LGPL V3 Licensed.
+GHTS : GH Trading System
 
 
-If you modified ghts code and distribute binary using ghts,
-you should distribute source code of ghts itself and modification.
-You can use this code in commercial software
-and keep your source code secret, except 'ghts' itself and
-its internal modification.
+A software library for automatic trading system.
 
-(Anyway ghts source code is already open. isn't it?)
+This is NOT a complete trading system.
 
-**************************************************************************
+You should develop (or customize) buy&sell strategy 
 
-Disclaimer of Warranties.
+and risk management principle by yourself.
 
-All of 'ghts', 'GHTS', 'GH Trading System' means same source code package.
+---------------------------------------------------------------------
 
-Source code available in 'ghts' are provided "as is"
-  without warranty of any kind,
-  either expressed or implied
-  and such software is to be used at your own risk.
+Copyright (C) 2014 UnHa Kim <kuh74@daum.net>
 
-Authors(or developers) of 'ghts' disclaims to the fullest extent
-  authorized by law any and all other warranties, whether express or implied,
-  including, without limitation, any implied warranties of merchantability
-  or fitness for a particular purpose.
+This program is free software: 
+you can redistribute it and/or modify it under the terms of the 
+Version 3 of GNU Lesser General Public License
+as published by the Free Software Foundation.
 
-The use of 'ghts' is done at your own discretion
-  and risk and with agreement
-  that you will be solely responsible for any damage or loss
-  to you and your computer.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-You are solely responsible for adequate protection and backup of the data
-  and equipment used in any of the software related to 'ghts'.
-  and we will not be liable for any damages
-  that you may suffer in connection with downloading, installing, using,
-  modifying or distributing 'ghts'.
+See the GNU General Public License for more details.
 
-No advice or information, whether oral or written,
-obtained by you from authors(or developers) of 'ghts'
-or from websites,
-or from source code,
-or related documents
-shall create any warranty for the software.
-
-Without limitation of the foregoing,
-authors(or developers) of 'ghts' expressly does not warrant that:
-
-1. the software will meet your requirements or expectations.
-2. the software or the software content will be free of bugs, errors,
-     viruses or other defects.
-3. any results, output, or data provided through or generated
-     by the software will be accurate, up-to-date, complete or reliable.
-4. the software will be compatible with third party software.
-5. any errors in the software will be corrected.
+You should have received a copy of the 
+GNU Lesser General Public License (GNU LGPL)
+and GNU General Public License (GNU GPL) along with this program.  
+If not, see <http://www.gnu.org/licenses/>.
 
 **************************************************************************
 
@@ -225,12 +206,14 @@ Have experienced simple typing mistake create new variable in Python,
 I choose Go langugage.
 
 Sometime I miss some functionality in other language.
-But, mostly satisfied with balance of functionality and efficiency in Go.
+But, mostly satisfied with balance of functionality and efficiency of Go.
+
+Go have only 25 keywords at the of writing, 
+which is much smaller number than Java and C++,
+and even smaller than C and Python.
+
+So it should be not too difficult for anyone to learn.
 
 Give it a try.
-
-Go have most small number of keyword in language grammar.
-(Even compared to Python, which have so elegant and simple language grammar.)
-So it should be not to difficult for anyone.
 *******************************************************************************/
 package cn
