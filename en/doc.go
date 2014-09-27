@@ -4,16 +4,19 @@ ghts
 
 GHTS : GH Trading System
 
-
 A software library for automatic trading system.
 
-This is NOT a complete trading system.
+Library means that this is NOT a complete system,
+but a collection of source code for (hopefully) useful 
+developing a complete system.
 
-You should develop (or customize) buy&sell strategy 
+You should develop 'buy&sell strategy' 
+and risk management principle' by yourself.
 
-and risk management principle by yourself.
+Licensed under the term of GNU LGPL V3.
+Refer to 'LICENSE' file, for the licensing detail
 
----------------------------------------------------------------------
+**************************************************************************
 
 Copyright (C) 2014 UnHa Kim <kuh74@daum.net>
 
@@ -34,11 +37,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-See the GNU General Public License for more details.
+See the GNU Lesser General Public License for more details.
 
 You should have received a copy of the 
-GNU Lesser General Public License (GNU LGPL)
-and GNU General Public License (GNU GPL) along with this program.  
+GNU Lesser General Public License (GNU LGPL) and 
+GNU General Public License (GNU GPL) along with this program.  
 If not, see <http://www.gnu.org/licenses/>.
 
 **************************************************************************
