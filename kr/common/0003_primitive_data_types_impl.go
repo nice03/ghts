@@ -2,7 +2,6 @@ package common
 
 import (
 	"bytes"
-	//"fmt"
 	"math/big"
 	"math/rand"
 	"reflect"
@@ -25,7 +24,6 @@ func init() {
 
 var c참, c거짓 *sC참거짓
 var 문자열_후보값_모음 []string
-
 
 // 상수형이 immutable 하기 위해서는 생성할 때 입력되는 참조형 값이
 // 적절하게 복사되는 것을 보장해야 함.
@@ -223,7 +221,7 @@ func (s *sV큰정수) S값(값 int64) { s.s큰정수.값.SetInt64(값) }
 func (s *sV큰정수) S값Big(값 *big.Int) { s.s큰정수.값.Set(값) }
 
 func (s *sV큰정수) S절대값(큰정수 I큰정수) V큰정수 {
-	s.S값Big(F큰정수_절대값(s.s큰정수.값)); return s
+	s.S값Big(F큰정수_절대값(큰정수.G값())); return s
 }
 func (s *sV큰정수) S더하기(큰정수1 I큰정수, 큰정수2 I큰정수) V큰정수 {
 	s.S값Big(F큰정수_더하기(큰정수1.G값(), 큰정수2.G값())); return s
@@ -284,4 +282,131 @@ func (s *sV큰정수) Generate(임의값_생성기 *rand.Rand, 크기 int) refle
 	}
 	
 	return reflect.ValueOf(NV큰정수(값))							
+}
+
+type s정밀수 struct{ 값 *big.Rat }
+func (s *s정밀수) G값() *big.Rat  { return F정밀수_복사(s.값) }
+func (s *s정밀수) G실수() float64 { return F정밀수2실수(s.값) }
+func (s *s정밀수) G정밀수() *big.Rat  { return s.G값() }
+func (s *s정밀수) G문자열() string { return F정밀수2문자열(s.값) }
+func (s *s정밀수) G반올림_실수(소숫점_이하_자릿수 int) float64 {
+	return F정밀수_반올림값(s.값, 소숫점_이하_자릿수)
+}
+func (s *s정밀수) G반올림_정밀수(소숫점_이하_자릿수 int) *big.Rat {
+	return F정밀수_반올림값Big(s.값, 소숫점_이하_자릿수)
+}
+func (s *s정밀수) G반올림_문자열(소숫점_이하_자릿수 int) string {
+	return F정밀수_반올림_문자열(s.값, 소숫점_이하_자릿수)
+}
+//func (s *s정밀수) G부호() int { return s.값.Sign() }
+func (s *s정밀수) String() string { return F정밀수2문자열(s.값) }
+
+
+func NC정밀수(값 float64) C정밀수 { return &sC정밀수{&s정밀수{F실수2정밀수(값)}} }
+func NC정밀수Big(값 *big.Rat) C정밀수 { return &sC정밀수{&s정밀수{F정밀수_복사(값)}} }
+
+type sC정밀수 struct { *s정밀수 }
+
+func (s *sC정밀수) 상수형임() {}
+func (s *sC정밀수) G변수형() V정밀수 { return NV정밀수Big(s.s정밀수.값) }
+func (s *sC정밀수) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
+	분자 := 임의값_생성기.Int63()
+	분모 := 임의값_생성기.Int63()
+	
+	// 0.0 ~ 1.0 임의값 생성 후 0.5 기준으로 부호 결정.
+	if 임의값_생성기.Float32() < 0.5 {
+		분자 = 분자 * -1
+	}
+	
+	return reflect.ValueOf(NC정밀수Big(big.NewRat(분자, 분모)))						
+}
+
+
+func NV정밀수(값 float64) V정밀수 { return &sV정밀수{&s정밀수{F실수2정밀수(값)}} }
+func NV정밀수Big(값 *big.Rat) V정밀수 { return &sV정밀수{&s정밀수{F정밀수_복사(값)}} }
+
+type sV정밀수 struct { *s정밀수 }
+
+func (s *sV정밀수) 변수형임() {}
+func (s *sV정밀수) G상수형() C정밀수 { return NC정밀수Big(s.s정밀수.값) }
+func (s *sV정밀수) S값(값 float64) { s.s정밀수.값.Set(F실수2정밀수(값)) }
+func (s *sV정밀수) S값Big(값 *big.Rat) { s.s정밀수.값.Set(값) }
+
+func (s *sV정밀수) S절대값(값 I정밀수) V정밀수 {
+	s.S값Big(F정밀수_절대값(값.G값())); return s
+}
+func (s *sV정밀수) S더하기(값1 I정밀수, 값2 I정밀수) V정밀수 {
+	s.S값Big(F정밀수_더하기(값1.G정밀수(), 값2.G정밀수())); return s
+}
+func (s *sV정밀수) S빼기(값1 I정밀수, 값2 I정밀수) V정밀수 {
+	s.S값Big(F정밀수_빼기(값1.G정밀수(), 값2.G정밀수())); return s
+}
+func (s *sV정밀수) S곱하기(값1 I정밀수, 값2 I정밀수) V정밀수 {
+	s.S값Big(F정밀수_곱하기(값1.G정밀수(), 값2.G정밀수())); return s
+}
+func (s *sV정밀수) S나누기(분자 I정밀수, 분모 I정밀수) (V정밀수, error) {
+	정밀수, 에러 := F정밀수_나누기(분자.G정밀수(), 분모.G정밀수())
+	
+	if 에러 != nil {
+		return nil, 에러
+	}
+	
+	s.S값Big(정밀수); return s, 에러
+}
+func (s *sV정밀수) S역수(값 I정밀수) (V정밀수, error) {
+	정밀수, 에러 := F정밀수_역수(값.G값())
+	
+	if 에러 != nil {
+		return nil, 에러
+	}
+	
+	s.S값Big(정밀수); return s, nil
+}
+func (s *sV정밀수) S반대부호값(값 I정밀수) V정밀수 {
+	s.S값Big(F정밀수_반대부호값(값.G정밀수())); return s
+}
+
+func (s *sV정밀수) S셀프_절대값() V정밀수 {
+	s.S값Big(F정밀수_절대값(s.s정밀수.값)); return s
+}
+func (s *sV정밀수) S셀프_더하기(값 I정밀수) V정밀수 {
+	s.S값Big(F정밀수_더하기(s.s정밀수.값, 값.G정밀수())); return s
+}
+func (s *sV정밀수) S셀프_빼기(값 I정밀수) V정밀수 {
+	s.S값Big(F정밀수_빼기(s.s정밀수.값, 값.G정밀수())); return s
+}
+func (s *sV정밀수) S셀프_곱하기(값 I정밀수) V정밀수 {
+	s.S값Big(F정밀수_곱하기(s.s정밀수.값, 값.G정밀수())); return s
+}
+func (s *sV정밀수) S셀프_나누기(값 I정밀수) (V정밀수, error) {
+	정밀수, 에러 := F정밀수_나누기(s.s정밀수.값, 값.G정밀수())
+	
+	if 에러 != nil {
+		return nil, 에러
+	}
+	
+	s.S값Big(정밀수); return s, nil
+}
+func (s *sV정밀수) S셀프_역수() (V정밀수, error) {
+	정밀수, 에러 := F정밀수_역수(s.s정밀수.값)
+	
+	if 에러 != nil {
+		return nil, 에러
+	}
+	
+	s.S값Big(정밀수); return s, nil
+}
+func (s *sV정밀수) S셀프_반대부호값() V정밀수 {
+	s.S값Big(F정밀수_반대부호값(s.s정밀수.값)); return s
+}
+func (s *sV정밀수) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
+	분자 := 임의값_생성기.Int63()
+	분모 := 임의값_생성기.Int63()
+	
+	// 0.0 ~ 1.0 임의값 생성 후 0.5 기준으로 부호 결정.
+	if 임의값_생성기.Float32() < 0.5 {
+		분자 = 분자 * -1
+	}
+	
+	return reflect.ValueOf(NV정밀수Big(big.NewRat(분자, 분모)))						
 }

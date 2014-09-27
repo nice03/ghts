@@ -325,7 +325,7 @@ func F정밀수(값 interface{}) (*big.Rat, error) {
 
 var 차이_한도 *big.Rat
 
-func F정밀수_일치(값1, 값2 *big.Rat) bool {
+func F정밀수_같음(값1, 값2 *big.Rat) bool {
 	if F_nil_존재함(값1, 값2) { return false }
 	
 	if 값1.Cmp(값2) == 0 { return true }
@@ -375,6 +375,33 @@ func F정밀수2문자열(값 *big.Rat) string {
 	}
 
 	return 문자열
+}
+
+func F정밀수_반올림값(값 *big.Rat, 소숫점_이하_자릿수 int) float64 {
+	if 값 == nil {
+		fmt.Printf("%scommon.F정밀수_반올림값() : nil입력값. 입력값 %v %v", 
+					F소스코드_위치(2), 값, 소숫점_이하_자릿수)
+		
+		return 0.0
+	}
+
+	실수값, 에러 := F문자열2실수(F정밀수_반올림_문자열(값, 소숫점_이하_자릿수))
+	
+	if 에러 != nil {
+		fmt.Printf("%scommon.F정밀수_반올림값() : 에러 발생. 입력값 %v %v", 
+					F소스코드_위치(2), 값, 소숫점_이하_자릿수)
+					
+		return 0.0
+	}
+	
+	return 실수값
+}
+
+func F정밀수_반올림값Big(값 *big.Rat, 소숫점_이하_자릿수 int) *big.Rat {
+	정밀값 := new(big.Rat)
+	정밀값.SetString(F정밀수_반올림_문자열(값, 소숫점_이하_자릿수))
+	
+	return 정밀값
 }
 
 func F정밀수_반올림_문자열(값 *big.Rat, 소숫점_이하_자릿수 int) string {
@@ -480,16 +507,16 @@ func F시점_복사(값 time.Time) time.Time {
 	return 복사본
 }
 
-var 임시 bool = false
+var 임시 bool = false	// 디버깅 완료 후 삭제할 것.
 
-func F값_일치(값1, 값2 interface{}) (값_일치 bool) {
+func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
 	defer func() {
 		에러 := recover()
 		
 		if 에러 != nil {
 			fmt.Println(에러)
 		
-			값_일치 = false
+			값_같음 = false
 		}
 	}()
 	
@@ -502,7 +529,7 @@ func F값_일치(값1, 값2 interface{}) (값_일치 bool) {
 	// 그 외 알려진 형식에 대해서 비교. (현재는 I통화 만 있음)
 	
 	if !임시 {
-		fmt.Printf("TODO : %s F값_일치()\n\n", F소스코드_위치(1))
+		F_TODO("F값_같음() I통화 처리 및 추가 개선 계획 구현할 것.")
 		임시 = true
 	}
 	
@@ -514,7 +541,7 @@ func F값_일치(값1, 값2 interface{}) (값_일치 bool) {
 		통화2 := 값2.(I통화)
 		
 		if 통화1.G종류() == 통화2.G종류() &&
-			F정밀수_일치(통화1.G금액(), 통화2.G금액()) {
+			F정밀수_같음(통화1.G금액(), 통화2.G금액()) {
 			return true
 		} else {
 			return false
@@ -531,30 +558,30 @@ func F값_일치(값1, 값2 interface{}) (값_일치 bool) {
 
 		switch {
 		case 에러1 != nil, 에러2 != nil:
-			값_일치 = false	//; F체크포인트(&i, "F수치형_값_일치() : nil 값.")
-		case F정밀수_일치(정밀값1, 정밀값2):
-			값_일치 = true	//; F체크포인트(&i, "F수치형_값_일치() : F정밀수_같음().")
+			값_같음 = false	//; F체크포인트(&i, "F수치형_값_같음() : nil 값.")
+		case F정밀수_같음(정밀값1, 정밀값2):
+			값_같음 = true	//; F체크포인트(&i, "F수치형_값_같음() : F정밀수_같음().")
 		default:
-			값_일치 = false	//; F체크포인트(&i, "F수치형_값_일치() : default")
+			값_같음 = false	//; F체크포인트(&i, "F수치형_값_같음() : default")
 		}
 
 		//F체크포인트(&i,
-		//	"F값_일치() : 값_일치 '%v', F정밀수_같음() A. 값1 %v, 값2 %v.",
-		//	값_일치, 값1, 값2)
+		//	"F값_같음() : 값_같음 '%v', F정밀수_같음() A. 값1 %v, 값2 %v.",
+		//	값_같음, 값1, 값2)
 
-		return 값_일치
+		return 값_같음
 	}
 	
-	// F값_일치() 개선 계획을 구현할 것.
+	// F값_같음() 개선 계획을 구현할 것.
 	// 두 값의 내부값 기록본을 서로 비교.
 	// 참조형 필드가 가리키는 개체가 달라고 값만 같으면 같은 것으로 판정할 수 있게 될 것임.
 
 	// 마지막으로 reflect.DeepEqual()로 비교.
-	값_일치 = reflect.DeepEqual(값1, 값2)
+	값_같음 = reflect.DeepEqual(값1, 값2)
 
-	//F체크포인트(&i, "F값_일치() : 값_일치 '%v'. reflect.DeepEqual(). 값1 %v, 값2 %v.", 값_일치, 값1, 값2)
+	//F체크포인트(&i, "F값_같음() : 값_같음 '%v'. reflect.DeepEqual(). 값1 %v, 값2 %v.", 값_같음, 값1, 값2)
 
-	return 값_일치
+	return 값_같음
 }
 
 // 인터페이스 Type 구하는 법 : 타입 := reflect.TypeOf((*인터페이스)(nil)).Elem()
@@ -631,16 +658,33 @@ func F소스코드_위치(건너뛰는_단계 int) string {
 }
 
 // '참거짓'이 false이면 Fail하는 테스트용 편의 함수.
-func F참인지_확인(테스트 testing.TB, 참거짓 bool, 포맷_문자열 string,
-	추가_매개변수 ...interface{}) (테스트_통과 bool) {
+func F참인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수 ...interface{}) (테스트_통과 bool) {
 
 	if !참거짓 {
 		switch 테스트.(type) {
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			fmt.Printf("%s"+포맷_문자열+"\n\n",
-				append([]interface{}{F소스코드_위치(2)}, 추가_매개변수...)...)
+			if 추가_매개변수 == nil || len(추가_매개변수) == 0 {
+				fmt.Printf("%s주어진 조건이 false임.\n\n", F소스코드_위치(2))
+			} else {
+				switch 추가_매개변수[0].(type) {
+				case string:
+					포맷_문자열 := 추가_매개변수[0].(string)
+					fmt.Printf("%s"+포맷_문자열+"\n\n",
+								append([]interface{}{F소스코드_위치(2)}, 
+								추가_매개변수[1:]...)...)
+				default:
+					포맷_문자열 := F소스코드_위치(2) + "%주어진 조건이 false임.\n\n"
+					
+					for 반복횟수 := 0 ; 반복횟수 < len(추가_매개변수) ; 반복횟수++ {
+						포맷_문자열 = 포맷_문자열 + " %v"
+					}
+					포맷_문자열 = 포맷_문자열 + ".\n\n"
+					
+					fmt.Printf(포맷_문자열, 추가_매개변수...)
+				}
+			}
 		}
 
 		테스트.FailNow()
@@ -653,15 +697,32 @@ func F참인지_확인(테스트 testing.TB, 참거짓 bool, 포맷_문자열 st
 }
 
 // '참거짓'이 true이면 Fail하는 테스트용 편의 함수.
-func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 포맷_문자열 string,
-	추가_매개변수 ...interface{}) (테스트_통과 bool) {
+func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수 ...interface{}) (테스트_통과 bool) {
 	if 참거짓 {
 		switch 테스트.(type) {
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			fmt.Printf("%s"+포맷_문자열+"\n\n",
-				append([]interface{}{F소스코드_위치(2)}, 추가_매개변수...)...)
+			if 추가_매개변수 == nil || len(추가_매개변수) == 0 {
+				fmt.Printf("%s주어진 조건이 true임.\n\n", F소스코드_위치(2))
+			} else {
+				switch 추가_매개변수[0].(type) {
+				case string:
+					포맷_문자열 := 추가_매개변수[0].(string)
+					fmt.Printf("%s"+포맷_문자열+"\n\n",
+						append([]interface{}{F소스코드_위치(2)}, 
+								추가_매개변수[1:]...)...)
+				default:
+					포맷_문자열 := F소스코드_위치(2) + "%주어진 조건이 true임.\n\n"
+					
+					for 반복횟수 := 0 ; 반복횟수 < len(추가_매개변수) ; 반복횟수++ {
+						포맷_문자열 = 포맷_문자열 + " %v"
+					}
+					포맷_문자열 = 포맷_문자열 + ".\n\n"
+					
+					fmt.Printf(포맷_문자열, 추가_매개변수...)
+				}
+			}
 		}
 
 		테스트.FailNow()
@@ -713,13 +774,13 @@ func F에러발생_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 
 // 기대값과 실제값이 다르면 Fail하는 테스트용 편의 함수.
 func F같은값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_통과 bool) {
-	if !F값_일치(값1, 값2) {//&&
+	if !F값_같음(값1, 값2) {//&&
 	//if !reflect.DeepEqual(값1, 값2) {
 		switch 테스트.(type) {
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			fmt.Printf("%s값 불일치. 값1: %v %v 값2: %v %v.\n\n", 
+			fmt.Printf("%s서로 다름. 값1: %v %v 값2: %v %v.\n\n", 
 						F소스코드_위치(2), 
 						reflect.TypeOf(값1), 값1, 
 						reflect.TypeOf(값2), 값2)
@@ -736,13 +797,13 @@ func F같은값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_
 
 // 기대값과 실제값이 같으면 Fail하는 테스트용 편의 함수.
 func F다른값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_통과 bool) {
-	//if F값_일치(기대값, 실제값) ||
-	if reflect.DeepEqual(값1, 값2) {
+	if F값_같음(값1, 값2) { //||
+	//if reflect.DeepEqual(값1, 값2) {
 		switch 테스트.(type) {
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			fmt.Printf("%s값 일치. 값1: %#v 값2: %#v.\n\n", F소스코드_위치(2), 값1, 값2)
+			fmt.Printf("%s값 같음. 값1: %#v 값2: %#v.\n\n", F소스코드_위치(2), 값1, 값2)
 		}
 
 		테스트.FailNow()
@@ -755,9 +816,8 @@ func F다른값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_
 }
 
 // nil값이 아니면 Fail하는 테스트용 편의 함수.
+/*
 func F_nil_확인(테스트 testing.TB, 값 interface{}) (테스트_통과 bool) {
-
-	return F참인지_확인(테스트, 값 == nil, "")
 
 	/*
 	fmt.Printf("%s 값: %v %v.\n\n", F소스코드_위치(2), reflect.TypeOf(값), 값)
@@ -776,8 +836,9 @@ func F_nil_확인(테스트 testing.TB, 값 interface{}) (테스트_통과 bool)
 	테스트.FailNow()
 	//테스트.Fail()
 
-	return false */
+	return false
 }
+*/
 
 func F_nil_존재함(검사대상들 ...interface{}) bool {
 	for _, 검사대상 := range 검사대상들 {
@@ -787,4 +848,12 @@ func F_nil_존재함(검사대상들 ...interface{}) bool {
 	}
 	
 	return false
+}
+
+func F_TODO(문자열 string) {
+	fmt.Printf("TODO : %s%s\n\n", F소스코드_위치(2), 문자열)
+}
+
+func F값_확인(입력값 ...interface{}) {
+	fmt.Println(append([]interface{}{F소스코드_위치(2), "값_확인 :"}, 입력값...)...)
 }
