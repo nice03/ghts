@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"fmt"
 	"math/big"
 	"math/rand"
 	"reflect"
@@ -409,4 +410,216 @@ func (s *sV정밀수) Generate(임의값_생성기 *rand.Rand, 크기 int) refle
 	}
 	
 	return reflect.ValueOf(NV정밀수Big(big.NewRat(분자, 분모)))						
+}
+
+// 통화
+// 다른 통화끼리 연산하면 에러를 발생해야 하나?
+// 환율에 따라서 환산해서 연산을 해야 하나?
+func NC원화(금액 float64) C통화 { return NC통화(KRW, 금액) }
+func NC달러(금액 float64) C통화 { return NC통화(USD, 금액) }
+func NC위안화(금액 float64) C통화 { return NC통화(CNY, 금액) }
+func NC유로화(금액 float64) C통화 { return NC통화(EUR, 금액) }
+
+func NC원화Big(금액 *big.Rat) C통화 { return NC통화Big(KRW, 금액) }
+func NC달러Big(금액 *big.Rat) C통화 { return NC통화Big(USD, 금액) }
+func NC위안화Big(금액 *big.Rat) C통화 { return NC통화Big(CNY, 금액) }
+func NC유로화Big(금액 *big.Rat) C통화 { return NC통화Big(EUR, 금액) }
+
+func NC통화(종류 P통화, 금액 float64) C통화 { return NC통화Big(종류, F실수2정밀수(금액)) }
+func NC통화Big(종류 P통화, 금액 *big.Rat) C통화 {
+	c금액 := NC정밀수Big(F정밀수_반올림값Big(금액, F통화종류별_정밀도(종류)))
+	
+	return &sC통화{종류, c금액}
+}
+
+// 변수형 생성자
+func NV원화(금액 float64) V통화 { return NV통화(KRW, 금액) }
+func NV달러(금액 float64) V통화 { return NV통화(USD, 금액) }
+func NV위안화(금액 float64) V통화 { return NV통화(CNY, 금액) }
+func NV유로화(금액 float64) V통화 { return NV통화(EUR, 금액) }
+
+func NV원화Big(금액 *big.Rat) V통화 { return NV통화Big(KRW, 금액) }
+func NV달러Big(금액 *big.Rat) V통화 { return NV통화Big(USD, 금액) }
+func NV위안화Big(금액 *big.Rat) V통화 { return NV통화Big(CNY, 금액) }
+func NV유로화Big(금액 *big.Rat) V통화 { return NV통화Big(EUR, 금액) }
+
+func NV통화(종류 P통화, 금액 float64) V통화 { return NV통화Big(종류, F실수2정밀수(금액)) }
+func NV통화Big(종류 P통화, 금액 *big.Rat) V통화 {	
+	v금액 := NV정밀수Big(F정밀수_반올림값Big(금액, F통화종류별_정밀도(종류)))
+	
+	return &sV통화{종류, v금액}
+}
+
+type sC통화 struct {
+	종류 P통화
+	금액 C정밀수
+}
+func (s *sC통화) 상수형임() {}
+func (s *sC통화) G종류() P통화 { return s.종류 }
+func (s *sC통화) G값() I정밀수 { return NC정밀수Big(s.금액.G정밀수()) }
+func (s *sC통화) G변수형() V통화 { return NV통화Big(s.종류, s.금액.G정밀수()) }
+func (s *sC통화) G실수() float64 { return s.금액.G실수() }
+func (s *sC통화) G정밀수() *big.Rat { return s.금액.G정밀수() }
+func (s *sC통화) String() string {
+	// TODO. 예 : KRW 1,000,000 (통화종류, 콤마로 분리된 금액)
+	return string(s.종류) + " " + F정밀수2문자열(s.금액.G정밀수()) 
+}
+func (s *sC통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
+	종류_후보_모음 := []P통화{KRW, USD, CNY, EUR}
+	종류_인덱스 := int(임의값_생성기.Int31n(3))
+	종류 := 종류_후보_모음[종류_인덱스]
+	
+	분자 := 임의값_생성기.Int63()
+	분모 := 임의값_생성기.Int63()
+	
+	// 0.0 ~ 1.0 임의값 생성 후 0.5 기준으로 부호 결정.
+	if 임의값_생성기.Float32() < 0.5 {
+		분자 = 분자 * -1
+	}
+	
+	return reflect.ValueOf(NC통화Big(종류, big.NewRat(분자, 분모)))	
+}
+
+type sV통화 struct {
+	종류 P통화
+	금액 V정밀수
+}
+func (s *sV통화) 변수형임() {}
+func (s *sV통화) G종류() P통화 { return s.종류 }
+func (s *sV통화) G값() I정밀수 { return NV정밀수Big(s.금액.G정밀수()) }
+func (s *sV통화) G실수() float64 { return s.금액.G실수() }
+func (s *sV통화) G정밀수() *big.Rat { return s.금액.G정밀수() }
+func (s *sV통화) G상수형() C통화 { return NC통화Big(s.종류, s.금액.G값()) }
+func (s *sV통화) S종류(종류 P통화) { s.종류 = 종류 }
+func (s *sV통화) S값(금액 float64) { s.금액.S값(금액) }
+func (s *sV통화) S값Big(금액 *big.Rat) { s.금액.S값Big(금액) }
+
+func (s *sV통화) S절대값(값 I통화) V통화 {
+	s.S종류(값.G종류())
+	s.금액.S절대값(값.G값())
+	
+	return s
+}
+func (s *sV통화) S더하기(값1 I통화, 값2 I통화) V통화 {
+	if 값1.G종류() != 값2.G종류() {
+		fmt.Printf("%ssV통화.S더하기() : 통화종류가 서로 다릅니다.", F소스코드_위치(2))
+		panic(F소스코드_위치(2) + "sV통화.S더하기() : 통화종류가 서로 다릅니다.")
+	}
+	
+	s.금액.S더하기(값1.G값(), 값2.G값()); return s
+}
+func (s *sV통화) S빼기(값1 I통화, 값2 I통화) V통화 {
+	if 값1.G종류() != 값2.G종류() {
+		fmt.Printf("%ssV통화.S빼기() : 통화종류가 서로 다릅니다.", F소스코드_위치(2))
+		panic(F소스코드_위치(2) + "sV통화.S빼기() : 통화종류가 서로 다릅니다.")
+	}
+	
+	s.금액.S빼기(값1.G값(), 값2.G값()); return s
+}
+func (s *sV통화) S곱하기(값1 I통화, 값2 I통화) V통화 {
+	if 값1.G종류() != 값2.G종류() {
+		fmt.Printf("%ssV통화.S곱하기() : 통화종류가 서로 다릅니다.", F소스코드_위치(2))
+		panic(F소스코드_위치(2) + "sV통화.S곱하기() : 통화종류가 서로 다릅니다.")
+	}
+	
+	s.금액.S곱하기(값1.G값(), 값2.G값()); return s
+}
+func (s *sV통화) S나누기(분자 I통화, 분모 I통화) (V통화, error) {
+	if 분자.G종류() != 분모.G종류() {
+		에러 := fmt.Errorf("%ssV통화.S나누기() : 통화종류가 서로 다릅니다.", F소스코드_위치(2))
+		return nil, 에러
+	}
+	
+	if F정밀수_같음(분모.G정밀수(), big.NewRat(0, 1)) {
+		에러 := fmt.Errorf("%ssV통화.S나누기() : 분모가 0입니다.", F소스코드_위치(2))
+		return nil, 에러
+	}
+
+	_, 에러 := s.금액.S나누기(분자.G값(), 분모.G값())
+	
+	if 에러 != nil {
+		return nil, 에러
+	}
+	
+	return s, nil
+}
+//func (s *sV통화) S역수(값 I통화) V통화 {
+//	s.S값Big(F정밀수_절대값(값.G값())); return s
+//}
+func (s *sV통화) S반대부호값(값 I통화) V통화 {
+	s.S종류(값.G종류())	
+	s.금액.S반대부호값(값.G값())
+	
+	return s
+}
+
+func (s *sV통화) S셀프_절대값() V통화 {
+	s.금액.S셀프_절대값(); return s
+}
+func (s *sV통화) S셀프_더하기(값 I통화) V통화 {
+	if s.종류 != 값.G종류() {
+		fmt.Printf("%ssV통화.S셀프_더하기() : 통화종류가 서로 다릅니다.", F소스코드_위치(2))
+		panic(F소스코드_위치(2) + "sV통화.S셀프_더하기() : 통화종류가 서로 다릅니다.")
+	}
+
+	s.금액.S셀프_더하기(값.G값()); return s
+}
+func (s *sV통화) S셀프_빼기(값 I통화) V통화 {
+	if s.종류 != 값.G종류() {
+		fmt.Printf("%ssV통화.S셀프_빼기() : 통화종류가 서로 다릅니다.", F소스코드_위치(2))
+		panic(F소스코드_위치(2) + "sV통화.S셀프_빼기() : 통화종류가 서로 다릅니다.")
+	}
+	
+	s.금액.S셀프_빼기(값.G값()); return s
+}
+func (s *sV통화) S셀프_곱하기(값 I통화) V통화 {
+	if s.종류 != 값.G종류() {
+		fmt.Printf("%ssV통화.S셀프_곱하기() : 통화종류가 서로 다릅니다.", F소스코드_위치(2))
+		panic(F소스코드_위치(2) + "sV통화.S셀프_곱하기() : 통화종류가 서로 다릅니다.")
+	}
+	
+	s.금액.S셀프_곱하기(값.G값()); return s
+}
+func (s *sV통화) S셀프_나누기(값 I통화) (V통화, error) {
+	if s.종류 != 값.G종류() {
+		에러 := fmt.Errorf("%ssV통화.S셀프_나누기() : 통화종류가 서로 다릅니다.", F소스코드_위치(2))
+		return nil, 에러
+	}
+	
+	if F정밀수_같음(값.G정밀수(), big.NewRat(0, 1)) {
+		에러 := fmt.Errorf("%ssV통화.S셀프_나누기() : 분모가 0입니다.", F소스코드_위치(2))
+		return nil, 에러
+	}
+	
+	_, 에러 := s.금액.S셀프_나누기(값.G값())
+	
+	if 에러 != nil { return nil, 에러 }
+	
+	return s, nil
+}
+//func (s *sV통화) S셀프_역수() V통화 {
+//	s.S값Big(F정밀수_역수(s.G값())); return s
+//}
+func (s *sV통화) S셀프_반대부호값() V통화 {
+	s.금액.S셀프_반대부호값(); return s
+}
+
+func (s *sV통화) String() string {
+	// TODO. 예 : KRW 1,000,000 (통화종류, 콤마로 분리된 금액)
+	return string(s.종류) + " " + F정밀수2문자열(s.금액.G정밀수())
+} 
+func (s *sV통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
+	종류_후보_모음 := []P통화{KRW, USD, CNY, EUR}
+	종류_인덱스 := int(임의값_생성기.Int31n(3))
+	종류 := 종류_후보_모음[종류_인덱스]
+	
+	분자 := 임의값_생성기.Int63()
+	분모 := 임의값_생성기.Int63()
+	
+	// 0.0 ~ 1.0 임의값 생성 후 0.5 기준으로 부호 결정.
+	if 임의값_생성기.Float32() < 0.5 {
+		분자 = 분자 * -1
+	}
+	
+	return reflect.ValueOf(NV통화Big(종류, big.NewRat(분자, 분모)))		
 }

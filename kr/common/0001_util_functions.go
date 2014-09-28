@@ -292,6 +292,14 @@ func F정밀수(값 interface{}) (*big.Rat, error) {
 	case int64:
 		return F정수2정밀수(값.(int64)), nil
 	case float32:
+		// float32는 아주 부정확함.
+		// strconv.FormatFloat()에서 비트를 32로 지정하면 그나마 조금 낫지만,
+		// 여전히 아주 부정확함. 되도록 사용하지 말 것을 권장함.
+		if !strings.Contains(F소스코드_위치(2), strings.Split(F소스코드_위치(1), ":")[0]) &&
+			!strings.Contains(F소스코드_위치(2), "_test.go") {
+			fmt.Printf("%sfloat32는 부정확함. float64, I정밀수 자료형을 권장함.\n\n", 
+							F소스코드_위치(2))
+		}
 		문자열 := strconv.FormatFloat(float64(값.(float32)), 'f', -1, 32)
 		정밀수, _ := F문자열2정밀수(문자열)
 		return 정밀수, nil
@@ -310,7 +318,7 @@ func F정밀수(값 interface{}) (*big.Rat, error) {
 	case I실수형:
 		return 값.(I실수형).G정밀수(), nil
 	case I통화:
-		return 값.(I통화).G값(), nil
+		return 값.(I통화).G정밀수(), nil
 	case string:
 		return F문자열2정밀수(값.(string))
 	case C문자열:
@@ -448,6 +456,37 @@ func F정밀수_반대부호값(값 *big.Rat) *big.Rat {
 	return new(big.Rat).Neg(값)
 }
 
+func F통화_복사(값 I통화) I통화 {
+	switch 값.(type) {
+	case C통화:
+		return NC통화Big(값.G종류(), 값.G정밀수())
+	case V통화:
+		return NV통화Big(값.G종류(), 값.G정밀수())
+	default:
+		panic(F소스코드_위치(2) + "예상치 못한 자료형. " + reflect.TypeOf(값).String()) 
+	}
+}
+
+func F통화_같음(값1, 값2 I통화) bool {
+	if 값1.G종류() == 값2.G종류() && 
+		F정밀수_같음(값1.G정밀수(), 값2.G정밀수()) {
+		return true
+	}
+	
+	return false
+}
+
+func F통화종류별_정밀도(통화 P통화) int {
+	switch 통화 {
+	case KRW:
+		return 0
+	case USD, CNY, EUR:
+		return 2
+	default:
+		return 2
+	}
+}
+
 func F참거짓2문자열(값 bool) string { return strconv.FormatBool(값) }
 
 func F문자열2실수(문자열 string) (float64, error) {
@@ -520,32 +559,54 @@ func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
 		}
 	}()
 	
+	if !임시 {
+		F_TODO("F값_같음() : Value DeepEqual 기능 추가.")
+		임시 = true
+	}
+	
 	if 값1 == nil && 값2 == nil { return true }
 	if F_nil_존재함(값1, 값2) { return false }
 	
 	//i := 0	// 디버깅용 체크포인트 인덱스
 	
-	// 숫자는 형식이 달라도 비교할 수 있음.
-	// 그 외 알려진 형식에 대해서 비교. (현재는 I통화 만 있음)
-	
-	if !임시 {
-		F_TODO("F값_같음() I통화 처리 및 추가 개선 계획 구현할 것.")
-		임시 = true
+	// 통화는 금액이 같아도 종류가 다르면 다르다고 판정해야 하므로,
+	// 별도로 처리. 통화는 I실수형으로 판정될 수 있음.
+	switch 값1.(type) {
+	case I통화:
+		switch 값2.(type) {
+		case I통화:
+			return F통화_같음(값1.(I통화), 값2.(I통화))
+		default:
+			fmt.Println(F소스코드_위치(2))
+			fmt.Println(F소스코드_위치(3))
+			fmt.Printf("common.F값_같음() : 통화는 통화끼리만 비교가능함." +
+							"값1 %v %v, 값2 %v %v.\n\n",
+							reflect.TypeOf(값1), 값1,
+							reflect.TypeOf(값2), 값2)
+			return false
+		}
 	}
 	
-	switch 값1.(type) {
-	/*
+	switch 값2.(type) {
 	case I통화:
-		// 형변환 에러나면 defer문의 recover()에서 false 반환.
-		통화1 := 값1.(I통화)
-		통화2 := 값2.(I통화)
-		
-		if 통화1.G종류() == 통화2.G종류() &&
-			F정밀수_같음(통화1.G금액(), 통화2.G금액()) {
-			return true
-		} else {
+		switch 값1.(type) {
+		case I통화:
+			return F통화_같음(값1.(I통화), 값2.(I통화))
+		default:
+			fmt.Println(F소스코드_위치(2))
+			fmt.Println(F소스코드_위치(3))
+			fmt.Printf("common.F값_같음() : 통화는 통화끼리만 비교가능함." +
+							"값1 %v %v, 값2 %v %v.\n\n",
+							reflect.TypeOf(값1), 값1,
+							reflect.TypeOf(값2), 값2)
 			return false
-		} */
+		}
+	}
+		
+	// 숫자는 형식이 달라도 비교할 수 있음.
+	// 그 외 알려진 형식에 대해서 비교.
+	// 통화는 실수형으로 판정될 수 있으므로 먼저 별도로 처리했음.
+	switch 값1.(type) {
 	case I실수형, I정수형,
 		uint, uint8, uint16, uint32, uint64,
 		int, int8, int16, int32, int64,
@@ -687,8 +748,8 @@ func F참인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수
 			}
 		}
 
-		테스트.FailNow()
-		//테스트.Fail()
+		//테스트.FailNow()
+		테스트.Fail()
 
 		return false
 	}
@@ -725,8 +786,8 @@ func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변
 			}
 		}
 
-		테스트.FailNow()
-		//테스트.Fail()
+		//테스트.FailNow()
+		테스트.Fail()
 
 		return false
 	}
@@ -744,8 +805,8 @@ func F에러없음_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 			fmt.Printf("%s에러 발생. : %s \n\n", F소스코드_위치(2), 에러.Error())
 		}
 
-		테스트.FailNow()
-		//테스트.Fail()
+		//테스트.FailNow()
+		테스트.Fail()
 
 		return false
 	}
@@ -763,8 +824,8 @@ func F에러발생_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 			fmt.Printf("%s에러 발생. : %s \n\n", F소스코드_위치(2), 에러.Error())
 		}
 
-		테스트.FailNow()
-		//테스트.Fail()
+		//테스트.FailNow()
+		테스트.Fail()
 
 		return false
 	}
@@ -786,8 +847,8 @@ func F같은값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_
 						reflect.TypeOf(값2), 값2)
 		}
 
-		테스트.FailNow()
-		//테스트.Fail()
+		//테스트.FailNow()
+		테스트.Fail()
 
 		return false
 	}
@@ -803,11 +864,14 @@ func F다른값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			fmt.Printf("%s값 같음. 값1: %#v 값2: %#v.\n\n", F소스코드_위치(2), 값1, 값2)
+			fmt.Printf("%s서로 같음. 값1: %v %v 값2: %v %v.\n\n", 
+						F소스코드_위치(2), 
+						reflect.TypeOf(값1), 값1, 
+						reflect.TypeOf(값2), 값2)
 		}
 
-		테스트.FailNow()
-		//테스트.Fail()
+		//테스트.FailNow()
+		테스트.Fail()
 
 		return false
 	}
@@ -833,8 +897,8 @@ func F_nil_확인(테스트 testing.TB, 값 interface{}) (테스트_통과 bool)
 		fmt.Printf("%snil 아님. 값: %v %#v.\n\n", F소스코드_위치(2), reflect.TypeOf(값), 값)
 	}
 
-	테스트.FailNow()
-	//테스트.Fail()
+	//테스트.FailNow()
+	테스트.Fail()
 
 	return false
 }
@@ -850,7 +914,17 @@ func F_nil_존재함(검사대상들 ...interface{}) bool {
 	return false
 }
 
+var 이미_출력한_내용_모음 []string = make([]string, 0)
+
 func F_TODO(문자열 string) {
+	for _, 이미_출력한_내용 := range 이미_출력한_내용_모음 {
+		if 문자열 == 이미_출력한_내용 {
+			return
+		}
+	}
+	
+	이미_출력한_내용_모음 = append(이미_출력한_내용_모음, 문자열)
+
 	fmt.Printf("TODO : %s%s\n\n", F소스코드_위치(2), 문자열)
 }
 
