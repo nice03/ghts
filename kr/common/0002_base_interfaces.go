@@ -1,7 +1,6 @@
 package common
 
 import (
-	"math/big"
 	"testing/quick"
 )
 
@@ -44,26 +43,16 @@ type I문자열형 interface {
 
 type I실수형 interface {
 	G실수() float64
-	G정밀수() *big.Rat
+	G정밀수() C정밀수
 }
 
 type I정수형 interface {
 	G정수() int64
-	G큰정수() *big.Int
 	G실수() float64
-	G정밀수() *big.Rat
+	G정밀수() C정밀수
 }
 
 /*
-type I고정소숫점형 interface {
-	I수치형
-	G값() *big.Rat
-}
-
-type I통화형 interface { G통화() C통화 }
-
-type I통화종류 interface { G통화종류() P통화 }
-
 type I환율 interface {
 	I통화종류
 	G기준통화() P통화
