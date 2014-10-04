@@ -2,7 +2,6 @@ package common
 
 import (
 	"bytes"
-	"fmt"
 	"math/big"
 	"math/rand"
 	"reflect"
@@ -22,7 +21,7 @@ func init() {
 			"~!@#$%^&*()_+|';:/?.,<>`" +
 			"가나다라마바사하자차카타파하" 
 			
-	문자열_후보값_모음 = strings.Split(후보값_문자열, "")
+	문자열_후보값_모음 = strings.Split(문자열_후보값, "")
 }
 
 var c참, c거짓 *sC참거짓
@@ -45,9 +44,9 @@ func (s *sC정수64) 상수형임()  {}
 func (s *sC정수64) G값() int64 { return s.값 }
 func (s *sC정수64) G정수() int64 { return s.값 }
 func (s *sC정수64) G실수() float64 { return float64(s.값) }
-func (s *sC정수64) G정밀수() C정밀수 { return F정수2정밀수(s.값) }
+func (s *sC정수64) G정밀수() C정밀수 { return NC정밀수(s.값) }
 func (s *sC정수64) G변수형() V정수 { return NV정수(s.값) }
-func (s *sC정수64) String() string { return F정수2문자열(s.값) }
+func (s *sC정수64) String() string { return F문자열(s.값) }
 func (s *sC정수64) Generate(
 							임의값_생성기 *rand.Rand, 
 							크기 int) reflect.Value {
@@ -143,8 +142,9 @@ func (s *sC부호없는_정수64) 상수형임()          {}
 func (s *sC부호없는_정수64) G값() uint64     { return s.값 }
 func (s *sC부호없는_정수64) G정수() int64 { return int64(s.값) }
 func (s *sC부호없는_정수64) G실수() float64 { return float64(s.값) }
-func (s *sC부호없는_정수64) G정밀수() C정밀수 { return F부호없는_정수2정밀수(s.값) }
-func (s *sC부호없는_정수64) String() string { return F부호없는_정수2문자열(s.값) }
+func (s *sC부호없는_정수64) G정밀수() C정밀수 { return NC정밀수(s.값) }
+func (s *sC부호없는_정수64) G변수형() V부호없는_정수 { return NV부호없는_정수(s.값) }
+func (s *sC부호없는_정수64) String() string { return F문자열(s.값) }
 func (s *sC부호없는_정수64) Generate(
 							임의값_생성기 *rand.Rand, 
 							크기 int) reflect.Value {
@@ -160,9 +160,9 @@ func (s *sV부호없는_정수64) G값() uint64 {
 	s.잠금.RLock(); defer s.잠금.RUnlock()
 	return s.값
 }
-func (s *sV부호없는_정수64) G부호없는_정수() uint64 {
-	s.잠금.RLock(); defer s.잠금.RUnlock()
-	return s.값
+func (s *sV부호없는_정수64) G정수() int64 {
+	s.잠금.RLock(); 값 := s.값; s.잠금.RUnlock()
+	return new(big.Int).SetUint64(값).Int64()
 }
 func (s *sV부호없는_정수64) G실수() float64 {
 	s.잠금.RLock(); 값 := s.값; s.잠금.RUnlock()
@@ -178,22 +178,18 @@ func (s *sV부호없는_정수64) G상수형() C부호없는_정수  {
 }
 func (s *sV부호없는_정수64) S값(값 uint64) V부호없는_정수 {
 	s.잠금.Lock(); defer s.잠금.Unlock()
-	
 	s.값 = 값; return s
 }
 func (s *sV부호없는_정수64) S더하기(값 uint64) V부호없는_정수 {
 	s.잠금.Lock(); defer s.잠금.Unlock()
-	
 	s.값 = s.값 + 값; return s
 }
 func (s *sV부호없는_정수64) S빼기(값 uint64) V부호없는_정수 {
 	s.잠금.Lock(); defer s.잠금.Unlock()
-	
 	s.값 = s.값 - 값; return s
 }
 func (s *sV부호없는_정수64) S곱하기(값 uint64) V부호없는_정수 {
 	s.잠금.Lock(); defer s.잠금.Unlock()
-	
 	s.값 = s.값 * 값; return s
 }
 func (s *sV부호없는_정수64) S나누기(값 uint64) V부호없는_정수 {
@@ -202,7 +198,6 @@ func (s *sV부호없는_정수64) S나누기(값 uint64) V부호없는_정수 {
 	}
 	
 	s.잠금.Lock(); defer s.잠금.Unlock()
-	
 	s.값 = s.값 / 값; return s
 }
 func (s *sV부호없는_정수64) String() string {
@@ -214,15 +209,16 @@ func (s *sV부호없는_정수64) Generate(
 							크기 int) reflect.Value {
 	값 := 임의값_생성기.Int63() // 0 혹은 양의 부호없는_부호없는_정수.
 	
-	return reflect.ValueOf(NV부호없는_정수(값))
+	return reflect.ValueOf(NV부호없는_정수(uint64(값)))
 }
 
 type sC실수64 struct{ 값 float64 }
 func (s *sC실수64) 상수형임()          {}
 func (s *sC실수64) G값() float64    { return s.값 }
 func (s *sC실수64) G실수() float64 { return s.값 }
-func (s *sC실수64) G정밀수() C정밀수 { return F실수2정밀수(s.값) }
-func (s *sC실수64) String() string { return F실수2문자열(s.값) }
+func (s *sC실수64) G정밀수() C정밀수 { return NC정밀수(s.값) }
+func (s *sC실수64) G변수형() V실수 { return NV실수(s.값) }
+func (s *sC실수64) String() string { return F문자열(s.값) }
 func (s *sC실수64) Generate(
 							임의값_생성기 *rand.Rand, 
 							크기 int) reflect.Value {
@@ -298,7 +294,7 @@ func (s *sV실수64) String() string {
 func (s *sV실수64) Generate(
 							임의값_생성기 *rand.Rand, 
 							크기 int) reflect.Value {
-	값 := 임의값_생성기.Int63() // 0 혹은 양의 정수.
+	값 := 임의값_생성기.Float64() // 0 혹은 양의 정수.
 	
 	// 0.0 ~ 1.0 임의값 생성 후 0.5 기준으로 부호 결정.
 	if 임의값_생성기.Float32() < 0.5 {
@@ -311,7 +307,7 @@ func (s *sV실수64) Generate(
 type sC참거짓 struct{ 값 bool }
 func (s *sC참거짓) 상수형임()          {}
 func (s *sC참거짓) G값() bool       { return s.값 }
-func (s *sC참거짓) String() string { return F참거짓2문자열(s.값) }
+func (s *sC참거짓) String() string { return F문자열(s.값) }
 func (s *sC참거짓) Generate(
 							임의값_생성기 *rand.Rand, 
 							크기 int) reflect.Value {
@@ -406,40 +402,43 @@ func (s *sV시점) Generate(임의값_생성기 *rand.Rand,
 
 type sC정밀수 struct { 값 *big.Rat }
 func (s *sC정밀수) 상수형임() {}
-func (s *sC정밀수) G값() *big.Rat { return new(big.Rat).Set(s.값) }
-func (s *sC정밀수) G문자열() string { return s.String() }
-func (s *sC정밀수) G실수() float64 { return F문자열2실수(s.G문자열()) }
-func (s *sC정밀수) G정밀수() C정밀수  { return s }
-func (s *sC정밀수) G반올림(소숫점_이하_자릿수 int) C정밀수 {
-	return NC정밀수(s.G값().FloatString(소숫점_이하_자릿수))
+func (s *sC정밀수) G값() string { return s.String() }
+func (s *sC정밀수) GRat() *big.Rat { return new(big.Rat).Set(s.값) }
+func (s *sC정밀수) G실수() float64 {
+	실수, 에러 := F문자열2실수(s.String())
+
+	if 에러 != nil {
+		실수, _ = s.값.Float64()
+	}
+	
+	return 실수
 }
+func (s *sC정밀수) G정밀수() C정밀수  { return s }
 func (s *sC정밀수) G같음(값 interface{}) bool {
 	정밀수 := NC정밀수(값)
 	
 	if 정밀수 == nil { return false }
 	
-	차이 := new(big.Rat).Sub(s.값, 정밀수.G값())
-	차이_절대값 := 차이.Abs(차이)
+	차이_절대값 := new(big.Rat).Abs(new(big.Rat).Sub(s.GRat(), 정밀수.GRat()))
 	
-	if 차이_절대값.Cmp(NC정밀수(P차이_한도).G값()) == -1 {
+	if 차이_절대값.Cmp(NC정밀수(P차이_한도).GRat()) == -1 {
 		return true
 	}
 	
 	return false
 }
 	
-func (s *sC정밀수) G비교(값 I정밀수) int {
-	if 값 == nil {
-		에러 := F에러_생성("sC정밀수.G비교() : nil 입력값")
-		return -999
-	}
+func (s *sC정밀수) G비교(값 interface{}) int {
+	if s.G같음(값) { return 0 }
 	
-	if s.G값음(값) { return 0, nil }
+	정밀수 := NC정밀수(값)
 	
-	return s.값.Cmp(값.G값())
+	if 정밀수  == nil { return -2 }
+	
+	return s.값.Cmp(정밀수.GRat())
 }
 func (s *sC정밀수) G변수형() V정밀수 { return NV정밀수(s.G값()) }
-func (s *sC정밀수) String() string { return FBigRat2문자열(s.G값()) }
+func (s *sC정밀수) String() string { { return F마지막_0_제거(s.GRat().FloatString(100)) } }
 func (s *sC정밀수) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	분자 := 임의값_생성기.Int63()
 	분모 := 임의값_생성기.Int63()
@@ -457,24 +456,61 @@ type sV정밀수 struct {
 	값 *big.Rat
 }
 func (s *sV정밀수) 변수형임() {}
-func (s *sV정밀수) G값() *big.Rat {
+func (s *sV정밀수) G값() string { return s.String() }
+func (s *sV정밀수) GRat() *big.Rat {
 	s.잠금.RLock(); defer s.잠금.RUnlock()
 	return new(big.Rat).Set(s.값)
 }
-func (s *sV정밀수) G문자열() string { return s.String() }
-func (s *sV정밀수) G실수() float64 { return F문자열2실수(s.G문자열()) }
+func (s *sV정밀수) G실수() float64 {
+	실수, 에러 := F문자열2실수(s.String())
+	
+	if 에러 != nil {
+		s.잠금.RLock()
+		실수, _ = s.값.Float64()
+		s.잠금.RUnlock()
+	}
+	
+	return 실수
+}
 func (s *sV정밀수) G정밀수() C정밀수  { return NC정밀수(s.G값()) }
 func (s *sV정밀수) G상수형() C정밀수 { return NC정밀수(s.G값()) }
-func (s *sV정밀수) S값(값 I정밀수) V정밀수 {
+func (s *sV정밀수) G같음(값 interface{}) bool {
+	정밀수 := NC정밀수(값)
+	
+	if 정밀수 == nil { return false }
+	
+	차이_절대값 := new(big.Rat).Abs(new(big.Rat).Sub(s.GRat(), 정밀수.GRat()))
+	
+	if 차이_절대값.Cmp(NC정밀수(P차이_한도).GRat()) == -1 {
+		return true
+	}
+	
+	return false
+}
+func (s *sV정밀수) G비교(값 interface{}) int {
+	if s.G같음(값) { return 0 }
+	
+	정밀수 := NC정밀수(값)
+
+	if 정밀수 == nil { return -2 }
+	
+	s.잠금.RLock(); s.잠금.RUnlock()
+	return s.값.Cmp(정밀수.GRat())
+}
+func (s *sV정밀수) S값(값 interface{}) V정밀수 {
 	if 값 == nil { return nil }
 	
+	정밀수 := NC정밀수(값)
+	
+	if 정밀수 == nil { return nil }
+	
 	s.잠금.Lock(); defer s.잠금.Unlock()
-	s.값.Set(값.G값()); return s
+	s.값.Set(정밀수.GRat()); return s
 }
 func (s *sV정밀수) S반올림(소숫점_이하_자릿수 int) V정밀수 {
 	s.잠금.Lock(); defer s.잠금.Unlock()
 	문자열 := s.값.FloatString(소숫점_이하_자릿수)
-	s.값.Set(NC정밀수(문자열).G값()); return s
+	s.값.Set(NC정밀수(문자열).GRat()); return s
 }
 func (s *sV정밀수) S절대값() V정밀수 { return s.S절대값2(s) }
 func (s *sV정밀수) S더하기(값 interface{}) V정밀수 { return s.S더하기2(s, 값) }
@@ -491,9 +527,10 @@ func (s *sV정밀수) S절대값2(값 interface{}) V정밀수 {
 		return nil
 	}
 	
-	s.S값(정밀수.G절대값()); return s
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.값.Abs(정밀수.GRat()); return s
 }
-func (s *sV정밀수) S더하기2(값1, 값2 interface{}) V정밀수 {
+func (s *sV정밀수) S더하기2(값1, 값2 interface{}) V정밀수 {	
 	정밀수1, 정밀수2 := NC정밀수(값1), NC정밀수(값2)
 	
 	if 정밀수1 == nil || 정밀수2 == nil {
@@ -502,7 +539,8 @@ func (s *sV정밀수) S더하기2(값1, 값2 interface{}) V정밀수 {
 		return nil
 	}
 
-	s.S값(정밀수1.G더하기(정밀수2)); return s
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.값.Add(정밀수1.GRat(), 정밀수2.GRat()); return s
 }
 func (s *sV정밀수) S빼기2(값1, 값2 interface{}) V정밀수 {
 	정밀수1, 정밀수2 := NC정밀수(값1), NC정밀수(값2)
@@ -513,14 +551,11 @@ func (s *sV정밀수) S빼기2(값1, 값2 interface{}) V정밀수 {
 		return nil
 	}
 
-	s.S값(정밀수1.G빼기(정밀수2)); return s
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.값.Sub(정밀수1.GRat(), 정밀수2.GRat()); return s
 }
-func (s *sV정밀수) S곱하기2(값1, 값2 interface{}) V정밀수 {
-	ㅓㄴ어ㅏㅁㅎ;
-	이ㅗㄻ;ㅣㅇ
-	
-	
-	정밀수1, 정밀수2 := F정밀수(값1), F정밀수(값2)
+func (s *sV정밀수) S곱하기2(값1, 값2 interface{}) V정밀수 {	
+	정밀수1, 정밀수2 := NC정밀수(값1), NC정밀수(값2)
 	
 	if 정밀수1 == nil || 정밀수2 == nil {
 		F문자열_출력("common.sV정밀수.S곱하기2() : 정밀수 변환 에러. 값1 %v, 값2 %v .", 
@@ -528,44 +563,55 @@ func (s *sV정밀수) S곱하기2(값1, 값2 interface{}) V정밀수 {
 		return nil
 	}
 
-	s.S값Big(F정밀수_곱하기(정밀수1, 정밀수2)); return s
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.값.Mul(정밀수1.GRat(), 정밀수2.GRat()); return s
 }
 func (s *sV정밀수) S나누기2(분자, 분모 interface{}) V정밀수 {
-	정밀수1, 정밀수2 := F정밀수(분자), F정밀수(분모)
+	정밀수1, 정밀수2 := NC정밀수(분자), NC정밀수(분모)
 	
 	if 정밀수1 == nil || 정밀수2 == nil {
 		F문자열_출력("common.sV정밀수.S나누기2() : 정밀수 변환 에러. 분자 %v, 분모 %v .", 
 					분자, 분모)
 		return nil
-	} else if 정밀수2.Cmp(정밀수_제로) == 0 {
+	}
+	
+	if 정밀수2.G같음(0.0) {
 		F문자열_출력("common.sV정밀수.S나누기2() : 분모가 0임. 분자 %v, 분모 %v .", 
 					분자, 분모)
 		return nil
 	}
 
-	s.S값Big(F정밀수_나누기(정밀수1, 정밀수2)); return s
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.값.Quo(정밀수1.GRat(), 정밀수2.GRat()); return s
 }
 func (s *sV정밀수) S역수2(값 interface{}) V정밀수 {
-	정밀수 := F정밀수(값)
+	정밀수 := NC정밀수(값)
 	
 	if 정밀수 == nil {
 		F문자열_출력("common.sV정밀수.S역수2() : 정밀수 변환 에러. 값 %v .", 값)
 		return nil
 	}
 	
-	s.S값Big(F정밀수_역수(정밀수)); return s
+	if 정밀수.G같음(0.0) {
+		F문자열_출력("common.sV정밀수.S역수2() : 0의 역수는 무한대임. 값 %v .", 값)
+		return nil
+	}
+	
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.값.Inv(정밀수.GRat()); return s
 }
 func (s *sV정밀수) S반대부호값2(값 interface{}) V정밀수 {
-	정밀수 := F정밀수(값)
+	정밀수 := NC정밀수(값)
 	
 	if 정밀수 == nil {
 		F문자열_출력("common.sV정밀수.S반대부호값2() : 정밀수 변환 에러. 값 %v .", 값)
 		return nil
 	}
 	
-	s.S값Big(F정밀수_반대부호값(정밀수)); return s
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.값.Neg(정밀수.GRat()); return s
 }
-func (s *sV정밀수) String() string { return FBigRat2문자열(s.G값()) }
+func (s *sV정밀수) String() string { return F마지막_0_제거(s.GRat().FloatString(100)) }
 func (s *sV정밀수) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	분자 := 임의값_생성기.Int63()
 	분모 := 임의값_생성기.Int63()
@@ -575,7 +621,7 @@ func (s *sV정밀수) Generate(임의값_생성기 *rand.Rand, 크기 int) refle
 		분자 = 분자 * -1
 	}
 	
-	return reflect.ValueOf(NV정밀수Big(big.NewRat(분자, 분모)))						
+	return reflect.ValueOf(NV정밀수(big.NewRat(분자, 분모)))						
 }
 
 // 통화
@@ -585,18 +631,24 @@ type sC통화 struct {
 }
 func (s *sC통화) 상수형임() {}
 func (s *sC통화) G종류() P통화 { return s.종류 }
-func (s *sC통화) G값() *big.Rat { return s.금액.G정밀수() }
-func (s *sC통화) G변수형() V통화 { return NV통화Big(s.종류, s.금액.G정밀수()) }
-func (s *sC통화) G실수() float64 { return s.금액.G실수() }
-func (s *sC통화) G정밀수() C정밀수 { return s.금액.G정밀수() }
+func (s *sC통화) G금액() C정밀수 { return s.금액 }
+func (s *sC통화) G같음(값 I통화) bool {
+	if 값 == nil { return false }
+	
+	if s.종류 == 값.G종류() && 
+		s.금액.G같음(값.G금액()) {
+		return true
+	}
+	
+	return false
+}
+func (s *sC통화) G변수형() V통화 { return NV통화(s.종류, s.금액) }
 func (s *sC통화) String() string {
 	// TODO. 예 : KRW 1,000,000 (통화종류, 콤마로 분리된 금액)
-	return string(s.종류) + " " + F정밀수2문자열(s.금액.G정밀수()) 
+	return string(s.종류) + " " + s.금액.String()
 }
 func (s *sC통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
-	종류_후보_모음 := []P통화{KRW, USD, CNY, EUR}
-	종류_인덱스 := int(임의값_생성기.Int31n(3))
-	종류 := 종류_후보_모음[종류_인덱스]
+	종류 := F임의_통화종류()
 	
 	분자 := 임의값_생성기.Int63()
 	분모 := 임의값_생성기.Int63()
@@ -606,101 +658,178 @@ func (s *sC통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.
 		분자 = 분자 * -1
 	}
 	
-	return reflect.ValueOf(NC통화Big(종류, big.NewRat(분자, 분모)))	
+	return reflect.ValueOf(NC통화(종류, big.NewRat(분자, 분모)))
 }
 
 type sV통화 struct {
+	잠금 sync.RWMutex
 	종류 P통화
 	금액 V정밀수
 }
 func (s *sV통화) 변수형임() {}
-func (s *sV통화) G종류() P통화 { return s.종류 }
-func (s *sV통화) G값() *big.Rat { return s.금액.G정밀수() }
-func (s *sV통화) G실수() float64 { return s.금액.G실수() }
-func (s *sV통화) G정밀수() C정밀수 { return s.금액.G정밀수() }
-func (s *sV통화) G상수형() C통화 { return NC통화Big(s.종류, s.금액.G값()) }
-func (s *sV통화) S종류(종류 P통화) { s.종류 = 종류 }
-func (s *sV통화) S값(금액 float64) V통화 { s.금액.S값(금액); return s }
-func (s *sV통화) S값Big(금액 *big.Rat) V통화 { s.금액.S값Big(금액); return s }
-func (s *sV통화) S절대값() V통화 { return s.S절대값2(s) }
-func (s *sV통화) S더하기(값 interface{}) V통화 { return s.S더하기2(s, 값) }
-func (s *sV통화) S빼기(값 interface{}) V통화 { return s.S빼기2(s, 값) }
-func (s *sV통화) S곱하기(값 interface{}) V통화 { return s.S곱하기2(s, 값) }
-func (s *sV통화) S나누기(값 interface{}) V통화 { return s.S나누기2(s, 값) }
-func (s *sV통화) S반대부호값() V통화 { return s.S반대부호값2(s) }
+func (s *sV통화) G종류() P통화 {
+	s.잠금.RLock(); defer s.잠금.RUnlock()
+	return s.종류
+}
+func (s *sV통화) G금액() C정밀수 {
+	s.잠금.RLock(); defer s.잠금.RUnlock()
+	return s.금액.G상수형()
+}
+func (s *sV통화) G같음(값 I통화) bool {
+	if 값 == nil { return false }
+	
+	s.잠금.RLock(); defer s.잠금.RUnlock()
+	if s.종류 == 값.G종류() && 
+		s.금액.G같음(값.G금액()) {
+		return true
+	}
+	
+	return false
+}
+func (s *sV통화) G상수형() C통화 {
+	s.잠금.RLock(); defer s.잠금.RUnlock()
+	return NC통화(s.종류, s.금액)
+}
+func (s *sV통화) S종류(종류 P통화) {
+	s.잠금.RLock(); defer s.잠금.RUnlock()
+	s.종류 = 종류
+}
+func (s *sV통화) S금액(금액 I정밀수) V통화 {
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.금액 = NV정밀수(금액); return s
+}
+func (s *sV통화) S절대값() V통화 {
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.금액.S절대값(); return s
+}
+func (s *sV통화) S더하기(값 interface{}) V통화 {
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.금액.S더하기(s); return s
+}
+func (s *sV통화) S빼기(값 interface{}) V통화 {
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.금액.S빼기(s); return s
+}
+func (s *sV통화) S곱하기(값 interface{}) V통화 {
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.금액.S곱하기(s); return s
+}
+func (s *sV통화) S나누기(값 interface{}) V통화 {
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.금액.S나누기(s); return s
+}
+func (s *sV통화) S반대부호값() V통화 {
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.금액.S반대부호값(); return s
+}
 func (s *sV통화) S절대값2(값 I통화) V통화 {
-	if 값 == nil || 값.G값() == nil {
+	if 값 == nil || 값.G금액() == nil {
 		F문자열_출력("common.sV통화.S절대값2() : nil 입력값."); return nil
 	}
 	
-	s.S종류(값.G종류())
-	s.금액.S절대값2(값.G값())
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.종류 = 값.G종류()
+	s.금액.S절대값2(값.G금액())
 	
 	return s
 }
 func (s *sV통화) S더하기2(값1, 값2 interface{}) V통화 {
-	통화종류, 정밀수1, 정밀수2, 에러 := sV통화_연산함수2_도우미("S더하기2", 값1, 값2)
+	if 값1 == nil || 값2 == nil {
+		F문자열_출력("common.sV통화.S더하기2() : nil 입력값."); return nil
+	}
+
+	통화종류, 에러 := F통화_종류(값1, 값2)
 	
-	if 에러 != nil { F에러_출력(에러); return nil }
+	if 에러 != nil {
+		F문자열_출력("common.sV통화.S더하기2() : %s. 값1 %v, 값2 %v", 
+						에러.Error(), 값1, 값2)
+						
+		return nil
+	}
 	
+	s.잠금.Lock(); defer s.잠금.Unlock()
 	s.종류 = 통화종류
-	s.금액.S더하기2(정밀수1, 정밀수2)
+	s.금액.S더하기2(값1, 값2)
 	
 	return s
 }
 func (s *sV통화) S빼기2(값1, 값2 interface{}) V통화 {
-	통화종류, 정밀수1, 정밀수2, 에러 := sV통화_연산함수2_도우미("S빼기2", 값1, 값2)
+	if 값1 == nil || 값2 == nil {
+		F문자열_출력("common.sV통화.S빼기2() : nil 입력값."); return nil
+	}
+
+	통화종류, 에러 := F통화_종류(값1, 값2)
 	
-	if 에러 != nil { F에러_출력(에러); return nil }
+	if 에러 != nil {
+		F문자열_출력("common.sV통화.S빼기2() : %s. 값1 %v, 값2 %v", 
+						에러.Error(), 값1, 값2)
+						
+		return nil
+	}
 	
+	s.잠금.Lock(); defer s.잠금.Unlock()
 	s.종류 = 통화종류
-	s.금액.S빼기2(정밀수1, 정밀수2)
+	s.금액.S빼기2(값1, 값2)
 	
 	return s
 }
 func (s *sV통화) S곱하기2(값1, 값2 interface{}) V통화 {
-	통화종류, 정밀수1, 정밀수2, 에러 := sV통화_연산함수2_도우미("S곱하기2", 값1, 값2)
+	if 값1 == nil || 값2 == nil {
+		F문자열_출력("common.sV통화.S곱하기2() : nil 입력값."); return nil
+	}
+
+	통화종류, 에러 := F통화_종류(값1, 값2)
 	
-	if 에러 != nil { F에러_출력(에러); return nil }
+	if 에러 != nil {
+		F문자열_출력("common.sV통화.S곱하기2() : %s. 값1 %v, 값2 %v", 
+						에러.Error(), 값1, 값2)
+						
+		return nil
+	}
 	
+	s.잠금.Lock(); defer s.잠금.Unlock()
 	s.종류 = 통화종류
-	s.금액.S곱하기2(정밀수1, 정밀수2)
+	s.금액.S곱하기2(값1, 값2)
 	
 	return s
 }
 func (s *sV통화) S나누기2(분자, 분모 interface{}) V통화 {
-	통화종류, 정밀수1, 정밀수2, 에러 := sV통화_연산함수2_도우미("S나누기2", 분자, 분모)
+	if 분자 == nil || 분모 == nil {
+		F문자열_출력("common.sV통화.S나누기2() : nil 입력값."); return nil
+	}
+
+	통화종류, 에러 := F통화_종류(분자, 분모)
 	
-	if 에러 != nil { F에러_출력(에러); return nil }
-	
-	if 정밀수2.Cmp(정밀수_제로) == 0 {
-		F문자열_출력("common.sV통화.S나누기2() : 분모가 0입니다. %v %v.", 분자, 분모)
+	if 에러 != nil {
+		F문자열_출력("common.sV통화.S나누기2() : %s. 값1 %v, 값2 %v", 
+						에러.Error(), 분자, 분모)
+						
 		return nil
 	}
 	
+	s.잠금.Lock(); defer s.잠금.Unlock()
 	s.종류 = 통화종류
-	s.금액.S나누기2(정밀수1, 정밀수2)
+	s.금액.S나누기2(분자, 분모)
 	
 	return s
 }
 func (s *sV통화) S반대부호값2(값 I통화) V통화 {
-	if 값 == nil || 값.G값() == nil {
-		F문자열_출력("common.sV통화.S반대부호값2() : nil 입력값."); return nil
+	if 값 == nil || 값.G금액() == nil {
+		F문자열_출력("common.sV통화.S절대값2() : nil 입력값."); return nil
 	}
 	
-	s.S종류(값.G종류())	
-	s.금액.S반대부호값2(값.G값())
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	s.종류 = 값.G종류()
+	s.금액.S반대부호값2(값.G금액())
 	
 	return s
 }
 func (s *sV통화) String() string {
 	// TODO. 예 : KRW 1,000,000 (통화종류, 콤마로 분리된 금액)
-	return string(s.종류) + " " + F정밀수2문자열(s.금액.G정밀수())
+	return string(s.종류) + " " + F문자열(s.금액.String())
 } 
 func (s *sV통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
-	종류_후보_모음 := []P통화{KRW, USD, CNY, EUR}
-	종류_인덱스 := int(임의값_생성기.Int31n(3))
-	종류 := 종류_후보_모음[종류_인덱스]
+	종류 := F임의_통화종류()
 	
 	분자 := 임의값_생성기.Int63()
 	분모 := 임의값_생성기.Int63()
@@ -710,148 +839,12 @@ func (s *sV통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.
 		분자 = 분자 * -1
 	}
 	
-	return reflect.ValueOf(NV통화Big(종류, big.NewRat(분자, 분모)))		
-}
-func sV통화_연산함수2_도우미(메소드_이름 string, 값1, 값2 interface{}) (P통화, *big.Rat, *big.Rat, error) {
-	if F_nil값_존재함(값1, 값2) {
-		에러 := F에러_생성("common.sV통화.%s() : nil 입력값. 값1 %v, 값2 %v", 
-						메소드_이름, 값1, 값2)
-		return KRW, nil, nil, 에러
-	} 
-	
-	통화종류, 에러 := F통화_종류(값1, 값2)
-	
-	if 에러 != nil {
-		에러 := F에러_생성("common.sV통화.%s() : %s. 값1 %v, 값2 %v", 
-						메소드_이름, 에러.Error(), 값1, 값2)
-		return KRW, nil, nil, 에러
-	}
-	
-	정밀수1 := F정밀수(값1)
-	정밀수2 := F정밀수(값2)
-	
-	if 정밀수1 == nil || 정밀수2 == nil {
-		에러 := F에러_생성("common.sV통화.%s() : 정밀수 변환 에러. 값1 %v, 값2 %v", 
-								메소드_이름, 값1, 값2)
-		
-		return KRW, nil, nil, 에러
-	}
-	
-	return 통화종류, 정밀수1, 정밀수2, nil
+	return reflect.ValueOf(NV통화(종류, big.NewRat(분자, 분모)))		
 }
 
-
-
-// 복합 상수형
-type sC복합_상수형 struct { 값 I상수형 }
-
-func (s *sC복합_상수형) 상수형임() {}
-func (s *sC복합_상수형) G값() I상수형 { return s.값 }
-func (s *sC복합_상수형) G형식() reflect.Type { return reflect.TypeOf(s.값) }
-func (s *sC복합_상수형) G형식명() string {
-	if s.값 == nil {
-		return "nil"
-	} else {
-		return reflect.TypeOf(s.값).String()
-	}
+type sC매개변수 struct {
+	이름 string
+	값 I상수형
 }
-func (s *sC복합_상수형) G참거짓() (bool, error) {
-	switch s.값.(type) {
-	case C참거짓:
-		return s.값.(C참거짓).G값(), nil
-	default:
-		제로값 := reflect.Zero(s.G형식()).Interface().(bool)
-		
-		return 제로값, sc복합_상수형_에러(s, "G참거짓")
-	}
-}
-func (s *sC복합_상수형) G부호없는_정수() (uint64, error) {
-	switch s.값.(type) {
-	case C부호없는_정수:
-		return s.값.(C부호없는_정수).G값(), nil
-	default:
-		제로값 := reflect.Zero(s.G형식()).Interface().(uint64)
-		
-		return 제로값, sc복합_상수형_에러(s, "G부호없는_정수")
-	}
-}
-func (s *sC복합_상수형) G정수() (int64, error) {
-	switch s.값.(type) {
-	case C정수:
-		return s.값.(C정수).G값(), nil
-	default:
-		제로값 := reflect.Zero(s.G형식()).Interface().(int64)
-		
-		return 제로값, sc복합_상수형_에러(s, "G정수")
-	}
-}
-func (s *sC복합_상수형) G실수() (float64, error) {
-	switch s.값.(type) {
-	case C실수:
-		return s.값.(C실수).G값(), nil
-	default:
-		제로값 := reflect.Zero(s.G형식()).Interface().(float64)
-		
-		return 제로값, sc복합_상수형_에러(s, "G실수")
-	}
-}
-func (s *sC복합_상수형) G문자열() (string, error) {
-	switch s.값.(type) {
-	case C문자열:
-		return s.값.(C문자열).G값(), nil
-	default:
-		제로값 := reflect.Zero(s.G형식()).Interface().(string)
-		
-		return 제로값, sc복합_상수형_에러(s, "G문자열")
-	}
-}
-func (s *sC복합_상수형) G시점() (time.Time, error) {
-	switch s.값.(type) {
-	case C시점:
-		return s.값.(C시점).G값(), nil
-	default:
-		제로값 := reflect.Zero(s.G형식()).Interface().(time.Time)
-		
-		return 제로값, sc복합_상수형_에러(s, "G시점")
-	}
-}
-func (s *sC복합_상수형) G정밀수() (*big.Rat, error) {
-	switch s.값.(type) {
-	case C정밀수:
-		return s.값.(C정밀수).G값(), nil
-	default:
-		return nil, sc복합_상수형_에러(s, "G정밀수")
-	}
-}
-func (s *sC복합_상수형) G통화() (C통화, error) {
-	switch s.값.(type) {
-	case C통화:
-		return s.값.(C통화), nil
-	default:
-		return nil, sc복합_상수형_에러(s, "G통화")
-	}
-}
-func (s *sC복합_상수형) String() string {
-	return s.G형식명() + " " + s.값.(I상수형).String()
-}
-func (s *sC복합_상수형) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
-	값_후보_모음 := []I상수형{NC부호없는_정수(0),
-						NC정수(0),
-						NC실수(0.0),
-						NC문자열(""),
-						NC참거짓(true),
-						NC시점(time.Now()),
-						NC정밀수(0.0),
-						NC통화(KRW, 0.0)}
-	
-	인덱스 := 임의값_생성기.Int31n(int32(len(값_후보_모음) - 1))
-	값 := 값_후보_모음[인덱스].(I상수형).Generate(임의값_생성기, 크기)
-	
-	return 값						
-}
-
-func sc복합_상수형_에러(s *sC복합_상수형, 메소드_이름 string) error {
-	에러 := fmt.Errorf("common.sC복합_상수형.%v() : 형식 불일치. %v.", 메소드_이름, s.String())
-	
-	return 에러
-}
+func (s *sC매개변수) G이름() string { return s.이름 }
+func (s *sC매개변수) G값() I상수형 { return s.값 }

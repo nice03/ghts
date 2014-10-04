@@ -98,16 +98,10 @@ func F상수형(값 interface{}) I상수형 {
 	case *time.Time:
 		시점 := 값.(*time.Time)
 		return NC시점(*시점)
-	case big.Int:
-		큰정수 := 값.(big.Int)
-		return NC정밀수((&큰정수).String())
 	case *big.Int:
 		return NC정밀수(값.(*big.Int).String())
-	case big.Rat:
-		정밀수 := 값.(big.Rat)
-		return NC정밀수(정밀수.FloatString(30))
 	case *big.Rat:
-		return NC정밀수(값.(*big.Rat).FloatString(30))
+		return NC정밀수(값.(*big.Rat).String())
 	case *sV정밀수:
 		return 값.(*sV정밀수).G상수형()
 	case *sV통화:
@@ -128,9 +122,8 @@ func F문자열(값 interface{}) string {
 		return 값.(string)
 	case C문자열:
 		return 값.(C문자열).G값()
-	case *big.Rat:	
-		// *big.Rat은 정밀수와 통화의 기반이 되므로, 되도록 빨리 처리한다.
-		FBigRat2문자열(값.(*big.Rat))
+	case *big.Rat:
+		F마지막_0_제거(값.(*big.Rat).FloatString(100))
 	case float64:
 		return strconv.FormatFloat(값.(float64), 'f', -1, 64)
 	case time.Time:
@@ -150,10 +143,6 @@ func F포맷된_문자열_생성(포맷_문자열 string, 추가_내용 ...inter
 	return 에러.Error()
 }
 
-func FBigRat2문자열(값 *big.Rat) {
-	return F마지막_0_제거(값.(*big.Rat).FloatString(30))
-}
-
 func F문자열2실수(값 string) (float64, error) {
 	실수, 에러 := strconv.ParseFloat(strings.Replace(값, ",", "", -1), 64)
 	
@@ -162,6 +151,22 @@ func F문자열2실수(값 string) (float64, error) {
 	}
 
 	return 실수, nil
+}
+
+func F문자열2시점(값 string) (time.Time, error) {
+	시점, 에러 := 	time.Parse(P시점_포맷, 값)
+	
+	if 에러 == nil { return 시점, nil }
+	
+	시점, 에러 = time.Parse(P일자_포맷, 값)
+	
+	if 에러 == nil { return 시점, nil }
+	
+	return time.Time{}, 에러
+}
+
+func F시점2문자열(시점 time.Time) string {
+	return 시점.Format(P시점_포맷)
 }
 
 func F일자2문자열(일자 time.Time) string {
@@ -267,7 +272,7 @@ func F시점_복사(값 time.Time) time.Time {
 
 var 통화종류_모음 []P통화 = []P통화{KRW, USD, CNY, EUR}
 
-func F랜덤_통화종류() P통화 {
+func F임의_통화종류() P통화 {
 	return 통화종류_모음[rand.Int31n(int32(len(통화종류_모음) - 1))]
 }
 
@@ -283,7 +288,7 @@ func F통화종류별_정밀도(통화 P통화) int {
 }
 
 func F통화형식임(값 interface{}) bool {
-	if 통화, ok := 값.(I통화); ok { return true }
+	if _, ok := 값.(I통화); ok { return true }
 	
 	return false
 	
@@ -331,22 +336,14 @@ func F통화_복사(값 I통화) I통화 {
 	
 	switch 값.(type) {
 	case C통화:
-		return NC통화(값.G종류(), 값.G값())
+		// 상수형은 굳이 새로운 인스턴스를 만들 필요가 없음.
+		return 값.(C통화)
 	case V통화:
-		return NV통화(값.G종류(), 값.G값())
+		return NV통화(값.G종류(), 값.G금액())
 	default:
 		F문자열_출력("common.F통화_복사() : 예상치 못한 자료형.", reflect.TypeOf(값))
-		return NC통화(값.G종류(), 값.G값())
+		return NC통화(값.G종류(), 값.G금액())
 	}
-}
-
-func F통화_같음(값1, 값2 I통화) bool {
-	if 값1 == nil && 값2 == nil { return true }
-	if F_nil값_존재함(값1, 값2) { return false }
-	if 값1.G종류() != 값2.G종류() { return false }
-	if !F숫자_같음(값1.G값(), 값2.G값()) { return false }
-	
-	return true
 }
 
 func F숫자_같음(값1, 값2 interface{}) bool {
@@ -370,7 +367,8 @@ func F숫자_같음(값1, 값2 interface{}) bool {
 func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
 	defer func() {
 		if 에러 := recover(); 에러 != nil {
-			F에러_출력(에러); 값_같음 = false
+			F문자열_출력("common.F값_같음() : %v", 에러)
+			값_같음 = false
 		}
 	}()
 	
@@ -380,7 +378,7 @@ func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
 	case 값1 == nil, 값2 == nil:
 		return false
 	case F통화형식임(값1) && F통화형식임(값2):
-		return F통화같음(값1.(I통화), 값2.(I통화))
+		return 값1.(I통화).G같음(값2.(I통화))
 	case F숫자_같음(값1, 값2):
 		return true
 	case reflect.DeepEqual(값1, 값2):
@@ -710,7 +708,7 @@ func F소스코드_위치(건너뛰는_단계 int) string {
 	함수_이름 := runtime.FuncForPC(pc).Name()
 	
 	파일명 := filepath.Base(파일_경로)
-	return 파일명 + ":" + F정수2문자열(int64(행_번호)) + ": " + 함수_이름 + " : "
+	return 파일명 + ":" + F문자열(행_번호) + ": " + 함수_이름 + " : "
 }
 
 // 디버깅 편의 함수.
