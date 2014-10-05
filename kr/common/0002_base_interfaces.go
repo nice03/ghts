@@ -29,7 +29,7 @@ type I자료형_공통 interface {
 
 type I상수형 interface {
 	I자료형_공통
-	상수형임()	
+	상수형임()
 }
 
 type I변수형 interface {
