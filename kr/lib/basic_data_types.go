@@ -9,8 +9,205 @@ import (
 	"time"
 )
 
-var c참, c거짓 *sC참거짓
-var 문자열_후보값_모음 []string
+
+
+func NC정수(값 int64) C정수 { return &sC정수64{값} }
+
+
+
+func NV정수(값 int64) V정수 {
+	return &sV정수64{값: 값}
+}
+
+
+
+func NC부호없는_정수(값 uint64) C부호없는_정수 { return &sC부호없는_정수64{값} }
+
+
+func NV부호없는_정수(값 uint64) V부호없는_정수 {
+	return &sV부호없는_정수64{값: 값}
+}
+
+
+type I실수 interface {
+	G값() float64
+}
+
+func NC실수(값 float64) C실수 { return &sC실수64{값} }
+
+
+
+func NV실수(값 float64) V실수 {
+	return &sV실수64{값: 값}
+}
+
+
+func NC참거짓(값 bool) C참거짓 {
+	if 값 {
+		return c참
+	} else {
+		return c거짓
+	}
+}
+
+
+func NV참거짓(값 bool) V참거짓 { return &sV참거짓{값: 값} }
+
+
+
+func NC문자열(값 string) C문자열 { return &sC문자열{값} }
+
+
+
+
+
+func NC시점(값 time.Time) C시점 { return &sC시점{값} }
+func NC시점_문자열(값 string) C시점 {
+	시점, 에러 := F문자열2시점(값)
+
+	if 에러 != nil {
+		return nil
+	}
+
+	return NC시점(시점)
+}
+
+
+func NV시점(값 time.Time) V시점 {
+	return &sV시점{값: 값}
+}
+
+func NV시점_문자열(값 string) V시점 {
+	시점, 에러 := F문자열2시점(값)
+
+	if 에러 != nil {
+		return nil
+	}
+
+	return NV시점(시점)
+}
+
+
+
+
+func NC정밀수(값 interface{}) C정밀수 {
+	if 값 == nil {
+		return nil
+	}
+
+	var 정밀수 *big.Rat
+
+	switch 값.(type) {
+	case C정밀수:
+		return 값.(C정밀수) // 상수형은 굳이 새로운 인스턴스를 생성할 필요가 없다.
+	case V정밀수:
+		정밀수 = 값.(V정밀수).GRat()
+	case *big.Rat:
+		정밀수 = new(big.Rat).Set(값.(*big.Rat))
+	default:
+		var 성공 bool
+		정밀수, 성공 = new(big.Rat).SetString(F문자열(값))
+
+		if !성공 {
+			return nil
+		}
+	}
+
+	return &sC정밀수{&s정밀수{정밀수}}
+}
+
+
+
+func NV정밀수(값 interface{}) V정밀수 {
+	if 값 == nil {
+		return nil
+	}
+
+	var 정밀수 *big.Rat
+
+	switch 값.(type) {
+	case *big.Rat:
+		정밀수 = new(big.Rat).Set(값.(*big.Rat))
+	case I정밀수:
+		정밀수 = 값.(I정밀수).GRat()
+	default:
+		var 성공 bool
+		정밀수, 성공 = new(big.Rat).SetString(F문자열(값))
+
+		if !성공 {
+			F문자열_출력("common.NV정밀수() : 입력값이 숫자가 아님. %v", 값)
+			return nil
+		}
+	}
+
+	return &sV정밀수{s정밀수: &s정밀수{정밀수}}
+}
+
+// 통화
+type P통화종류 int
+
+const (
+	KRW P통화종류 = iota
+	USD
+	CNY
+	EUR
+)
+
+var 통화종류_문자열_모음 = [...]string{"KRW", "USD", "CNY", "EUR"}
+
+func (p P통화종류) String() string { return 통화종류_문자열_모음[p] }
+
+
+func NC원화(금액 interface{}) C통화  { return NC통화(KRW, 금액) }
+func NC달러(금액 interface{}) C통화  { return NC통화(USD, 금액) }
+func NC위안화(금액 interface{}) C통화 { return NC통화(CNY, 금액) }
+func NC유로화(금액 interface{}) C통화 { return NC통화(EUR, 금액) }
+
+func NC통화(종류 P통화종류, 금액 interface{}) C통화 {
+	v금액 := NV정밀수(금액)
+
+	if v금액 == nil {
+		F문자열_출력("NC통화() : 금액이 숫자가 아님. %v", 금액)
+		return nil
+	}
+
+	c금액 := v금액.S반올림(F통화종류별_정밀도(종류)).G상수형()
+
+	return &sC통화{종류, c금액}
+}
+
+// 변수형 생성자
+func NV원화(금액 interface{}) V통화  { return NV통화(KRW, 금액) }
+func NV달러(금액 interface{}) V통화  { return NV통화(USD, 금액) }
+func NV위안화(금액 interface{}) V통화 { return NV통화(CNY, 금액) }
+func NV유로화(금액 interface{}) V통화 { return NV통화(EUR, 금액) }
+
+func NV통화(종류 P통화종류, 금액 interface{}) V통화 {
+	v금액 := NV정밀수(금액)
+
+	if v금액 == nil {
+		F문자열_출력("NC통화() : 금액이 숫자가 아님. %v", 금액)
+		return nil
+	}
+
+	v금액 = v금액.S반올림(F통화종류별_정밀도(종류))
+
+	return &sV통화{종류: 종류, 금액: v금액}
+}
+
+
+func NC매개변수(이름 string, 값 interface{}) C매개변수 {
+	var 상수형 I상수형 = F상수형(값)
+
+	if 상수형 == nil {
+		return nil
+	}
+
+	return &sC매개변수{이름, 상수형}
+}
+
+
+
 
 // 상수형이 immutable 하기 위해서는 생성할 때 입력되는 참조형 값이
 // 적절하게 복사되는 것을 보장해야 함.
@@ -617,19 +814,57 @@ func (s *sV정밀수) S값(값 interface{}) V정밀수 {
 	if 정밀수 == nil {
 		return nil
 	}
+	
+	bigRat := 정밀수.GRat()
 
 	s.잠금.Lock()
 	defer s.잠금.Unlock()
-	s.값.Set(정밀수.GRat())
+	s.값.Set(bigRat)
+	
 	return s
 }
+
+// CAS(Compare And Swap) : Lock 최소화
+func (s *sV정밀수) S_CAS(예전값, 새로운값 *big.Rat) bool {
+	s.잠금.Lock(); defer s.잠금.Unlock()
+	
+	if s.s정밀수.값.Cmp(예전값) == 0 {
+		s.s정밀수.값.Set(새로운값)
+		
+		return true
+	}
+	
+	return false
+}
+
+func (s *sV정밀수) S_CAS_함수(
+			함수 func(*big.Rat, ...interface{}) *big.Rat, 
+			매개변수 ...interface{}) V정밀수 {
+	var 예전값, 새로운값 *big.Rat
+	var 반복횟수 int = 0
+	
+	for {
+		예전값 = s.GRat()
+		새로운값 = 함수(예전값, 매개변수...)
+		
+		if s.S_CAS(예전값, 새로운값) { return s }
+		
+		반복횟수++
+		F_Exponential_Backoff(반복횟수)
+	}
+}
+
 func (s *sV정밀수) S반올림(소숫점_이하_자릿수 int) V정밀수 {
-	s.잠금.Lock()
-	defer s.잠금.Unlock()
-	문자열 := s.값.FloatString(소숫점_이하_자릿수)
-	s.s정밀수.값.Set(NC정밀수(문자열).GRat())
-	return s
+	return S_CAS_함수(sV정밀수_s반올림_도우미, 소숫점_이하_자릿수)
 }
+	
+func sV정밀수_s반올림_도우미(예전값 *big.Rat, 소숫점_이하_자릿수 int) *big.Rat {
+	문자열 := 예전값.FloatString(소숫점_이하_자릿수)
+	새로운값 := NC정밀수(문자열).GRat()
+	
+	return 새로운값
+}
+
 func (s *sV정밀수) S절대값() V정밀수              { return s.S절대값2(s) }
 func (s *sV정밀수) S더하기(값 interface{}) V정밀수 { return s.S더하기2(s, 값) }
 func (s *sV정밀수) S빼기(값 interface{}) V정밀수  { return s.S빼기2(s, 값) }
@@ -703,9 +938,9 @@ func (s *sV정밀수) S나누기2(분자, 분모 interface{}) V정밀수 {
 	if 정밀수2.G같음(0.0) {
 		if !F테스트_모드() {
 			F문자열_출력("common.sV정밀수.S나누기2() : 분모가 0임. 분자 %v, 분모 %v .",
-						분자, 분모)
+				분자, 분모)
 		}
-		
+
 		return nil
 	}
 
@@ -726,7 +961,7 @@ func (s *sV정밀수) S역수2(값 interface{}) V정밀수 {
 		if !F테스트_모드() {
 			F문자열_출력("common.sV정밀수.S역수2() : 0의 역수는 무한대임. 값 %v .", 값)
 		}
-		
+
 		return nil
 	}
 
@@ -760,12 +995,12 @@ func (s *sV정밀수) Generate(임의값_생성기 *rand.Rand, 크기 int) refle
 
 // 통화
 type sC통화 struct {
-	종류 P통화
+	종류 P통화종류
 	금액 C정밀수
 }
 
-func (s *sC통화) 상수형임()     {}
-func (s *sC통화) G종류() P통화  { return s.종류 }
+func (s *sC통화) 상수형임()    {}
+func (s *sC통화) G종류() P통화종류 { return s.종류 }
 func (s *sC통화) G값() C정밀수 { return s.금액 }
 func (s *sC통화) G같음(값 I통화) bool {
 	if 값 == nil {
@@ -800,12 +1035,12 @@ func (s *sC통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.
 
 type sV통화 struct {
 	잠금 sync.RWMutex
-	종류 P통화
+	종류 P통화종류
 	금액 V정밀수
 }
 
 func (s *sV통화) 변수형임() {}
-func (s *sV통화) G종류() P통화 {
+func (s *sV통화) G종류() P통화종류 {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
 	return s.종류
@@ -813,9 +1048,11 @@ func (s *sV통화) G종류() P통화 {
 func (s *sV통화) G값() C정밀수 {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
-	
-	if s.금액 == nil { return nil }
-	
+
+	if s.금액 == nil {
+		return nil
+	}
+
 	return NC정밀수(s.금액)
 }
 func (s *sV통화) G같음(값 I통화) bool {
@@ -835,12 +1072,14 @@ func (s *sV통화) G같음(값 I통화) bool {
 func (s *sV통화) G상수형() C통화 {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
-	
-	if s.금액 == nil { return nil }
-	
+
+	if s.금액 == nil {
+		return nil
+	}
+
 	return NC통화(s.종류, s.금액)
 }
-func (s *sV통화) S종류(종류 P통화) {
+func (s *sV통화) S종류(종류 P통화종류) {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
 	s.종류 = 종류
@@ -850,74 +1089,87 @@ func (s *sV통화) S값(금액 interface{}) V통화 {
 		s.잠금.Lock()
 		defer s.잠금.Unlock()
 		s.금액 = nil
-		
+
 		return nil
 	}
-		
+
 	v정밀수 := NV정밀수(금액)
 	if v정밀수 == nil {
 		s.잠금.Lock()
 		defer s.잠금.Unlock()
 		s.금액 = nil
-		
+
 		return nil
 	}
-	
+
 	s.잠금.Lock()
 	defer s.잠금.Unlock()
 	s.금액 = v정밀수
 	return s
 }
+
 func (s *sV통화) S절대값() V통화 {
-	if s.금액 == nil { return nil }
-	
+	if s.금액 == nil {
+		return nil
+	}
+
 	s.금액.S절대값()
 
 	return s
-}	
+}
 func (s *sV통화) S더하기(값 interface{}) V통화 {
 	s.S더하기2(s, 값)
-	
+
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
-	
-	if s.금액 == nil { return nil }
-	
+
+	if s.금액 == nil {
+		return nil
+	}
+
 	return s
 }
 func (s *sV통화) S빼기(값 interface{}) V통화 {
 	s.S빼기2(s, 값)
-	
+
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
-	
-	if s.금액 == nil { return nil }
-	
+
+	if s.금액 == nil {
+		return nil
+	}
+
 	return s
 }
 func (s *sV통화) S곱하기(값 interface{}) V통화 {
 	s.S곱하기2(s, 값)
-	
+
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
-	
-	if s.금액 == nil { return nil }
-	
+
+	if s.금액 == nil {
+		return nil
+	}
+
 	return s
 }
 func (s *sV통화) S나누기(값 interface{}) V통화 {
 	s.S나누기2(s, 값)
-	
+
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
-	
-	if s.금액 == nil { return nil }
-	
+
+	if s.금액 == nil {
+		return nil
+	}
+
 	return s
 }
 func (s *sV통화) S반대부호값() V통화 {
-	if s.금액 == nil { return nil }
-	
+	if s.금액 == nil {
+		return nil
+	}
+
 	s.금액.S반대부호값()
 
 	return s
@@ -925,7 +1177,7 @@ func (s *sV통화) S반대부호값() V통화 {
 func (s *sV통화) S절대값2(값 I통화) V통화 {
 	if 값 == nil || 값.G값() == nil {
 		F문자열_출력("nil 입력값.")
-		
+
 		s.S값(nil)
 		return nil
 	}
@@ -940,7 +1192,7 @@ func (s *sV통화) S절대값2(값 I통화) V통화 {
 func (s *sV통화) S더하기2(값1, 값2 interface{}) V통화 {
 	if 값1 == nil || 값2 == nil {
 		F문자열_출력("nil 입력값. %v, %v", 값1, 값2)
-		
+
 		s.S값(nil)
 		return nil
 	}
@@ -949,32 +1201,32 @@ func (s *sV통화) S더하기2(값1, 값2 interface{}) V통화 {
 
 	if 에러 != nil {
 		F문자열_출력("%s. 값1 %v, 값2 %v", 에러.Error(), 값1, 값2)
-		
+
 		s.S값(nil)
 		return nil
 	}
-	
+
 	var 정밀수1, 정밀수2 C정밀수
-	
+
 	switch 값1.(type) {
 	case I통화:
 		정밀수1 = 값1.(I통화).G값()
 	default:
 		정밀수1 = NC정밀수(값1)
 	}
-	
+
 	switch 값2.(type) {
 	case I통화:
 		정밀수2 = 값2.(I통화).G값()
 	default:
 		정밀수2 = NC정밀수(값2)
 	}
-	
+
 	if 정밀수1 == nil || 정밀수2 == nil {
 		if !테스트_모드 {
 			F문자열_출력("정밀수 변환 실패. %v, %v.", 값1, 값2)
 		}
-		
+
 		s.S값(nil)
 		return nil
 	}
@@ -989,7 +1241,7 @@ func (s *sV통화) S더하기2(값1, 값2 interface{}) V통화 {
 func (s *sV통화) S빼기2(값1, 값2 interface{}) V통화 {
 	if 값1 == nil || 값2 == nil {
 		F문자열_출력("nil 입력값. %v, %v", 값1, 값2)
-		
+
 		s.S값(nil)
 		return nil
 	}
@@ -998,32 +1250,32 @@ func (s *sV통화) S빼기2(값1, 값2 interface{}) V통화 {
 
 	if 에러 != nil {
 		F문자열_출력("%s. 값1 %v, 값2 %v", 에러.Error(), 값1, 값2)
-		
+
 		s.S값(nil)
 		return nil
 	}
-	
+
 	var 정밀수1, 정밀수2 C정밀수
-	
+
 	switch 값1.(type) {
 	case I통화:
 		정밀수1 = 값1.(I통화).G값()
 	default:
 		정밀수1 = NC정밀수(값1)
 	}
-	
+
 	switch 값2.(type) {
 	case I통화:
 		정밀수2 = 값2.(I통화).G값()
 	default:
 		정밀수2 = NC정밀수(값2)
 	}
-	
+
 	if 정밀수1 == nil || 정밀수2 == nil {
 		if !테스트_모드 {
 			F문자열_출력("정밀수 변환 실패. %v, %v.", 값1, 값2)
 		}
-		
+
 		s.S값(nil)
 		return nil
 	}
@@ -1038,7 +1290,7 @@ func (s *sV통화) S빼기2(값1, 값2 interface{}) V통화 {
 func (s *sV통화) S곱하기2(값1, 값2 interface{}) V통화 {
 	if 값1 == nil || 값2 == nil {
 		F문자열_출력("nil 입력값. %v, %v", 값1, 값2)
-		
+
 		s.S값(nil)
 		return nil
 	}
@@ -1051,28 +1303,28 @@ func (s *sV통화) S곱하기2(값1, 값2 interface{}) V통화 {
 		s.S값(nil)
 		return nil
 	}
-	
+
 	var 정밀수1, 정밀수2 C정밀수
-	
+
 	switch 값1.(type) {
 	case I통화:
 		정밀수1 = 값1.(I통화).G값()
 	default:
 		정밀수1 = NC정밀수(값1)
 	}
-	
+
 	switch 값2.(type) {
 	case I통화:
 		정밀수2 = 값2.(I통화).G값()
 	default:
 		정밀수2 = NC정밀수(값2)
 	}
-	
+
 	if 정밀수1 == nil || 정밀수2 == nil {
 		if !테스트_모드 {
 			F문자열_출력("정밀수 변환 실패. %v, %v.", 값1, 값2)
 		}
-		
+
 		s.S값(nil)
 		return nil
 	}
@@ -1084,10 +1336,10 @@ func (s *sV통화) S곱하기2(값1, 값2 interface{}) V통화 {
 
 	return s
 }
-func (s *sV통화) S나누기2(분자, 분모 interface{}) V통화 {	
+func (s *sV통화) S나누기2(분자, 분모 interface{}) V통화 {
 	if 분자 == nil || 분모 == nil {
 		F문자열_출력("nil 입력값. %v, %v", 분자, 분모)
-		
+
 		s.S값(nil)
 		return nil
 	}
@@ -1096,41 +1348,41 @@ func (s *sV통화) S나누기2(분자, 분모 interface{}) V통화 {
 
 	if 에러 != nil {
 		F문자열_출력("%s. 값1 %v, 값2 %v", 에러.Error(), 분자, 분모)
-		
+
 		s.S값(nil)
 		return nil
 	}
-	
+
 	var 정밀수1, 정밀수2 C정밀수
-	
+
 	switch 분자.(type) {
 	case I통화:
 		정밀수1 = 분자.(I통화).G값()
 	default:
 		정밀수1 = NC정밀수(분자)
 	}
-	
+
 	switch 분모.(type) {
 	case I통화:
 		정밀수2 = 분모.(I통화).G값()
 	default:
 		정밀수2 = NC정밀수(분모)
 	}
-	
+
 	if 정밀수1 == nil || 정밀수2 == nil {
 		if !테스트_모드 {
 			F문자열_출력("정밀수 변환 실패. %v, %v.", 분자, 분모)
 		}
-		
+
 		s.S값(nil)
 		return nil
 	}
-	
+
 	if 정밀수2.G같음(0.0) {
 		if !테스트_모드 {
 			F문자열_출력("0으로 나눌 수 없음. %v, %v.", 분자, 분모)
 		}
-		
+
 		s.S값(nil)
 		return nil
 	}
@@ -1139,13 +1391,13 @@ func (s *sV통화) S나누기2(분자, 분모 interface{}) V통화 {
 	defer s.잠금.Unlock()
 	s.종류 = 통화종류
 	s.금액.S나누기2(정밀수1, 정밀수2)
-	
+
 	return s
 }
 func (s *sV통화) S반대부호값2(값 I통화) V통화 {
 	if 값 == nil || 값.G값() == nil {
 		F문자열_출력("nil 입력값.")
-		
+
 		s.S값(nil)
 		return nil
 	}

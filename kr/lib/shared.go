@@ -4,20 +4,69 @@ import (
 	"fmt"
 )
 
+func init() {
+	F나를_위한_문구()
+	F메모()	
+}
+
+const (
+	P시점_포맷 string = "2006-01-02 15:04:05 (MST) Mon -0700"
+	P일자_포맷 string = "2006-01-02"
+	
+	P차이_한도 string = "1/1000000000000000000000000000000000000"
+
+	asc코드_0 uint8 = uint8(48)
+	asc코드_소숫점 uint8 = uint8(46)
+	
+	len_대기시간_한도 = len(대기시간_한도) - 1
+)
+
+var (
+	c참 *sC참거짓 = &sC참거짓{true}
+	c거짓 *sC참거짓 = &sC참거짓{false}
+	
+	문자열_후보값_모음 []string = strings.Split(
+		"1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+		"~!@#$%^&*()_+|';:/?.,<>`가나다라마바사하자차카타파하", "")
+	
+	// Exponential Back-off. 재시도 하기 전에 기다리는 대기시간 (단위는 나노초).
+	대기시간_한도 = [...]int64{1, 3, 7, 15, 31, 63, 127, 255, 511, 
+								1023, 2047, 4095, 8191, 16383, 32767,
+								65535, 131071, 262143, 524287, 1048575,
+								2097151, 4194303, 8388607, 16777215, 33554431,
+								67108863, 100000000}
+)
+
 func F나를_위한_문구() {
 	fmt.Println("")
 	fmt.Println("----------------------------------------------------------")
 	fmt.Println("	쉽고 간단하게, 테스트로 검증해 가면서 마음 편하게.")
 	fmt.Println("----------------------------------------------------------")
 	fmt.Println("")
+	fmt.Println("락을 피할 수 있는 10가지 방법.")
+	fmt.Println("")
+	fmt.Println("1. 코드가 아닌 데이터를 보호하라.")
+	fmt.Println("2. 락을 사용한 부분에서 비싼 계산을 하지 말아라.")
+	fmt.Println("3. 락을 분리하라.")
+	fmt.Println("4. interlocked이나 atomic 작업을 사용하라.")
+	fmt.Println("5. 동기화 된 데이터 구조를 사용하라. ex) lock-free 메시지 큐")
+	fmt.Println("6. 가능하다면 읽기-쓰기 락을 사용하라.")
+	fmt.Println("7. 가능하다면 읽기 전용 데이터를 사용하라.")
+	fmt.Println("8. 객체 풀링을 피하라. (Go언어에서는 명시적으로 안전하다고 해 놨던 데...)")
+	fmt.Println("9. 지역 변수나 개별 쓰레드에 국한된 로컬 변수를 사용하라.")
+	fmt.Println("10. 핫스팟(자주 변경되어야 하는 공용 리소스)을 피하라.")
+	fmt.Println("")
 }
+
 func F메모() {
 	fmt.Println("----------------------------------------------------------")
 	fmt.Println("                  메            모")
 	fmt.Println("----------------------------------------------------------")
 	fmt.Println("")
-	fmt.Println("PLAN")
-	fmt.Println("	- 기본 자료형. 기본적인 작성완료. 이제 테스트 및 디버깅만 하면 된다.")
+	fmt.Println("TODO 개요")
+	fmt.Println("	- 변수형 : CAS (Compare and Swap) API 구현할 것.")
+	fmt.Println("	- duck-typing 함수 및 메소드에 F숫자형식임() 체크하는 게 어떨까?.")
+	fmt.Println("	- 기본 자료형 마무리.")
 	fmt.Println("	- 편의 함수")
 	fmt.Println("	- 기타 공용 자료형")
 	fmt.Println("	- 가격정보 취득 tool")
@@ -29,6 +78,8 @@ func F메모() {
 	fmt.Println("TODO : common.기타 자료형 및 펑션")
 	fmt.Println("TODO : tools.* 바뀐 API에 맞게 수정.")
 	fmt.Println("TODO : 자주 사용되는 함수 중 panic 가능성이 높은 함수에 recover() 추가.")
+	fmt.Println("")
+	fmt.Println("문자열 후보값에 한자도 포함시킬 것.")
 	fmt.Println("")
 	fmt.Println("TODO : 재귀적으로 모든 내부값의 상태를 기록하는 메소드.")
 	fmt.Println("		F값_일치(), F공유해도_안전함()에서 사용할 예정.")

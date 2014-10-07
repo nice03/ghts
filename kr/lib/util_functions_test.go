@@ -238,13 +238,13 @@ func TestF문자열2시점(테스트 *testing.T) {
 	F같은값_확인(테스트, 일자.Format(P일자_포맷), 시점_원래값.Format(P일자_포맷))
 }
 
-func TestF시점2문자열(테스트 *testing.T) {	
+func TestF시점_문자열(테스트 *testing.T) {	
 	시점_원래값 := time.Now()
 	
 	F같은값_확인(테스트, F시점2문자열(시점_원래값), 시점_원래값.Format(P시점_포맷))
 }
 
-func TestF일자2문자열(테스트 *testing.T) {
+func TestF일자_문자열(테스트 *testing.T) {
 	일자 := time.Date(2000, time.Month(1), 1, 0, 0, 0, 0, time.Now().Location())
 
 	F같은값_확인(테스트, F일자2문자열(일자), "2000-01-01")

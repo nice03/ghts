@@ -13,6 +13,16 @@ import (
 	"time"
 )
 
+func F_Exponential_Backoff(반복횟수 int) {
+	var 나노초 int64
+	
+	if 반복횟수 > exponential_backoff_한도 {
+		time.Sleep(time.Duration(rand.Int63n(exponential_backoff[exponential_backoff_한도])))
+	} else {
+		time.Sleep(time.Duration(rand.Int63n(exponential_backoff[반복횟수]))
+	}
+}
+
 func F안전한_매개변수(값_모음 ...interface{}) bool {
 	for _, 값 := range 값_모음 {
 		switch 값.(type) {
@@ -39,14 +49,6 @@ func F상수형(값 interface{}) I상수형 {
 	if 값 == nil {
 		return nil
 	}
-	
-	/*
-	switch 형식 {
-	case "*common.sC정수64", "*common.sC부호없는_정수64", "*common.sC실수64", 
-			"*common.sC정밀수", "*common.sC통화", "*common.sC참거짓", 
-			"*common.sC문자열", "*common.sC시점":
-		return 값.(I상수형)
-	} */
 
 	// 지금 알려진 것만 우선 포함 시킴.
 	switch 값.(type) {
@@ -144,38 +146,6 @@ func F문자열(값 interface{}) string {
 	return F포맷된_문자열_생성("%v", 값)
 }
 
-
-//	case uint:
-//		return strconv.FormatUint(uint64(값.(uint)), 10)
-//	case uint8:
-//		return strconv.FormatUint(uint64(값.(uint8)), 10)
-//	case uint16:
-//		return strconv.FormatUint(uint64(값.(uint16)), 10)
-//	case uint32:
-//		return strconv.FormatUint(uint64(값.(uint32)), 10)
-//	case uint64:
-//		return strconv.FormatUint(값.(uint64), 10)
-//	case int:
-//		return strconv.FormatInt(int64(값.(int)), 10)
-//	case int8:
-//		return strconv.FormatInt(int64(값.(int8)), 10)
-//	case int16:
-//		return strconv.FormatInt(int64(값.(int16)), 10)
-//	case int32:
-//		return strconv.FormatInt(int64(값.(int32)), 10)
-//	case int64:
-//		return strconv.FormatInt(값.(int64), 10)
-//	case float64:
-//		return strconv.FormatFloat(값.(float64), 'f', -1, 64)
-//	case big.Int:
-//		정밀수 := 값.(big.Int); return (&정밀수).String()
-//	case *big.Int:
-//		return 값.(*big.Int).String()
-//	case string:
-//		return 값.(string)
-//	case C문자열:
-//		return 값.(C문자열).G값()
-
 func F포맷된_문자열_생성(포맷_문자열 string, 추가_내용 ...interface{}) string {
 	에러 := F에러_생성(포맷_문자열, 추가_내용...)
 
@@ -240,11 +210,11 @@ func F문자열2시점(값 string) (time.Time, error) {
 	return time.Time{}, 에러
 }
 
-func F시점2문자열(시점 time.Time) string {
+func F시점_문자열(시점 time.Time) string {
 	return 시점.Format(P시점_포맷)
 }
 
-func F일자2문자열(일자 time.Time) string {
+func F일자_문자열(일자 time.Time) string {
 	return 일자.Format(P일자_포맷)
 }
 
@@ -271,20 +241,14 @@ func F통화종류별_정밀도(통화 P통화) int {
 	}
 }
 
-func F통화형식임(값 interface{}) bool {
-	if _, ok := 값.(I통화); ok {
-		return true
+func F통화형식임(값_모음 ...interface{}) bool {
+	
+	for _, 값 := range 값_모음 {
+		if 값 == nil { return false }
+		if _, ok := 값.(I통화); !ok { return false }
 	}
 
-	return false
-
-	/*
-		switch 값.(type) {
-		case I통화:
-			return true
-		default:
-			return false
-		} */
+	return true
 }
 
 func F통화_종류(값1, 값2 interface{}) (P통화, error) {
@@ -334,6 +298,41 @@ func F통화_복사(값 I통화) I통화 {
 	}
 }
 
+func F숫자형식임(값_모음 ...interface{}) bool {
+	for _, 값 := range 값_모음 {
+		if 값 == nil { return false }
+		switch 값.(type) {
+		case uint, uint8, uint16, uint32, uint64,
+			 int, int8, int16, int32, int64,
+			 float32, float64, *big.Int, *big.Rat,
+			 *sC정수64, *sV정수64, *sC부호없는_정수64, *sV부호없는_정수64,
+			 *sC실수64, *sV실수64, *sC정밀수, *sV정밀수:
+			continue
+		default:
+			return false
+		}
+	}
+
+	return true
+}
+
+func F숫자형식_확인(값_모음 ...interface{}) bool {
+	if F숫자형식임(값_모음...) { return true }
+	if F_nil값_존재함(값_모음...) { return true }	// ??
+	
+	출력값 := make([]interface{}, 0)
+	
+	for _, 값 := range 값_모음 {
+		출력값 = append(출력값, reflect.TypeOf(값))
+		출력값 = append(출력값, 값)
+	}
+	
+	F문자열_출력("숫자형식이 아님.")
+	F값_확인(출력값...)
+	
+	return false
+}
+
 func F숫자_같음(값1, 값2 interface{}) bool {
 	if 값1 == nil && 값2 == nil {
 		return true
@@ -350,11 +349,7 @@ func F숫자_같음(값1, 값2 interface{}) bool {
 		return false
 	}
 
-	if 정밀수1.G비교(정밀수2) == 0 {
-		return true
-	}
-
-	return false
+	return 정밀수1.G같음(정밀수2)
 }
 
 func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
@@ -370,10 +365,10 @@ func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
 		return true
 	case 값1 == nil, 값2 == nil:
 		return false
-	case F통화형식임(값1) && F통화형식임(값2):
+	case F통화형식임(값1, 값2):
 		return 값1.(I통화).G같음(값2.(I통화))
-	case F숫자_같음(값1, 값2):
-		return true
+	case F숫자형식임(값1, 값2):
+		return F숫자_같음(값1, 값2)
 	case reflect.DeepEqual(값1, 값2):
 		return true
 	}
@@ -630,9 +625,9 @@ func F_nil_확인(테스트 testing.TB, 값 interface{}) (테스트_통과 bool)
 
 // 에러 처리 편의 함수.
 
-func F_nil값_존재함(검사대상_모음 ...interface{}) bool {
-	for _, 검사대상 := range 검사대상_모음 {
-		if 검사대상 == nil {
+func F_nil값_존재함(값_모음 ...interface{}) bool {
+	for _, 값 := range 값_모음 {
+		if 값 == nil {
 			return true
 		}
 	}
