@@ -1,7 +1,6 @@
 package common
 
 import (
-	"bytes"
 	"math/big"
 	"math/rand"
 	"reflect"
@@ -9,57 +8,14 @@ import (
 	"time"
 )
 
-
-
 func NC정수(값 int64) C정수 { return &sC정수64{값} }
-
-
-
-func NV정수(값 int64) V정수 {
-	return &sV정수64{값: 값}
-}
-
-
+func NV정수(값 int64) V정수 { return &sV정수64{값: 값} }
 
 func NC부호없는_정수(값 uint64) C부호없는_정수 { return &sC부호없는_정수64{값} }
-
-
-func NV부호없는_정수(값 uint64) V부호없는_정수 {
-	return &sV부호없는_정수64{값: 값}
-}
-
-
-type I실수 interface {
-	G값() float64
-}
+func NV부호없는_정수(값 uint64) V부호없는_정수 { return &sV부호없는_정수64{값: 값} }
 
 func NC실수(값 float64) C실수 { return &sC실수64{값} }
-
-
-
-func NV실수(값 float64) V실수 {
-	return &sV실수64{값: 값}
-}
-
-
-func NC참거짓(값 bool) C참거짓 {
-	if 값 {
-		return c참
-	} else {
-		return c거짓
-	}
-}
-
-
-func NV참거짓(값 bool) V참거짓 { return &sV참거짓{값: 값} }
-
-
-
-func NC문자열(값 string) C문자열 { return &sC문자열{값} }
-
-
-
-
+func NV실수(값 float64) V실수 { return &sV실수64{값: 값} }
 
 func NC시점(값 time.Time) C시점 { return &sC시점{값} }
 func NC시점_문자열(값 string) C시점 {
@@ -71,7 +27,6 @@ func NC시점_문자열(값 string) C시점 {
 
 	return NC시점(시점)
 }
-
 
 func NV시점(값 time.Time) V시점 {
 	return &sV시점{값: 값}
@@ -86,9 +41,6 @@ func NV시점_문자열(값 string) V시점 {
 
 	return NV시점(시점)
 }
-
-
-
 
 func NC정밀수(값 interface{}) C정밀수 {
 	if 값 == nil {
@@ -116,8 +68,6 @@ func NC정밀수(값 interface{}) C정밀수 {
 	return &sC정밀수{&s정밀수{정밀수}}
 }
 
-
-
 func NV정밀수(값 interface{}) V정밀수 {
 	if 값 == nil {
 		return nil
@@ -135,7 +85,10 @@ func NV정밀수(값 interface{}) V정밀수 {
 		정밀수, 성공 = new(big.Rat).SetString(F문자열(값))
 
 		if !성공 {
-			F문자열_출력("common.NV정밀수() : 입력값이 숫자가 아님. %v", 값)
+			if !테스트_모드 {
+				F문자열_출력("common.NV정밀수() : 입력값이 숫자가 아님. %v", 값)
+			}
+
 			return nil
 		}
 	}
@@ -146,17 +99,9 @@ func NV정밀수(값 interface{}) V정밀수 {
 // 통화
 type P통화종류 int
 
-const (
-	KRW P통화종류 = iota
-	USD
-	CNY
-	EUR
-)
-
 var 통화종류_문자열_모음 = [...]string{"KRW", "USD", "CNY", "EUR"}
 
 func (p P통화종류) String() string { return 통화종류_문자열_모음[p] }
-
 
 func NC원화(금액 interface{}) C통화  { return NC통화(KRW, 금액) }
 func NC달러(금액 interface{}) C통화  { return NC통화(USD, 금액) }
@@ -195,7 +140,6 @@ func NV통화(종류 P통화종류, 금액 interface{}) V통화 {
 	return &sV통화{종류: 종류, 금액: v금액}
 }
 
-
 func NC매개변수(이름 string, 값 interface{}) C매개변수 {
 	var 상수형 I상수형 = F상수형(값)
 
@@ -205,9 +149,6 @@ func NC매개변수(이름 string, 값 interface{}) C매개변수 {
 
 	return &sC매개변수{이름, 상수형}
 }
-
-
-
 
 // 상수형이 immutable 하기 위해서는 생성할 때 입력되는 참조형 값이
 // 적절하게 복사되는 것을 보장해야 함.
@@ -563,78 +504,6 @@ func (s *sV실수64) Generate(
 	return reflect.ValueOf(NV실수(값))
 }
 
-type sC참거짓 struct{ 값 bool }
-
-func (s *sC참거짓) 상수형임()          {}
-func (s *sC참거짓) G값() bool       { return s.값 }
-func (s *sC참거짓) String() string { return F문자열(s.값) }
-func (s *sC참거짓) Generate(
-	임의값_생성기 *rand.Rand,
-	크기 int) reflect.Value {
-	값 := true
-
-	// 0.0 ~ 1.0 임의값 생성 후 0.5 기준으로 부호 결정.
-	if 임의값_생성기.Float32() < 0.5 {
-		값 = false
-	}
-
-	return reflect.ValueOf(NC참거짓(값))
-}
-
-type sV참거짓 struct {
-	잠금 sync.RWMutex
-	값  bool
-}
-
-func (s *sV참거짓) 변수형임() {}
-func (s *sV참거짓) G값() bool {
-	s.잠금.RLock()
-	defer s.잠금.RUnlock()
-	return s.값
-}
-func (s *sV참거짓) G상수형() C참거짓 {
-	s.잠금.RLock()
-	defer s.잠금.RUnlock()
-	return NC참거짓(s.값)
-}
-func (s *sV참거짓) S값(값 bool) {
-	s.잠금.Lock()
-	defer s.잠금.Unlock()
-	s.값 = 값
-}
-func (s *sV참거짓) String() string { return F문자열(s.값) }
-func (s *sV참거짓) Generate(
-	임의값_생성기 *rand.Rand,
-	크기 int) reflect.Value {
-	값 := true
-
-	// 0.0 ~ 1.0 임의값 생성 후 0.5 기준으로 부호 결정.
-	if 임의값_생성기.Float32() < 0.5 {
-		값 = false
-	}
-
-	return reflect.ValueOf(NC참거짓(값))
-}
-
-type sC문자열 struct{ 값 string }
-
-func (s *sC문자열) 상수형임()          {}
-func (s *sC문자열) G값() string     { return s.값 }
-func (s *sC문자열) String() string { return s.값 }
-func (s *sC문자열) Generate(
-	임의값_생성기 *rand.Rand,
-	크기 int) reflect.Value {
-	후보값_수량 := int32(len(문자열_후보값_모음) - 1)
-	임의_문자열 := new(bytes.Buffer)
-
-	for 반복횟수 := 0; 반복횟수 < 크기; 반복횟수++ {
-		슬라이스_인덱스 := int(임의값_생성기.Int31n(후보값_수량))
-		임의_문자열.WriteString(문자열_후보값_모음[슬라이스_인덱스])
-	}
-
-	return reflect.ValueOf(NC문자열(임의_문자열.String()))
-}
-
 // 시점 (time.Time)
 type sC시점 struct{ 값 time.Time }
 
@@ -726,9 +595,11 @@ func (s *s정밀수) G같음(값 interface{}) bool {
 		return false
 	}
 
+	const 차이_한도 string = "1/1000000000000000000000000000000000000"
+
 	차이_절대값 := new(big.Rat).Abs(new(big.Rat).Sub(s.GRat(), 정밀수.GRat()))
 
-	if 차이_절대값.Cmp(NC정밀수(P차이_한도).GRat()) == -1 {
+	if 차이_절대값.Cmp(NC정밀수(차이_한도).GRat()) == -1 {
 		return true
 	}
 
@@ -814,54 +685,65 @@ func (s *sV정밀수) S값(값 interface{}) V정밀수 {
 	if 정밀수 == nil {
 		return nil
 	}
-	
+
 	bigRat := 정밀수.GRat()
 
 	s.잠금.Lock()
 	defer s.잠금.Unlock()
 	s.값.Set(bigRat)
-	
+
 	return s
 }
 
-// CAS(Compare And Swap) : Lock 최소화
-func (s *sV정밀수) S_CAS(예전값, 새로운값 *big.Rat) bool {
-	s.잠금.Lock(); defer s.잠금.Unlock()
-	
+// Compare And Swap : Lock 최소화
+// *big.Rat이 함수로 전달되는 것을 최소화 하기 위하여,
+// 이 메소드는 외부에 공개하지 않는다.
+// 대신 S_CAS()를 사용할 것.
+func (s *sV정밀수) cas(예전값, 새로운값 *big.Rat) bool {
+	s.잠금.Lock()
+	defer s.잠금.Unlock()
+
 	if s.s정밀수.값.Cmp(예전값) == 0 {
 		s.s정밀수.값.Set(새로운값)
-		
+
 		return true
 	}
-	
+
 	return false
 }
 
-func (s *sV정밀수) S_CAS_함수(
-			함수 func(*big.Rat, ...interface{}) *big.Rat, 
-			매개변수 ...interface{}) V정밀수 {
-	var 예전값, 새로운값 *big.Rat
+// 외부에서 간편하게 CAS를 할 수 있는 편의 메소드
+func (s *sV정밀수) S_CAS(
+	연산함수 func(*big.Rat, ...interface{}) *big.Rat,
+	매개변수 ...interface{}) V정밀수 {
+	var 현재값, 새로운값 *big.Rat
 	var 반복횟수 int = 0
-	
+
 	for {
-		예전값 = s.GRat()
-		새로운값 = 함수(예전값, 매개변수...)
-		
-		if s.S_CAS(예전값, 새로운값) { return s }
-		
+		현재값 = s.GRat()
+		새로운값 = 연산함수(현재값, 매개변수...)
+
+		// 다른 goroutine에서 값을 바꾸지 않은 경우에만 새로운 값으로 설정된다.
+		if s.cas(현재값, 새로운값) {
+			return s
+		}
+
+		// 다른 goroutine에서 값을 이미 바꾼 경우에는 일정 시간 기다린 후,
+		// 바뀐 값을 기준으로 새로 계산함.
 		반복횟수++
-		F_Exponential_Backoff(반복횟수)
+		F잠시_기다림(반복횟수)
 	}
 }
 
 func (s *sV정밀수) S반올림(소숫점_이하_자릿수 int) V정밀수 {
-	return S_CAS_함수(sV정밀수_s반올림_도우미, 소숫점_이하_자릿수)
+	return s.S_CAS(sV정밀수_s반올림_도우미, 소숫점_이하_자릿수)
 }
-	
-func sV정밀수_s반올림_도우미(예전값 *big.Rat, 소숫점_이하_자릿수 int) *big.Rat {
+
+func sV정밀수_s반올림_도우미(예전값 *big.Rat, 매개변수 ...interface{}) *big.Rat {
+	소숫점_이하_자릿수 := 매개변수[0].(int)
 	문자열 := 예전값.FloatString(소숫점_이하_자릿수)
 	새로운값 := NC정밀수(문자열).GRat()
-	
+
 	return 새로운값
 }
 
@@ -999,9 +881,9 @@ type sC통화 struct {
 	금액 C정밀수
 }
 
-func (s *sC통화) 상수형임()    {}
+func (s *sC통화) 상수형임()      {}
 func (s *sC통화) G종류() P통화종류 { return s.종류 }
-func (s *sC통화) G값() C정밀수 { return s.금액 }
+func (s *sC통화) G값() C정밀수   { return s.금액 }
 func (s *sC통화) G같음(값 I통화) bool {
 	if 값 == nil {
 		return false
@@ -1016,8 +898,7 @@ func (s *sC통화) G같음(값 I통화) bool {
 }
 func (s *sC통화) G변수형() V통화 { return NV통화(s.종류, s.금액) }
 func (s *sC통화) String() string {
-	// TODO. 예 : KRW 1,000,000 (통화종류, 콤마로 분리된 금액)
-	return s.종류.String() + " " + s.금액.String()
+	return s.종류.String() + " " + F금액_문자열(s.금액.String())
 }
 func (s *sC통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	종류 := F임의_통화종류()
@@ -1410,8 +1291,13 @@ func (s *sV통화) S반대부호값2(값 I통화) V통화 {
 	return s
 }
 func (s *sV통화) String() string {
-	// TODO. 예 : KRW 1,000,000 (통화종류, 콤마로 분리된 금액)
-	return s.종류.String() + " " + F문자열(s.금액.String())
+	var 금액 *big.Rat
+
+	s.잠금.RLock()
+	금액 = s.금액.GRat()
+	s.잠금.RUnlock()
+
+	return s.종류.String() + " " + F금액_문자열(F문자열(금액))
 }
 func (s *sV통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	종류 := F임의_통화종류()

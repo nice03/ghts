@@ -1,7 +1,9 @@
 package common
 
 import (
+	"math/big"
 	"testing/quick"
+	"time"
 )
 
 type I테스트용_가상_객체 interface {
@@ -48,6 +50,10 @@ type I정수형 interface {
 	G정수() int64
 	G실수() float64
 	G정밀수() C정밀수
+}
+
+type I통화종류 interface {
+	G통화종류() P통화종류
 }
 
 // 정수
@@ -102,6 +108,10 @@ type V부호없는_정수 interface {
 }
 
 // 실수
+type I실수 interface {
+	G값() float64
+}
+
 type C실수 interface {
 	I상수형
 	I실수형
@@ -123,23 +133,8 @@ type V실수 interface {
 	S나누기(값 float64) V실수
 }
 
-// 참거짓
-type C참거짓 interface {
-	I상수형
-	G값() bool
-}
-
-type V참거짓 interface {
-	I변수형
-	G값() bool
-	G상수형() C참거짓
-	S값(값 bool)
-}
-
-type C문자열 interface {
-	I상수형
-	G값() string
-}
+// bool은 true, false밖에 없는 데, const P참, P거짓 으로 선언해서 해결함.
+// string은 어차피 immutable 함.
 
 // 시점
 type I시점 interface {
@@ -238,17 +233,11 @@ type C매개변수 interface {
 	G값() I상수형
 }
 
-
-// 원본과 복사본은 서로 독립성을 가져야 함.
-// 즉, 멤버 필드 중에 참조형이 있으면
-// 같은 타입의 새로운 인스턴스를 생성한 후, 값을 복사해야 함.
-
-
 /*
 type I환율 interface {
-	I통화종류
-	G기준통화() P통화
-	G환율() C고정소숫점
+	G원래통화() P통화종류
+	G변환통화() P통화종류
+	G환율() C정밀수
 }
 
 type I종목별_포트폴리오 interface {

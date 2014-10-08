@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
 	"math/rand"
@@ -13,13 +14,15 @@ import (
 	"time"
 )
 
-func F_Exponential_Backoff(반복횟수 int) {
-	var 나노초 int64
-	
-	if 반복횟수 > exponential_backoff_한도 {
-		time.Sleep(time.Duration(rand.Int63n(exponential_backoff[exponential_backoff_한도])))
+// Exponential Back-off
+// 실패한 후 반복하는 횟수에 따라 기다리는 최대시간이 기하급수적으로 커짐.
+func F잠시_기다림(반복횟수 int) {
+	const len_대기시간_한도 = len(대기시간_한도) - 1
+
+	if 반복횟수 > len_대기시간_한도 {
+		time.Sleep(time.Duration(rand.Int63n(대기시간_한도[len_대기시간_한도])))
 	} else {
-		time.Sleep(time.Duration(rand.Int63n(exponential_backoff[반복횟수]))
+		time.Sleep(time.Duration(rand.Int63n(대기시간_한도[반복횟수])))
 	}
 }
 
@@ -31,13 +34,12 @@ func F안전한_매개변수(값_모음 ...interface{}) bool {
 			float32, float64, bool, string, time.Time:
 			// CallByValue에 의해서 자동으로 복사본이 생성되는 형식.
 			//OK to PASS
-		case *sC부호없는_정수64, *sC정수64, *sC실수64,
-			*sC참거짓, *sC문자열, *sC시점, *sC정밀수, *sC통화:
+		case *sC부호없는_정수64, *sC정수64, *sC실수64, *sC시점, *sC정밀수, *sC통화:
 			// Immutable 하므로 race condition이 발생하지 않는 형식.
 			// 앞으로 여기에 검증된 상수형을 더 추가해야 됨.
 			// OK to PASS
 		default:
-			// 알려진 상수형이 아닌 경우에는 안전하지 않다고 판단.		
+			// 알려진 상수형이 아닌 경우에는 안전하지 않다고 판단.
 			return false
 		}
 	}
@@ -52,13 +54,8 @@ func F상수형(값 interface{}) I상수형 {
 
 	// 지금 알려진 것만 우선 포함 시킴.
 	switch 값.(type) {
-	case *sC정수64, *sC부호없는_정수64, *sC실수64, *sC정밀수, *sC통화,
-		*sC참거짓, *sC문자열, *sC시점:
+	case *sC정수64, *sC부호없는_정수64, *sC실수64, *sC정밀수, *sC통화, *sC시점:
 		return 값.(I상수형)
-	case bool:
-		return NC참거짓(값.(bool))
-	case string:
-		return NC문자열(값.(string))
 	case uint:
 		return NC부호없는_정수(uint64(값.(uint)))
 	case uint8:
@@ -114,8 +111,6 @@ func F상수형(값 interface{}) I상수형 {
 		return 값.(V정밀수).G상수형()
 	case V통화:
 		return 값.(V통화).G상수형()
-	case V참거짓:
-		return 값.(V참거짓).G상수형()
 	case V시점:
 		return 값.(V시점).G상수형()
 	default:
@@ -129,10 +124,8 @@ func F문자열(값 interface{}) string {
 	switch 값.(type) {
 	case string:
 		return 값.(string)
-	case C문자열:
-		return 값.(C문자열).G값()
 	case *big.Rat:
-		F마지막_0_제거(값.(*big.Rat).FloatString(100))
+		return F마지막_0_제거(값.(*big.Rat).FloatString(100))
 	case float64:
 		return strconv.FormatFloat(값.(float64), 'f', -1, 64)
 	case time.Time:
@@ -152,11 +145,51 @@ func F포맷된_문자열_생성(포맷_문자열 string, 추가_내용 ...inter
 	return 에러.Error()
 }
 
+func F금액_문자열(금액_문자열 string) string {
+	문자_슬라이스 := strings.Split(금액_문자열, "")
+	소숫점_인덱스 := strings.Index(금액_문자열, ".")
+	역순_버퍼 := new(bytes.Buffer)
+	소숫점_내지_콤마로부터_거리 := 0
+
+	if 소숫점_인덱스 == -1 {
+		소숫점_인덱스 = len(금액_문자열) // 정수라서 소숫점이 없는 경우.
+	}
+
+	for 인덱스 := len(문자_슬라이스) - 1; 인덱스 >= 0; 인덱스-- {
+		switch {
+		case 인덱스 > 소숫점_인덱스:
+			역순_버퍼.WriteString(문자_슬라이스[인덱스])
+		case 인덱스 == 소숫점_인덱스:
+			역순_버퍼.WriteString(문자_슬라이스[인덱스])
+			소숫점_내지_콤마로부터_거리 = 0
+		case 소숫점_내지_콤마로부터_거리 == 3:
+			역순_버퍼.WriteString(",")
+			역순_버퍼.WriteString(문자_슬라이스[인덱스])
+			소숫점_내지_콤마로부터_거리 = 1
+		default:
+			역순_버퍼.WriteString(문자_슬라이스[인덱스])
+			소숫점_내지_콤마로부터_거리++
+		}
+	}
+
+	역순_금액_문자열 := 역순_버퍼.String()
+	문자_슬라이스 = strings.Split(역순_금액_문자열, "")
+	버퍼 := new(bytes.Buffer)
+
+	for 인덱스 := len(문자_슬라이스) - 1; 인덱스 >= 0; 인덱스-- {
+		버퍼.WriteString(문자_슬라이스[인덱스])
+	}
+
+	return 버퍼.String()
+}
+
 func F마지막_0_제거(문자열 string) string {
 	if !strings.Contains(문자열, ".") {
-		fmt.Println("정수인듯 함.", 문자열)
-		return 문자열
+		return 문자열 // 정수임.
 	}
+
+	const asc코드_0 uint8 = uint8(48)
+	const asc코드_소숫점 uint8 = uint8(46)
 
 	종료_지점 := len(문자열) - 1
 
@@ -178,9 +211,11 @@ func F마지막_0_제거(문자열 string) string {
 
 func F반올림(값 interface{}, 소숫점_이하_자릿수 int) C정밀수 {
 	정밀수 := NV정밀수(값)
-	
-	if 정밀수 == nil { return nil }
-	
+
+	if 정밀수 == nil {
+		return nil
+	}
+
 	return 정밀수.S반올림(소숫점_이하_자릿수).G상수형()
 }
 
@@ -188,7 +223,7 @@ func F문자열2실수(값 string) (float64, error) {
 	실수, 에러 := strconv.ParseFloat(strings.Replace(값, ",", "", -1), 64)
 
 	if 에러 != nil {
-		return    0.0, 에러
+		return 0.0, 에러
 	}
 
 	return 실수, nil
@@ -226,11 +261,11 @@ func F시점_복사(값 time.Time) time.Time {
 	return 복사본
 }
 
-func F임의_통화종류() P통화 {
-	return P통화(int(rand.Int31n(int32(len(통화종류_문자열_모음)))))
+func F임의_통화종류() P통화종류 {
+	return P통화종류(int(rand.Int31n(int32(len(통화종류_문자열_모음)))))
 }
 
-func F통화종류별_정밀도(통화 P통화) int {
+func F통화종류별_정밀도(통화 P통화종류) int {
 	switch 통화 {
 	case KRW:
 		return 0
@@ -242,19 +277,23 @@ func F통화종류별_정밀도(통화 P통화) int {
 }
 
 func F통화형식임(값_모음 ...interface{}) bool {
-	
+
 	for _, 값 := range 값_모음 {
-		if 값 == nil { return false }
-		if _, ok := 값.(I통화); !ok { return false }
+		if 값 == nil {
+			return false
+		}
+		if _, ok := 값.(I통화); !ok {
+			return false
+		}
 	}
 
 	return true
 }
 
-func F통화_종류(값1, 값2 interface{}) (P통화, error) {
+func F통화_종류(값1, 값2 interface{}) (P통화종류, error) {
 	if F_nil값_존재함(값1, 값2) {
 		에러 := F에러_생성_출력("common.F통화_종류() : nil 입력값. %v, %v.", 값1, 값2)
-		return P통화(0), 에러
+		return P통화종류(0), 에러
 	}
 
 	통화형식임1 := F통화형식임(값1)
@@ -265,13 +304,13 @@ func F통화_종류(값1, 값2 interface{}) (P통화, error) {
 			"값1 %v %v, 값2 %v %v.",
 			reflect.TypeOf(값1), 값1,
 			reflect.TypeOf(값2), 값2)
-		return P통화(0), 에러
+		return P통화종류(0), 에러
 	}
 
 	if 통화형식임1 && 통화형식임2 &&
 		값1.(I통화).G종류() != 값2.(I통화).G종류() {
 		에러 := F에러_생성_출력("common.F통화_종류() : 통화 종류 불일치. %v, %v.", 값1, 값2)
-		return P통화(0), 에러
+		return P통화종류(0), 에러
 	}
 
 	if 통화형식임1 {
@@ -300,13 +339,15 @@ func F통화_복사(값 I통화) I통화 {
 
 func F숫자형식임(값_모음 ...interface{}) bool {
 	for _, 값 := range 값_모음 {
-		if 값 == nil { return false }
+		if 값 == nil {
+			return false
+		}
 		switch 값.(type) {
 		case uint, uint8, uint16, uint32, uint64,
-			 int, int8, int16, int32, int64,
-			 float32, float64, *big.Int, *big.Rat,
-			 *sC정수64, *sV정수64, *sC부호없는_정수64, *sV부호없는_정수64,
-			 *sC실수64, *sV실수64, *sC정밀수, *sV정밀수:
+			int, int8, int16, int32, int64,
+			float32, float64, *big.Int, *big.Rat,
+			*sC정수64, *sV정수64, *sC부호없는_정수64, *sV부호없는_정수64,
+			*sC실수64, *sV실수64, *sC정밀수, *sV정밀수:
 			continue
 		default:
 			return false
@@ -317,19 +358,23 @@ func F숫자형식임(값_모음 ...interface{}) bool {
 }
 
 func F숫자형식_확인(값_모음 ...interface{}) bool {
-	if F숫자형식임(값_모음...) { return true }
-	if F_nil값_존재함(값_모음...) { return true }	// ??
-	
+	if F숫자형식임(값_모음...) {
+		return true
+	}
+	if F_nil값_존재함(값_모음...) {
+		return true
+	} // ??
+
 	출력값 := make([]interface{}, 0)
-	
+
 	for _, 값 := range 값_모음 {
 		출력값 = append(출력값, reflect.TypeOf(값))
 		출력값 = append(출력값, 값)
 	}
-	
+
 	F문자열_출력("숫자형식이 아님.")
 	F값_확인(출력값...)
-	
+
 	return false
 }
 
@@ -372,8 +417,6 @@ func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
 	case reflect.DeepEqual(값1, 값2):
 		return true
 	}
-
-	F_TODO("Value DeepEqual 기능 추가.")
 
 	return false
 }
@@ -433,9 +476,10 @@ func F슬라이스_복사(원본slice interface{}) interface{} {
 // 테스트 편의 함수
 
 var 테스트_모드 = false
+
 func F테스트_모드() bool { return 테스트_모드 }
-func F테스트_모드_시작() { 테스트_모드 = true }
-func F테스트_모드_종료() { 테스트_모드 = false }
+func F테스트_모드_시작()   { 테스트_모드 = true }
+func F테스트_모드_종료()   { 테스트_모드 = false }
 
 // '참거짓'이 false이면 Fail하는 테스트용 편의 함수.
 func F참인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수 ...interface{}) (테스트_통과 bool) {
@@ -446,28 +490,25 @@ func F참인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수
 			// PASS
 		default:
 			if 추가_매개변수 == nil || len(추가_매개변수) == 0 {
-				fmt.Printf("%s주어진 조건이 false임.\n\n", F소스코드_위치(1))
+				F문자열_출력("주어진 조건이 false임.")
 			} else {
 				switch 추가_매개변수[0].(type) {
 				case string:
 					포맷_문자열 := 추가_매개변수[0].(string)
-					fmt.Printf("%s"+포맷_문자열+"\n\n",
-						append([]interface{}{F소스코드_위치(1)},
-							추가_매개변수[1:]...)...)
+					F문자열_출력(포맷_문자열, 추가_매개변수[1:]...)
 				default:
-					포맷_문자열 := F소스코드_위치(1) + "%주어진 조건이 false임.\n\n"
+					포맷_문자열 := "주어진 조건이 false임.\n"
 
 					for 반복횟수 := 0; 반복횟수 < len(추가_매개변수); 반복횟수++ {
-						포맷_문자열 = 포맷_문자열 + " %v"
+						포맷_문자열 = 포맷_문자열 + " %v\n"
 					}
-					포맷_문자열 = 포맷_문자열 + ".\n\n"
+					포맷_문자열 = 포맷_문자열 + ".\n"
 
-					fmt.Printf(포맷_문자열, 추가_매개변수...)
+					F문자열_출력(포맷_문자열, 추가_매개변수...)
 				}
 			}
 		}
 
-		//테스트.FailNow()
 		테스트.Fail()
 
 		return false
@@ -484,28 +525,25 @@ func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변
 			// PASS
 		default:
 			if 추가_매개변수 == nil || len(추가_매개변수) == 0 {
-				fmt.Printf("%s주어진 조건이 true임.\n\n", F소스코드_위치(1))
+				F문자열_출력("주어진 조건이 true임.")
 			} else {
 				switch 추가_매개변수[0].(type) {
 				case string:
 					포맷_문자열 := 추가_매개변수[0].(string)
-					fmt.Printf("%s"+포맷_문자열+"\n\n",
-						append([]interface{}{F소스코드_위치(1)},
-							추가_매개변수[1:]...)...)
+					F문자열_출력(포맷_문자열, 추가_매개변수[1:]...)
 				default:
-					포맷_문자열 := F소스코드_위치(1) + "%주어진 조건이 true임.\n\n"
+					포맷_문자열 := "주어진 조건이 true임.\n"
 
 					for 반복횟수 := 0; 반복횟수 < len(추가_매개변수); 반복횟수++ {
-						포맷_문자열 = 포맷_문자열 + " %v"
+						포맷_문자열 = 포맷_문자열 + " %v\n"
 					}
-					포맷_문자열 = 포맷_문자열 + ".\n\n"
+					포맷_문자열 = 포맷_문자열 + ".\n"
 
-					fmt.Printf(포맷_문자열, 추가_매개변수...)
+					F문자열_출력(포맷_문자열, 추가_매개변수...)
 				}
 			}
 		}
 
-		//테스트.FailNow()
 		테스트.Fail()
 
 		return false
@@ -521,10 +559,9 @@ func F에러없음_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			F에러_출력(에러)
+			F문자열_출력(에러.Error())
 		}
 
-		//테스트.FailNow()
 		테스트.Fail()
 
 		return false
@@ -540,10 +577,9 @@ func F에러발생_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			F에러_출력(에러)
+			F문자열_출력(에러.Error())
 		}
 
-		//테스트.FailNow()
 		테스트.Fail()
 
 		return false
@@ -554,19 +590,16 @@ func F에러발생_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 
 // 기대값과 실제값이 다르면 Fail하는 테스트용 편의 함수.
 func F같은값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_통과 bool) {
-	if !F값_같음(값1, 값2) { //&&
-		//if !reflect.DeepEqual(값1, 값2) {
+	if !F값_같음(값1, 값2) {
 		switch 테스트.(type) {
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			fmt.Printf("%s서로 다름. 값1: %v %v 값2: %v %v.\n\n",
-				F소스코드_위치(1),
+			F문자열_출력("서로 다름. 값1: %v %v 값2: %v %v.",
 				reflect.TypeOf(값1), 값1,
 				reflect.TypeOf(값2), 값2)
 		}
 
-		//테스트.FailNow()
 		테스트.Fail()
 
 		return false
@@ -577,19 +610,16 @@ func F같은값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_
 
 // 기대값과 실제값이 같으면 Fail하는 테스트용 편의 함수.
 func F다른값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_통과 bool) {
-	if F값_같음(값1, 값2) { //||
-		//if reflect.DeepEqual(값1, 값2) {
+	if F값_같음(값1, 값2) {
 		switch 테스트.(type) {
 		case I테스트용_가상_객체:
 			// PASS
 		default:
-			fmt.Printf("%s서로 같음. 값1: %v %v 값2: %v %v.\n\n",
-				F소스코드_위치(1),
+			F문자열_출력("서로 같음. 값1: %v %v 값2: %v %v.",
 				reflect.TypeOf(값1), 값1,
 				reflect.TypeOf(값2), 값2)
 		}
 
-		//테스트.FailNow()
 		테스트.Fail()
 
 		return false
@@ -658,28 +688,21 @@ func F에러_생성(문자열 string, 추가_내용 ...interface{}) error {
 
 func F에러_생성_출력(문자열 string, 추가_내용 ...interface{}) error {
 	fmt.Println("")
-	fmt.Printf("%s: " + 문자열 + "\n", F소스코드_위치(1), 추가_내용)
+	fmt.Printf("%s: "+문자열+"\n", F소스코드_위치(1), 추가_내용)
 	fmt.Println(F소스코드_위치(2))
 	fmt.Println(F소스코드_위치(3))
 
 	return F에러_생성(문자열, 추가_내용...)
 }
 
-func F에러_출력(에러 error) {
-	fmt.Println("")
-	fmt.Println(F소스코드_위치(1) + ": " + 에러.Error())
-	fmt.Println(F소스코드_위치(2))
-	fmt.Println(F소스코드_위치(3))
-}
-
 func F문자열_출력(문자열 string, 추가_내용 ...interface{}) {
 	fmt.Println("")
-	fmt.Printf("%s: " + 문자열 + "\n", append([]interface{}{F소스코드_위치(1)}, 추가_내용...)...)
+	fmt.Printf("%s: "+문자열+"\n", append([]interface{}{F소스코드_위치(1)}, 추가_내용...)...)
 	fmt.Println(F소스코드_위치(2))
 	fmt.Println(F소스코드_위치(3))
 	fmt.Println(F소스코드_위치(4))
 	fmt.Println(F소스코드_위치(5))
-	fmt.Println(F소스코드_위치(6))	
+	fmt.Println(F소스코드_위치(6))
 }
 
 // 소스코드 위치를 나타내는 함수. runtime.Caller()의 한글화 버전임.
@@ -696,7 +719,7 @@ func F소스코드_위치(건너뛰는_단계 int) string {
 	건너뛰는_단계 = 건너뛰는_단계 + 1 // 이 메소드를 호출한 함수를 기준으로 0이 되게 하기 위함.
 	pc, 파일_경로, 행_번호, _ := runtime.Caller(건너뛰는_단계)
 	함수_이름 := runtime.FuncForPC(pc).Name()
-	
+
 	함수_이름 = strings.Replace(함수_이름, "github.com/gh-system/", "", -1)
 
 	파일명 := filepath.Base(파일_경로)

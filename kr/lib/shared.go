@@ -2,45 +2,54 @@ package common
 
 import (
 	"fmt"
+	//"strings"
 )
 
 func init() {
 	F나를_위한_문구()
-	F메모()	
+	//F메모()
 }
 
 const (
+	P참  bool = true
+	P거짓 bool = false
+
 	P시점_포맷 string = "2006-01-02 15:04:05 (MST) Mon -0700"
 	P일자_포맷 string = "2006-01-02"
-	
-	P차이_한도 string = "1/1000000000000000000000000000000000000"
+)
 
-	asc코드_0 uint8 = uint8(48)
-	asc코드_소숫점 uint8 = uint8(46)
-	
-	len_대기시간_한도 = len(대기시간_한도) - 1
+const (
+	KRW P통화종류 = iota
+	USD
+	CNY
+	EUR
 )
 
 var (
-	c참 *sC참거짓 = &sC참거짓{true}
-	c거짓 *sC참거짓 = &sC참거짓{false}
-	
-	문자열_후보값_모음 []string = strings.Split(
-		"1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-		"~!@#$%^&*()_+|';:/?.,<>`가나다라마바사하자차카타파하", "")
-	
+	//문자열_후보값_모음 []string = strings.Split(
+	//	"1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"+
+	//		"~!@#$%^&*()_+|';:/?.,<>`가나다라마바사하자차카타파하", "")
+
 	// Exponential Back-off. 재시도 하기 전에 기다리는 대기시간 (단위는 나노초).
-	대기시간_한도 = [...]int64{1, 3, 7, 15, 31, 63, 127, 255, 511, 
-								1023, 2047, 4095, 8191, 16383, 32767,
-								65535, 131071, 262143, 524287, 1048575,
-								2097151, 4194303, 8388607, 16777215, 33554431,
-								67108863, 100000000}
+	대기시간_한도 = [...]int64{1, 3, 7, 15, 31, 63, 127, 255, 511,
+		1023, 2047, 4095, 8191, 16383, 32767,
+		65535, 131071, 262143, 524287, 1048575,
+		2097151, 4194303, 8388607, 16777215, 33554431,
+		67108863, 100000000}
 )
 
 func F나를_위한_문구() {
 	fmt.Println("")
 	fmt.Println("----------------------------------------------------------")
 	fmt.Println("	쉽고 간단하게, 테스트로 검증해 가면서 마음 편하게.")
+	fmt.Println("----------------------------------------------------------")
+	fmt.Println("")
+
+}
+
+func F메모() {
+	fmt.Println("----------------------------------------------------------")
+	fmt.Println("                  메            모")
 	fmt.Println("----------------------------------------------------------")
 	fmt.Println("")
 	fmt.Println("락을 피할 수 있는 10가지 방법.")
@@ -55,13 +64,6 @@ func F나를_위한_문구() {
 	fmt.Println("8. 객체 풀링을 피하라. (Go언어에서는 명시적으로 안전하다고 해 놨던 데...)")
 	fmt.Println("9. 지역 변수나 개별 쓰레드에 국한된 로컬 변수를 사용하라.")
 	fmt.Println("10. 핫스팟(자주 변경되어야 하는 공용 리소스)을 피하라.")
-	fmt.Println("")
-}
-
-func F메모() {
-	fmt.Println("----------------------------------------------------------")
-	fmt.Println("                  메            모")
-	fmt.Println("----------------------------------------------------------")
 	fmt.Println("")
 	fmt.Println("TODO 개요")
 	fmt.Println("	- 변수형 : CAS (Compare and Swap) API 구현할 것.")
@@ -107,7 +109,7 @@ func F메모() {
 	fmt.Println("			공유해도 안전하다고 판단해도 됨.)")
 	fmt.Println("			complex64, complex128에 대해서는 복사에 독립적인 지 확인필요.")
 	fmt.Println("")
-	fmt.Println("TODO : F값_일치 개선 계획.")
+	fmt.Println("TODO : F값_같음() : Real Value DeepEqual 구현 계획.")
 	fmt.Println("		기본 계획")
 	fmt.Println("		- 두 값의 내부 필드값을 기록한 슬라이스 확보.")
 	fmt.Println("		- 두 슬라이스에 대해서 비교.")
