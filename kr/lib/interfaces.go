@@ -1,4 +1,4 @@
-package common
+package lib
 
 import (
 	"math/big"
@@ -22,9 +22,13 @@ type I기본_문자열 interface {
 	String() string
 }
 
+type I임의값_생성 interface {
+	quick.Generator
+}
+
 type I자료형_공통 interface {
 	I기본_문자열
-	quick.Generator
+	I임의값_생성
 }
 
 type I상수형 interface {
@@ -58,19 +62,18 @@ type I통화종류 interface {
 
 // 정수
 type I정수 interface {
+	I정수형
 	G값() int64
 }
 
 type C정수 interface {
 	I상수형
-	I정수형
 	I정수
 	G변수형() V정수
 }
 
 type V정수 interface {
 	I변수형
-	I정수형
 	I정수
 	G상수형() C정수
 
@@ -84,19 +87,18 @@ type V정수 interface {
 
 // 부호없는 정수
 type I부호없는_정수 interface {
+	I정수형
 	G값() uint64
 }
 
 type C부호없는_정수 interface {
 	I상수형
-	I정수형
 	I부호없는_정수
 	G변수형() V부호없는_정수
 }
 
 type V부호없는_정수 interface {
 	I변수형
-	I정수형
 	I부호없는_정수
 	G상수형() C부호없는_정수
 
@@ -109,19 +111,18 @@ type V부호없는_정수 interface {
 
 // 실수
 type I실수 interface {
+	I실수형
 	G값() float64
 }
 
 type C실수 interface {
 	I상수형
-	I실수형
 	I실수
 	G변수형() V실수
 }
 
 type V실수 interface {
 	I변수형
-	I실수형
 	I실수
 	G상수형() C실수
 
@@ -133,8 +134,27 @@ type V실수 interface {
 	S나누기(값 float64) V실수
 }
 
-// bool은 true, false밖에 없는 데, const P참, P거짓 으로 선언해서 해결함.
-// string은 어차피 immutable 함.
+type I참거짓 interface {
+	G값() bool
+}
+
+type C참거짓 interface {
+	I상수형
+	I참거짓
+	G변수형() V참거짓
+}
+
+type V참거짓 interface {
+	I변수형
+	I참거짓
+	G상수형() C참거짓
+	S값(값 bool) V참거짓
+}
+
+type C문자열 interface {
+	I상수형
+	G값() string
+}
 
 // 시점
 type I시점 interface {
@@ -184,14 +204,6 @@ type V정밀수 interface {
 	S나누기(값 interface{}) V정밀수
 	S역수() V정밀수
 	S반대부호값() V정밀수
-
-	S절대값2(값 interface{}) V정밀수
-	S더하기2(값1, 값2 interface{}) V정밀수
-	S빼기2(값1, 값2 interface{}) V정밀수
-	S곱하기2(값1, 값2 interface{}) V정밀수
-	S나누기2(값1, 값2 interface{}) V정밀수
-	S역수2(값 interface{}) V정밀수
-	S반대부호값2(값 interface{}) V정밀수
 }
 
 type I통화 interface {
@@ -219,13 +231,6 @@ type V통화 interface {
 	S곱하기(값 interface{}) V통화
 	S나누기(값 interface{}) V통화
 	S반대부호값() V통화
-
-	S절대값2(값 I통화) V통화
-	S더하기2(값1, 값2 interface{}) V통화
-	S빼기2(값1, 값2 interface{}) V통화
-	S곱하기2(값1, 값2 interface{}) V통화
-	S나누기2(값1, 값2 interface{}) V통화
-	S반대부호값2(값 I통화) V통화
 }
 
 type C매개변수 interface {

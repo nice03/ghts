@@ -1,8 +1,8 @@
-package common
+package lib
 
 import (
 	"fmt"
-	//"strings"
+	"strings"
 )
 
 func init() {
@@ -23,12 +23,20 @@ const (
 	USD
 	CNY
 	EUR
+
+	INVALID_CURRENCY_TYPE P통화종류 = P통화종류(-1)
 )
 
 var (
-	//문자열_후보값_모음 []string = strings.Split(
-	//	"1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"+
-	//		"~!@#$%^&*()_+|';:/?.,<>`가나다라마바사하자차카타파하", "")
+	테스트_모드      V참거짓 = NV참거짓(false)
+	문자열_출력_일시정시 V참거짓 = NV참거짓(false)
+
+	c참  C참거짓 = &sC참거짓{&s참거짓{true}}
+	c거짓 C참거짓 = &sC참거짓{&s참거짓{false}}
+
+	문자열_후보값_모음 []string = strings.Split(
+		"1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"+
+			"~!@#$%^&*()_+|';:/?.,<>`가나다라마바사하자차카타파하", "")
 
 	// Exponential Back-off. 재시도 하기 전에 기다리는 대기시간 (단위는 나노초).
 	대기시간_한도 = [...]int64{1, 3, 7, 15, 31, 63, 127, 255, 511,
