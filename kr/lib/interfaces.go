@@ -132,6 +132,7 @@ type V실수 interface {
 	S빼기(값 float64) V실수
 	S곱하기(값 float64) V실수
 	S나누기(값 float64) V실수
+	S역수() V실수
 }
 
 type I참거짓 interface {

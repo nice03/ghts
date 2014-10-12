@@ -16,6 +16,8 @@ const (
 
 	P시점_포맷 string = "2006-01-02 15:04:05 (MST) Mon -0700"
 	P일자_포맷 string = "2006-01-02"
+
+	P매개변수_안전성_검사_건너뛰기 = false
 )
 
 const (
@@ -83,7 +85,10 @@ func F메모() {
 	fmt.Println("	- 위험관리")
 	fmt.Println("	- 전략, 서버,  가격정보 취득")
 	fmt.Println("")
-	fmt.Println("TODO : I통화.String() 3자리마다 콤마 추가. 테스트 케이스 추가.")
+	fmt.Println("TODO : 모든 공개된 함수 및 메소드는 그 매개변수로 I상수형 및 ")
+	fmt.Println("		CallByValue에 의해서 자동으로 복사되는 형식으로 한정.")
+	fmt.Println("		모든 메소드 및 함수에서 매개변수의 안전성을 체크하도록 할 것.")
+	fmt.Println("		혹은 design by contract를 사용할 것.")
 	fmt.Println("TODO : common.공용 자료형 및 테스트")
 	fmt.Println("TODO : common.기타 자료형 및 펑션")
 	fmt.Println("TODO : tools.* 바뀐 API에 맞게 수정.")
