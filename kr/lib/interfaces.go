@@ -174,7 +174,7 @@ type V시점 interface {
 	I시점
 	G상수형() C시점
 	S값(값 time.Time) V시점
-	S날짜_더하기(연, 월, 일 int) V시점
+	S일자_더하기(연, 월, 일 int) V시점
 }
 
 // 정밀수
@@ -212,6 +212,7 @@ type I통화 interface {
 	G종류() P통화종류
 	G값() C정밀수
 	G같음(값 I통화) bool
+	G비교(값 I통화) int	// -1 : 더 작음, 0 : 같음, 1 : 더 큼, -2 : 비교 불가
 }
 
 type C통화 interface {

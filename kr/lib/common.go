@@ -14,10 +14,10 @@ const (
 	P참  bool = true
 	P거짓 bool = false
 
-	P시점_포맷 string = "2006-01-02 15:04:05 (MST) Mon -0700"
-	P일자_포맷 string = "2006-01-02"
+	P시점_형식 string = "2006-01-02 15:04:05.000000000 (MST) Mon -0700"
+	P일자_형식 string = "2006-01-02"
 
-	P매개변수_안전성_검사_건너뛰기 = false
+	P매개변수_안전성_검사_건너뛰기 = P거짓
 )
 
 const (

@@ -1,4 +1,4 @@
-Copyright (C) 2014 UnHa Kim <kuh74@daum.net>
+Copyright (C) 2014 UnHa Kim
 
 This program is free software: 
 you can redistribute it and/or modify it under the terms of the 
@@ -25,14 +25,8 @@ and GNU General Public License (GNU GPL) along with this program.
 If not, see <http://www.gnu.org/licenses/>.
 
 ---------------------------------------------------------------------
-한글판 저작권 관련 내용은 한국어 사용자의 편의를 위하여 제공되었으며,
-실제 저작권법 관련 내용은 영문판 원본이 한글판보다 우선합니다.
 
-Translation is provided for the convenience of non-English users.
-English version of original LGPL licensing term have priority over translation(s).
----------------------------------------------------------------------
-
-Copyright (C) 2014 김운하 <kuh74@daum.net>
+Copyright (C) 2014 김운하
 
 이 프로그램은 자유 소프트웨어입니다.
 자유 소프트웨어 재단 FSF가 배포한 "GNU LGPL 버전 3"에 의거하여,

@@ -18,7 +18,7 @@ Refer to 'LICENSE' file, for the licensing detail
 
 **************************************************************************
 
-Copyright (C) 2014 UnHa Kim <kuh74@daum.net>
+Copyright (C) 2014 UnHa Kim
 
 This program is free software: 
 you can redistribute it and/or modify it under the terms of the 

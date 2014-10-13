@@ -24,8 +24,12 @@ func F매개변수_안정성_검사(값_모음 ...interface{}) bool {
 
 	값_모음 = F중첩된_외부_슬라이스_제거(값_모음)
 
-	for _, 값 := range 값_모음 {
+	for _, 값 := range 값_모음 {		
 		switch 값.(type) {
+		case I변수형:
+			// mutable하고 자동으로 복사도 안 되는 형식은 위험하다고 판단.
+			// continue 하지 않고, panic()을 향해 감.
+			// proceed to panic()
 		case nil, uint, uint8, uint16, uint32, uint64,
 			int, int8, int16, int32, int64,
 			float32, float64, complex64, complex128,
@@ -51,8 +55,7 @@ func F매개변수_안정성_검사(값_모음 ...interface{}) bool {
 			// CallByValue에 의해서 자동으로 복사본이 생성되는 커스텀 형식.
 			continue
 		}
-
-		// 알려진 상수형이 아닌 경우에는 안전하지 않다고 판단.
+		
 		F문자열_출력("안전하지 않은 매개변수 형식 : %v", F값_확인_문자열(값))
 
 		에러 := F에러_생성("%s안전하지 않은 매개변수 형식 : %s\n%s\n%s\n%s\n%s",
@@ -60,10 +63,10 @@ func F매개변수_안정성_검사(값_모음 ...interface{}) bool {
 			F소스코드_위치(2), F소스코드_위치(3), F소스코드_위치(4), F소스코드_위치(5))
 
 		panic(에러)
-
+		
 		return false
 	}
-
+	
 	return true
 }
 
@@ -226,7 +229,7 @@ func F문자열(값 interface{}) string {
 	case float64:
 		return strconv.FormatFloat(값.(float64), 'f', -1, 64)
 	case time.Time:
-		return 값.(time.Time).Format(P시점_포맷)
+		return 값.(time.Time).Format(P시점_형식)
 	case I기본_문자열:
 		return 값.(I기본_문자열).String()
 	}
@@ -336,13 +339,13 @@ func F문자열2실수(값 string) (float64, error) {
 }
 
 func F문자열2시점(값 string) (time.Time, error) {
-	시점, 에러 := time.Parse(P시점_포맷, 값)
+	시점, 에러 := time.Parse(P시점_형식, 값)
 
 	if 에러 == nil {
 		return 시점, nil
 	}
 
-	시점, 에러 = time.Parse(P일자_포맷, 값)
+	시점, 에러 = time.Parse(P일자_형식, 값)
 
 	if 에러 == nil {
 		return 시점, nil
@@ -354,11 +357,11 @@ func F문자열2시점(값 string) (time.Time, error) {
 }
 
 func F시점_문자열(시점 time.Time) string {
-	return 시점.Format(P시점_포맷)
+	return 시점.Format(P시점_형식)
 }
 
 func F일자_문자열(일자 time.Time) string {
-	return 일자.Format(P일자_포맷)
+	return 일자.Format(P일자_형식)
 }
 
 func F시점_복사(값 time.Time) time.Time {
@@ -707,6 +710,13 @@ func F_nil값임(값 interface{}) bool {
 			return true
 		}
 	}
+	
+	switch 값.(type) {
+	case I정밀수:
+		return 값.(I정밀수).GRat() == nil
+	case I통화:
+		return 값.(I통화).G값() == nil
+	}
 
 	return false
 }
@@ -1047,7 +1057,7 @@ func F값_확인_문자열(값_모음 ...interface{}) string {
 		} else {
 			버퍼.WriteString(
 				F포맷된_문자열("형식%v : %v, 값%v : %v",
-					인덱스, reflect.TypeOf(값), 인덱스, 값))
+					인덱스+1, reflect.TypeOf(값), 인덱스+1, 값))
 		}
 	}
 	//버퍼.WriteString("\n")

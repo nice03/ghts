@@ -29,7 +29,7 @@ func NV참거짓(값 bool) V참거짓 { return &sV참거짓{s참거짓: &s참거
 
 func NC문자열(값 string) C문자열 { return &sC문자열{값} }
 
-func NC시점(값 time.Time) C시점 { return &sC시점{값} }
+func NC시점(값 time.Time) C시점 { return &sC시점{&s시점{값}} }
 func NC시점_문자열(값 string) C시점 {
 	시점, 에러 := F문자열2시점(값)
 
@@ -41,7 +41,7 @@ func NC시점_문자열(값 string) C시점 {
 }
 
 func NV시점(값 time.Time) V시점 {
-	return &sV시점{값: 값}
+	return &sV시점{s시점: &s시점{값}}
 }
 
 func NV시점_문자열(값 string) V시점 {
