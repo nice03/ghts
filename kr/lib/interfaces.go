@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-
 type i테스트용_가상_객체 interface {
 	테스트용_가상_객체()
 }
@@ -212,7 +211,7 @@ type I통화 interface {
 	G종류() P통화종류
 	G값() C정밀수
 	G같음(값 I통화) bool
-	G비교(값 I통화) int	// -1 : 더 작음, 0 : 같음, 1 : 더 큼, -2 : 비교 불가
+	G비교(값 I통화) int // -1 : 더 작음, 0 : 같음, 1 : 더 큼, -2 : 비교 불가
 }
 
 type C통화 interface {
@@ -238,7 +237,11 @@ type V통화 interface {
 
 type C매개변수 interface {
 	G이름() string
-	G값() I상수형
+	G값() interface{}
+	G숫자형식임() bool
+	G문자열형식임() bool
+	G시점형식임() bool
+	G참거짓형식임() bool
 }
 
 /*

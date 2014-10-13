@@ -69,7 +69,7 @@ func NC정밀수(값 interface{}) C정밀수 {
 	case *sV정밀수:
 		정밀수 = 값.(*sV정밀수).GRat()
 	default:
-		F매개변수_안정성_검사(값)
+		F매개변수_안전성_검사(값)
 
 		var 성공 bool
 		정밀수, 성공 = new(big.Rat).SetString(F문자열(값))
@@ -95,7 +95,7 @@ func NV정밀수(값 interface{}) V정밀수 {
 	case I정밀수:
 		정밀수 = 값.(I정밀수).GRat()
 	default:
-		F매개변수_안정성_검사(값)
+		F매개변수_안전성_검사(값)
 
 		var 성공 bool
 		정밀수, 성공 = new(big.Rat).SetString(F문자열(값))
@@ -157,11 +157,7 @@ func NV통화(종류 P통화종류, 금액 interface{}) V통화 {
 }
 
 func NC매개변수(이름 string, 값 interface{}) C매개변수 {
-	var 상수형 I상수형 = F상수형(값)
+	F매개변수_안전성_검사(값)
 
-	if 상수형 == nil {
-		return nil
-	}
-
-	return &sC매개변수{이름, 상수형}
+	return &sC매개변수{이름, 값}
 }

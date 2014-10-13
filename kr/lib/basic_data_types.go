@@ -211,7 +211,6 @@ func (s *sV정수64) Generate(
 	return reflect.ValueOf(NV정수(s.s정수64.generate(임의값_생성기)))
 }
 
-
 // 부호없는_정수
 
 type s부호없는_정수64 struct{ 값 uint64 }
@@ -380,7 +379,6 @@ func (s *sV부호없는_정수64) Generate(
 	크기 int) reflect.Value {
 	return reflect.ValueOf(NV부호없는_정수(uint64(임의값_생성기.Int63())))
 }
-
 
 // 실수
 
@@ -584,7 +582,6 @@ func (s *sV실수64) Generate(
 	return reflect.ValueOf(NV실수(s.s실수64.generate(임의값_생성기)))
 }
 
-
 // 참거짓
 
 type s참거짓 struct{ 값 bool }
@@ -658,15 +655,16 @@ func (s *sC문자열) Generate(임의값_생성기 *rand.Rand, 크기 int) refle
 
 // 시점 (time.Time)
 type s시점 struct{ 값 time.Time }
+
 func (s *s시점) G값() time.Time  { return s.값 }
 func (s *s시점) String() string { return s.값.Format(P시점_형식) }
 func (s *s시점) generate(임의값_생성기 *rand.Rand) time.Time {
-	연도_차이 :=  int(임의값_생성기.Int31n(100))
-	
+	연도_차이 := int(임의값_생성기.Int31n(100))
+
 	if 임의값_생성기.Int31n(2) == 0 {
 		연도_차이 = 연도_차이 * -1
 	}
-	
+
 	연도 := time.Now().Year() + 연도_차이
 	월 := time.Month(int(1 + 임의값_생성기.Int31n(12)))
 	일 := int(1 + 임의값_생성기.Int31n(31))
@@ -680,8 +678,8 @@ func (s *s시점) generate(임의값_생성기 *rand.Rand) time.Time {
 
 type sC시점 struct{ *s시점 }
 
-func (s *sC시점) 상수형임()          {}
-func (s *sC시점) G변수형() V시점      { return NV시점(s.s시점.값) }
+func (s *sC시점) 상수형임()     {}
+func (s *sC시점) G변수형() V시점 { return NV시점(s.s시점.값) }
 func (s *sC시점) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	return reflect.ValueOf(NC시점(s.s시점.generate(임의값_생성기)))
 }
@@ -703,7 +701,7 @@ func (s *sV시점) G상수형() C시점 {
 func (s *sV시점) S값(값 time.Time) V시점 {
 	s.잠금.Lock()
 	defer s.잠금.Unlock()
-	s.s시점.값 = 값	// time.Time은 매개변수로 넘어오면서 자동으로 복사됨. 
+	s.s시점.값 = 값 // time.Time은 매개변수로 넘어오면서 자동으로 복사됨.
 	return s
 }
 func (s *sV시점) S일자_더하기(연, 월, 일 int) V시점 {
@@ -1133,9 +1131,13 @@ func (s *sC통화) G비교(값 I통화) int {
 			return -2
 		}
 	}
-	if F_nil값임(s) || F_nil값임(값) { return -2 }
-	if s.G종류() != 값.G종류() { return -2 }
-	
+	if F_nil값임(s) || F_nil값임(값) {
+		return -2
+	}
+	if s.G종류() != 값.G종류() {
+		return -2
+	}
+
 	return s.G값().G비교(값.G값())
 }
 func (s *sC통화) G변수형() V통화 { return NV통화(s.종류, s.금액) }
@@ -1145,14 +1147,14 @@ func (s *sC통화) String() string {
 func (s *sC통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	종류 := F임의_통화종류()
 	금액 := 0.0
-	
+
 	for math.Abs(금액) < 1 {
 		분자 := 임의값_생성기.Int63()
-		
+
 		if 임의값_생성기.Int31n(2) == 0 {
 			분자 = 분자 * -1
 		}
-		
+
 		금액, _ = big.NewRat(분자, 1000).Float64()
 	}
 
@@ -1202,9 +1204,13 @@ func (s *sV통화) G비교(값 I통화) int {
 			return -2
 		}
 	}
-	if F_nil값임(s) || F_nil값임(값) { return -2 }
-	if s.G종류() != 값.G종류() { return -2 }
-	
+	if F_nil값임(s) || F_nil값임(값) {
+		return -2
+	}
+	if s.G종류() != 값.G종류() {
+		return -2
+	}
+
 	return s.G값().G비교(값.G값())
 }
 func (s *sV통화) G상수형() C통화 {
@@ -1232,7 +1238,7 @@ func (s *sV통화) S절대값() V통화 {
 	return s
 }
 func (s *sV통화) S더하기(값 interface{}) V통화 {
-	F매개변수_안정성_검사(값)
+	F매개변수_안전성_검사(값)
 
 	if F_nil값_존재함(값) ||
 		(!F통화형식임(값) && !F숫자형식임(값)) ||
@@ -1249,7 +1255,7 @@ func (s *sV통화) S더하기(값 interface{}) V통화 {
 	return s
 }
 func (s *sV통화) S빼기(값 interface{}) V통화 {
-	F매개변수_안정성_검사(값)
+	F매개변수_안전성_검사(값)
 
 	if F_nil값_존재함(값) ||
 		(!F통화형식임(값) && !F숫자형식임(값)) ||
@@ -1266,7 +1272,7 @@ func (s *sV통화) S빼기(값 interface{}) V통화 {
 	return s
 }
 func (s *sV통화) S곱하기(값 interface{}) V통화 {
-	F매개변수_안정성_검사(값)
+	F매개변수_안전성_검사(값)
 
 	if F_nil값_존재함(값) ||
 		(!F통화형식임(값) && !F숫자형식임(값)) ||
@@ -1283,7 +1289,7 @@ func (s *sV통화) S곱하기(값 interface{}) V통화 {
 	return s
 }
 func (s *sV통화) S나누기(값 interface{}) V통화 {
-	F매개변수_안정성_검사(값)
+	F매개변수_안전성_검사(값)
 
 	if F_nil값_존재함(값) ||
 		(!F통화형식임(값) && !F숫자형식임(값)) ||
@@ -1317,24 +1323,29 @@ func (s *sV통화) String() string {
 func (s *sV통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	종류 := F임의_통화종류()
 	금액 := 0.0
-	
+
 	for math.Abs(금액) < 1 {
 		분자 := 임의값_생성기.Int63()
-		
+
 		if 임의값_생성기.Int31n(2) == 0 {
 			분자 = 분자 * -1
 		}
-		
+
 		금액, _ = big.NewRat(분자, 1000).Float64()
 	}
 
 	return reflect.ValueOf(NV통화(종류, 금액))
 }
 
+// 생성자에서 매개변수의 안전성을 검사하도록 할 것.
 type sC매개변수 struct {
 	이름 string
-	값  I상수형
+	값  interface{}
 }
 
-func (s *sC매개변수) G이름() string { return s.이름 }
-func (s *sC매개변수) G값() I상수형    { return s.값 }
+func (s *sC매개변수) G이름() string     { return s.이름 }
+func (s *sC매개변수) G값() interface{} { return s.값 }
+func (s *sC매개변수) G숫자형식임() bool    { return F숫자형식임(s.값) }
+func (s *sC매개변수) G문자열형식임() bool   { return F문자열형식임(s.값) }
+func (s *sC매개변수) G시점형식임() bool    { return F시점형식임(s.값) }
+func (s *sC매개변수) G참거짓형식임() bool   { return F참거짓형식임(s.값) }

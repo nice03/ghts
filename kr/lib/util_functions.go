@@ -17,14 +17,14 @@ import (
 // 매개변수가 data race를 일으킬 위험이 있는 지 검사.
 // 현재는 알려진 몇몇 형식에 대해서만 제대로 작동함.
 // 이후 추가하거나, 근본적인 자동 검사가 가능하도록 개선할 것.
-func F매개변수_안정성_검사(값_모음 ...interface{}) bool {
+func F매개변수_안전성_검사(값_모음 ...interface{}) bool {
 	if P매개변수_안전성_검사_건너뛰기 {
 		return true
 	}
 
 	값_모음 = F중첩된_외부_슬라이스_제거(값_모음)
 
-	for _, 값 := range 값_모음 {		
+	for _, 값 := range 값_모음 {
 		switch 값.(type) {
 		case I변수형:
 			// mutable하고 자동으로 복사도 안 되는 형식은 위험하다고 판단.
@@ -55,7 +55,7 @@ func F매개변수_안정성_검사(값_모음 ...interface{}) bool {
 			// CallByValue에 의해서 자동으로 복사본이 생성되는 커스텀 형식.
 			continue
 		}
-		
+
 		F문자열_출력("안전하지 않은 매개변수 형식 : %v", F값_확인_문자열(값))
 
 		에러 := F에러_생성("%s안전하지 않은 매개변수 형식 : %s\n%s\n%s\n%s\n%s",
@@ -63,10 +63,10 @@ func F매개변수_안정성_검사(값_모음 ...interface{}) bool {
 			F소스코드_위치(2), F소스코드_위치(3), F소스코드_위치(4), F소스코드_위치(5))
 
 		panic(에러)
-		
+
 		return false
 	}
-	
+
 	return true
 }
 
@@ -310,7 +310,7 @@ func F마지막_0_제거(문자열 string) string {
 }
 
 func F반올림(값 interface{}, 소숫점_이하_자릿수 int) C정밀수 {
-	F매개변수_안정성_검사(값)
+	F매개변수_안전성_검사(값)
 
 	if !F숫자형식임(값) {
 		F문자열_출력("숫자형식이 아님. %v", F값_확인_문자열(값))
@@ -388,7 +388,7 @@ func F통화종류별_정밀도(통화 P통화종류) int {
 }
 
 func F통화종류(값_모음 ...interface{}) P통화종류 {
-	F매개변수_안정성_검사(값_모음...)
+	F매개변수_안전성_검사(값_모음...)
 
 	통화종류_맵 := make(map[P통화종류]P통화종류)
 
@@ -412,7 +412,7 @@ func F통화종류(값_모음 ...interface{}) P통화종류 {
 }
 
 func F통화형식임(값_모음 ...interface{}) bool {
-	F매개변수_안정성_검사(값_모음...)
+	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
 		return false
@@ -447,7 +447,7 @@ func F통화_같음(값1, 값2 interface{}) bool {
 }
 
 func F숫자형식임(값_모음 ...interface{}) bool {
-	F매개변수_안정성_검사(값_모음...)
+	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
 		return false
@@ -491,7 +491,7 @@ func F숫자_같음(값1, 값2 interface{}) bool {
 }
 
 func F참거짓형식임(값_모음 ...interface{}) bool {
-	F매개변수_안정성_검사(값_모음...)
+	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
 		return false
@@ -538,7 +538,7 @@ func F참거짓_같음(값1, 값2 interface{}) bool {
 }
 
 func F문자열형식임(값_모음 ...interface{}) bool {
-	F매개변수_안정성_검사(값_모음...)
+	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
 		return false
@@ -585,7 +585,7 @@ func F문자열_같음(값1, 값2 interface{}) bool {
 }
 
 func F시점형식임(값_모음 ...interface{}) bool {
-	F매개변수_안정성_검사(값_모음...)
+	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
 		return false
@@ -639,7 +639,7 @@ func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
 		}
 	}()
 
-	F매개변수_안정성_검사(값1, 값2)
+	F매개변수_안전성_검사(값1, 값2)
 
 	switch {
 	case F_nil값_존재함(값1, 값2):
@@ -710,7 +710,7 @@ func F_nil값임(값 interface{}) bool {
 			return true
 		}
 	}
-	
+
 	switch 값.(type) {
 	case I정밀수:
 		return 값.(I정밀수).GRat() == nil
@@ -730,7 +730,7 @@ func F_nil값임(값 interface{}) bool {
 /*
 func F슬라이스_복사(원본slice interface{}) interface{} {
 	// 슬라이스를 주고 받는 것은 안전성에 문제의 소지가 있다.
-	//if !F매개변수_안정성_검사(원본slice) { return nil }
+	//if !F매개변수_안전성_검사(원본slice) { return nil }
 
 	원본값 := reflect.ValueOf(원본slice)
 
@@ -1068,7 +1068,7 @@ func F값_확인_문자열(값_모음 ...interface{}) string {
 // 메모 편의 함수.
 var 이미_출력한_TODO_모음 []string = make([]string, 0)
 
-// 해야할 일을 소스코드 위치와 함께 표기해 주는 메소드. 
+// 해야할 일을 소스코드 위치와 함께 표기해 주는 메소드.
 func F_TODO(문자열 string) {
 	for _, 이미_출력한_TODO := range 이미_출력한_TODO_모음 {
 		if 문자열 == 이미_출력한_TODO {
