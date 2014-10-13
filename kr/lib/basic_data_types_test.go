@@ -551,11 +551,8 @@ func testI정밀수(테스트 *testing.T, 생성자 interface{}) {
 		정밀수 = 생성자_(&sV정밀수{s정밀수: &s정밀수{bigRat}})
 	default:
 		테스트.Errorf("%stestI정밀수() : 알려지지 않은  생성자 타입 %v.",
-			F소스코드_위치(2),
-			reflect.TypeOf(생성자))
+			F소스코드_위치(2), reflect.TypeOf(생성자))
 	}
-
-	//F값_확인(reflect.TypeOf(생성자))
 
 	// G값() 테스트
 	F같은값_확인(테스트, 정밀수, 입력값)
@@ -620,7 +617,7 @@ func TestV정밀수(테스트 *testing.T) {
 		테스트.Errorf("%scommon.TestV정밀수() : 변수형이 상수형과 혼동됨.", F소스코드_위치(1))
 	default:
 		테스트.Errorf("%scommon.TestV정밀수() : 변수형이 제대로 판정되지 않음. 타입 %v",
-			F소스코드_위치(1), reflect.TypeOf(v정밀수))
+			F소스코드_위치(1), F값_확인_문자열(v정밀수))
 	}
 
 	switch c정밀수.(type) {
@@ -707,8 +704,7 @@ func testI통화(테스트 *testing.T, 생성자 interface{}) {
 		통화 = 생성자_(&sV통화{종류: 통화종류, 금액: NV정밀수(초기값)})
 	default:
 		테스트.Errorf("%stestI통화() : 알려지지 않은  생성자 타입 %v.",
-			F소스코드_위치(2),
-			reflect.TypeOf(생성자))
+			F소스코드_위치(2), reflect.TypeOf(생성자))
 	}
 
 	입력값 := F반올림(초기값, F통화종류별_정밀도(통화종류)).G변수형()

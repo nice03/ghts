@@ -426,9 +426,7 @@ func TestF숫자_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F참인지_확인(테스트, F숫자_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F참인지_확인(테스트, F숫자_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 
@@ -439,9 +437,7 @@ func TestF숫자_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F거짓인지_확인(테스트, F숫자_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F거짓인지_확인(테스트, F숫자_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 
@@ -450,9 +446,7 @@ func TestF숫자_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F참인지_확인(테스트, F숫자_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F참인지_확인(테스트, F숫자_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 
@@ -460,9 +454,7 @@ func TestF숫자_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F거짓인지_확인(테스트, F숫자_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F거짓인지_확인(테스트, F숫자_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 }
@@ -492,9 +484,7 @@ func TestF참거짓_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F참인지_확인(테스트, F참거짓_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F참인지_확인(테스트, F참거짓_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 
@@ -503,9 +493,7 @@ func TestF참거짓_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F참인지_확인(테스트, F참거짓_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F참인지_확인(테스트, F참거짓_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 
@@ -514,9 +502,7 @@ func TestF참거짓_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F거짓인지_확인(테스트, F참거짓_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F거짓인지_확인(테스트, F참거짓_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 
@@ -525,9 +511,7 @@ func TestF참거짓_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F거짓인지_확인(테스트, F참거짓_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F거짓인지_확인(테스트, F참거짓_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 }
@@ -559,9 +543,7 @@ func TestF문자열_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F참인지_확인(테스트, F문자열_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F참인지_확인(테스트, F문자열_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 
@@ -570,9 +552,7 @@ func TestF문자열_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F거짓인지_확인(테스트, F문자열_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F거짓인지_확인(테스트, F문자열_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 }
@@ -605,9 +585,7 @@ func TestF시점_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F참인지_확인(테스트, F시점_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F참인지_확인(테스트, F시점_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 
@@ -616,9 +594,7 @@ func TestF시점_같음(테스트 *testing.T) {
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
-			F거짓인지_확인(테스트, F시점_같음(값1, 값2), "값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F거짓인지_확인(테스트, F시점_같음(값1, 값2), F값_확인_문자열(값1, 값2))
 		}
 	}
 }
@@ -677,9 +653,7 @@ func testF값_같음_도우미(테스트 *testing.T, 값 []interface{}) {
 	for 인덱스1 := 0; 인덱스1 < (len(값) - 1); 인덱스1++ {
 		for 인덱스2 := 인덱스1 + 1; 인덱스2 < len(값); 인덱스2++ {
 			F참인지_확인(테스트, F값_같음(값[인덱스1], 값[인덱스2]),
-				"common.TestF값_값음() : 값1 %v %v, 값2 %v %v",
-				reflect.TypeOf(값[인덱스1]), 값[인덱스1],
-				reflect.TypeOf(값[인덱스2]), 값[인덱스2])
+				"common.TestF값_값음() : %v", F값_확인_문자열(값[인덱스1], 값[인덱스2]))
 		}
 	}
 }
@@ -758,8 +732,8 @@ func TestS가상TB(테스트 *testing.T) {
 	가상_테스트 := new(s가상TB)
 	var tb testing.TB = 가상_테스트
 	tb.Failed()
-	var i테스트용_가상_객체 I테스트용_가상_객체 = 가상_테스트
-	i테스트용_가상_객체.테스트용_가상_객체()
+	var 테스트용_가상_객체 i테스트용_가상_객체 = 가상_테스트
+	테스트용_가상_객체.테스트용_가상_객체()
 
 	테스트_통과 = true
 	가상_테스트.Error()
@@ -982,4 +956,16 @@ func TestF소스코드_위치(테스트 *testing.T) {
 
 func TestF에러_생성(테스트 *testing.T) {
 	F같은값_확인(테스트, F에러_생성("테스트 %v, %v", 1, 2.2).Error(), "테스트 1, 2.2")
+}
+
+func TestF값_확인_문자열(테스트 *testing.T) {
+	문자열 := F값_확인_문자열(1)
+	F참인지_확인(테스트, strings.Contains(문자열, "int"))
+	F참인지_확인(테스트, strings.Contains(문자열, "1"))
+
+	문자열 = F값_확인_문자열(1, 2.2)
+	F참인지_확인(테스트, strings.Contains(문자열, "int"))
+	F참인지_확인(테스트, strings.Contains(문자열, "1"))
+	F참인지_확인(테스트, strings.Contains(문자열, "float64"))
+	F참인지_확인(테스트, strings.Contains(문자열, "2.2"))
 }

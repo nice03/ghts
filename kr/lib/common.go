@@ -6,8 +6,8 @@ import (
 )
 
 func init() {
-	F나를_위한_문구()
-	//F메모()
+	나를_위한_문구()
+	//메모()
 }
 
 const (
@@ -30,7 +30,7 @@ const (
 )
 
 var (
-	테스트_모드      V참거짓 = NV참거짓(false)
+	테스트_모드 V참거짓 = NV참거짓(false)
 	문자열_출력_일시정시 V참거짓 = NV참거짓(false)
 
 	c참  C참거짓 = &sC참거짓{&s참거짓{true}}
@@ -48,7 +48,7 @@ var (
 		67108863, 100000000}
 )
 
-func F나를_위한_문구() {
+func 나를_위한_문구() {
 	fmt.Println("")
 	fmt.Println("----------------------------------------------------------")
 	fmt.Println("	쉽고 간단하게, 테스트로 검증해 가면서 마음 편하게.")
@@ -57,7 +57,7 @@ func F나를_위한_문구() {
 
 }
 
-func F메모() {
+func 메모() {
 	fmt.Println("----------------------------------------------------------")
 	fmt.Println("                  메            모")
 	fmt.Println("----------------------------------------------------------")
@@ -76,25 +76,24 @@ func F메모() {
 	fmt.Println("10. 핫스팟(자주 변경되어야 하는 공용 리소스)을 피하라.")
 	fmt.Println("")
 	fmt.Println("TODO 개요")
-	fmt.Println("	- 변수형 : CAS (Compare and Swap) API 구현할 것.")
-	fmt.Println("	- duck-typing 함수 및 메소드에 F숫자형식임() 체크하는 게 어떨까?.")
-	fmt.Println("	- 기본 자료형 마무리.")
-	fmt.Println("	- 편의 함수")
+	fmt.Println("	- 편의 함수 (Mostly Done)")
+	fmt.Println("	- interface{} 매개변수에 안전성 및 형식 검사 추가.")
+	fmt.Println("	- 기본 자료형.")
+	fmt.Println("		: data race에 안전한 Persistent 슬라이스와 맵.")
 	fmt.Println("	- 기타 공용 자료형")
 	fmt.Println("	- 가격정보 취득 tool")
+	fmt.Println("	- 포트폴리오 관리.")
+	fmt.Println("			Mutex? Channel?")
+	fmt.Println("			기본 자료형에는 Mutex가 낫지만,")
+	fmt.Println("			여러 연산이 포함되는 포트폴리오 관리에는 Channel이 나을 듯 함.")
 	fmt.Println("	- 위험관리")
 	fmt.Println("	- 전략, 서버,  가격정보 취득")
 	fmt.Println("")
-	fmt.Println("TODO : 모든 공개된 함수 및 메소드는 그 매개변수로 I상수형 및 ")
-	fmt.Println("		CallByValue에 의해서 자동으로 복사되는 형식으로 한정.")
-	fmt.Println("		모든 메소드 및 함수에서 매개변수의 안전성을 체크하도록 할 것.")
-	fmt.Println("		혹은 design by contract를 사용할 것.")
-	fmt.Println("TODO : common.공용 자료형 및 테스트")
-	fmt.Println("TODO : common.기타 자료형 및 펑션")
-	fmt.Println("TODO : tools.* 바뀐 API에 맞게 수정.")
+	fmt.Println("TODO : lib.문자열_후보값_모음, lib.대기시간_한도 상수형 슬라이스로 대체.")
+	fmt.Println("")
 	fmt.Println("TODO : 자주 사용되는 함수 중 panic 가능성이 높은 함수에 recover() 추가.")
 	fmt.Println("")
-	fmt.Println("문자열 후보값에 한자도 포함시킬 것.")
+	fmt.Println("TODO : lib.문자열_후보값_모음 에 한자도 포함시킬 것.")
 	fmt.Println("")
 	fmt.Println("TODO : 재귀적으로 모든 내부값의 상태를 기록하는 메소드.")
 	fmt.Println("		F값_일치(), F공유해도_안전함()에서 사용할 예정.")
@@ -188,7 +187,7 @@ func F메모() {
 	fmt.Println("				일단 초기 연구 대상 종목부터 선정할 것.")
 	fmt.Println("")
 	fmt.Println("PLAN : 만약 사용자 UI를 만들게 된다면 HTML5 기반으로 한다.")
-	fmt.Println("		a. GopherJS, CoffeeScript : Javascript에 적응하는 어려움을 덜어줄 가능성이 있음.")
+	fmt.Println("		a. GopherJS : Javascript에 적응하는 어려움을 덜어줄 가능성이 있음.")
 	fmt.Println("		b. AngularJS : DOM을 직접 조작해야 하는 어려움을 덜어줄 가능성이 있음.")
 	fmt.Println("			 			GopherJS용 바인딩도 존재함.")
 }

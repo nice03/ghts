@@ -14,7 +14,9 @@ import (
 	"time"
 )
 
-// 매개변수 원본이 전달받은 함수 내에서 사용될 때 독립성을 유지하도록 강제하기 위한 함수.
+// 매개변수가 data race를 일으킬 위험이 있는 지 검사.
+// 현재는 알려진 몇몇 형식에 대해서만 제대로 작동함.
+// 이후 추가하거나, 근본적인 자동 검사가 가능하도록 개선할 것.
 func F매개변수_안정성_검사(값_모음 ...interface{}) bool {
 	if P매개변수_안전성_검사_건너뛰기 {
 		return true
@@ -51,10 +53,10 @@ func F매개변수_안정성_검사(값_모음 ...interface{}) bool {
 		}
 
 		// 알려진 상수형이 아닌 경우에는 안전하지 않다고 판단.
-		F문자열_출력("안전하지 않은 매개변수 형식 : %v, %v", reflect.TypeOf(값), 값)
+		F문자열_출력("안전하지 않은 매개변수 형식 : %v", F값_확인_문자열(값))
 
-		에러 := F에러_생성("%s안전하지 않은 매개변수 형식 : %v, %v\n%s\n%s\n%s\n%s",
-			F소스코드_위치(1), reflect.TypeOf(값), 값,
+		에러 := F에러_생성("%s안전하지 않은 매개변수 형식 : %s\n%s\n%s\n%s\n%s",
+			F소스코드_위치(1), F값_확인_문자열(값),
 			F소스코드_위치(2), F소스코드_위치(3), F소스코드_위치(4), F소스코드_위치(5))
 
 		panic(에러)
@@ -65,13 +67,16 @@ func F매개변수_안정성_검사(값_모음 ...interface{}) bool {
 	return true
 }
 
+// 몇몇 기본 자료형 매개변수를 안전한 형식으로 변환.
+// 매개변수 안전성 검사를 의도적으로 생략함.
 func F안전한_매개변수(값 interface{}) interface{} {
 	return F안전한_매개변수_모음(값)[0]
 }
 
-// 안전하지 않은 매개변수를 안전한 형식으로 전환 시도.
+// 몇몇 기본 자료형 매개변수를 안전한 형식으로 변환.
+// 매개변수 안전성 검사를 의도적으로 생략함.
 func F안전한_매개변수_모음(값_모음 ...interface{}) []interface{} {
-	if 값_모음 == nil {
+	if F_nil값임(값_모음) {
 		return nil
 	}
 
@@ -96,8 +101,8 @@ func F안전한_매개변수_모음(값_모음 ...interface{}) []interface{} {
 			if 상수형 != nil {
 				반환값[인덱스] = 상수형 // I상수형 변환 성공
 			} else {
-				F문자열_출력("예상하지 못한 변수형. 입력값 %v번째 %v %v.",
-					인덱스, reflect.TypeOf(값), 값)
+				F문자열_출력("예상하지 못한 변수형. %v번째 입력값 %v %v.",
+					인덱스, F값_확인_문자열(값))
 
 				반환값[인덱스] = 값 // I상수형 변환 실패
 			}
@@ -113,8 +118,7 @@ func F안전한_매개변수_모음(값_모음 ...interface{}) []interface{} {
 				reflect.Chan, reflect.Func, reflect.String:
 				반환값[인덱스] = 값
 			default:
-				F문자열_출력("예상하지 못한 형식. 입력값 %v번째 %v %v.",
-					인덱스, reflect.TypeOf(값), 값)
+				F문자열_출력("예상하지 못한 형식. %v번째 입력값 %v", 인덱스, F값_확인_문자열(값))
 
 				반환값[인덱스] = 값
 			}
@@ -124,22 +128,12 @@ func F안전한_매개변수_모음(값_모음 ...interface{}) []interface{} {
 	return 반환값
 }
 
+// 몇몇 기본 자료형을 'I상수형'으로 변환.
+// 매개변수 안전성 검사를 의도적으로 생략함.
 func F상수형(값 interface{}) (상수형 I상수형) {
-	/* defer func() {
-		if 에러 := recover(); 에러 != nil {
-			F문자열_출력("%v 값 : %v %v", 에러, reflect.TypeOf(값), 값)
-			상수형 = nil
-		}
-	}() */
-
 	if F_nil값임(값) {
 		return nil
 	}
-
-	// (매개변수로 안전하지 않은) 변수형을 (매개변수로 안전한) 상수형으로 전환하는 특수한 함수이니,
-	// 특별히, 매개변수 안전성 검사를 건너뛰자.
-	// 이후에 이 메소드가 문제시 되면, 채널을 이용하는 goroutine 형태로 변경할 것.
-	//F매개변수_안정성_검사(값)
 
 	// 지금 알려진 것만 우선 포함 시킴.
 	switch 값.(type) {
@@ -208,18 +202,15 @@ func F상수형(값 interface{}) (상수형 I상수형) {
 	case *sV시점:
 		return 값.(V시점).G상수형()
 	default:
-		F문자열_출력("알려진 상수형이 아님. 입력값 %v %v.", reflect.TypeOf(값), 값)
+		F문자열_출력("알려진 상수형이 아님. %v", F값_확인_문자열(값))
 
 		return nil
 	}
 }
 
+// 문자열로 변환 시도.
+// 매개변수 안전성 검사를 의도적으로 생략함.
 func F문자열(값 interface{}) string {
-	// (매개변수로 안전하지 않은) 변수형을 (매개변수로 안전한) 문자열로 전환하는 특수한 함수이니,
-	// 특별히, 매개변수 안전성 검사를 건너뛰자.
-	// 이후에 이 메소드가 문제시 되면, 채널을 이용하는 goroutine 형태로 변경할 것.
-	//F매개변수_안정성_검사(값)
-
 	if 값 == nil {
 		return "nil"
 	}
@@ -243,12 +234,9 @@ func F문자열(값 interface{}) string {
 	return F포맷된_문자열("%v", 값)
 }
 
+// 문자열로 변환 시도.
+// 매개변수 안전성 검사를 의도적으로 생략함.
 func F포맷된_문자열(포맷_문자열 string, 추가_내용 ...interface{}) string {
-	// (매개변수로 안전하지 않은) 변수형을 (매개변수로 안전한) 문자열로 전환하는 특수한 함수이니,
-	// 특별히, 매개변수 안전성 검사를 건너뛰자.
-	// 이후에 이 메소드가 문제시 되면, 채널을 이용하는 goroutine 형태로 변경할 것.
-	//if !F매개변수_안정성_검사(추가내용...) { return "" }
-
 	에러 := F에러_생성(포맷_문자열, 추가_내용...)
 
 	return 에러.Error()
@@ -322,14 +310,14 @@ func F반올림(값 interface{}, 소숫점_이하_자릿수 int) C정밀수 {
 	F매개변수_안정성_검사(값)
 
 	if !F숫자형식임(값) {
-		F문자열_출력("숫자형식이 아님 %v %v", reflect.TypeOf(값), 값)
+		F문자열_출력("숫자형식이 아님. %v", F값_확인_문자열(값))
 		return nil
 	}
 
 	정밀수 := NV정밀수(값)
 
 	if 정밀수 == nil {
-		F문자열_출력("예상치 못한 경우. %v %v", reflect.TypeOf(값), 값)
+		F문자열_출력("예상치 못한 경우. %v", F값_확인_문자열(값))
 		return nil
 	}
 
@@ -448,10 +436,7 @@ func F통화_같음(값1, 값2 interface{}) bool {
 	통화2 := 값2.(I통화)
 
 	if 통화1 == nil || 통화2 == nil {
-		F문자열_출력("예상치 못한 경우. 값1 : %v %v, 값2 : %v %v",
-			reflect.TypeOf(값1), 값1,
-			reflect.TypeOf(값2), 값2)
-
+		F문자열_출력("예상치 못한 경우. %v", F값_확인_문자열(값1, 값2))
 		return false
 	}
 
@@ -486,8 +471,6 @@ func F숫자형식임(값_모음 ...interface{}) bool {
 }
 
 func F숫자_같음(값1, 값2 interface{}) bool {
-	F매개변수_안정성_검사(값1, 값2)
-
 	if !F숫자형식임(값1, 값2) {
 		return false
 	}
@@ -496,9 +479,7 @@ func F숫자_같음(값1, 값2 interface{}) bool {
 	정밀수2 := NC정밀수(값2)
 
 	if 정밀수1 == nil || 정밀수2 == nil {
-		F문자열_출력("예상치 못한 경우. 값1 : %v %v, 값2 : %v %v",
-			reflect.TypeOf(값1), 값1,
-			reflect.TypeOf(값2), 값2)
+		F문자열_출력("예상치 못한 경우. %v", F값_확인_문자열(값1, 값2))
 
 		return false
 	}
@@ -526,8 +507,6 @@ func F참거짓형식임(값_모음 ...interface{}) bool {
 }
 
 func F참거짓_같음(값1, 값2 interface{}) bool {
-	F매개변수_안정성_검사(값1, 값2)
-
 	if !F참거짓형식임(값1, 값2) {
 		return false
 	}
@@ -575,8 +554,6 @@ func F문자열형식임(값_모음 ...interface{}) bool {
 }
 
 func F문자열_같음(값1, 값2 interface{}) bool {
-	F매개변수_안정성_검사(값1, 값2)
-
 	if !F문자열형식임(값1, 값2) {
 		return false
 	}
@@ -624,8 +601,6 @@ func F시점형식임(값_모음 ...interface{}) bool {
 }
 
 func F시점_같음(값1, 값2 interface{}) bool {
-	F매개변수_안정성_검사(값1, 값2)
-
 	if !F시점형식임(값1, 값2) {
 		return false
 	}
@@ -654,14 +629,14 @@ func F시점_같음(값1, 값2 interface{}) bool {
 }
 
 func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
-	F매개변수_안정성_검사(값1, 값2)
-
 	defer func() {
 		if 에러 := recover(); 에러 != nil {
-			F문자열_출력("%v", 에러)
+			F문자열_출력("%v %v", 에러, F값_확인_문자열(값1, 값2))
 			값_같음 = false
 		}
 	}()
+
+	F매개변수_안정성_검사(값1, 값2)
 
 	switch {
 	case F_nil값_존재함(값1, 값2):
@@ -786,7 +761,7 @@ func F문자열_출력_일시정지_종료()      { 문자열_출력_일시정�
 func F참인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수 ...interface{}) (테스트_통과 bool) {
 	if !참거짓 {
 		switch 테스트.(type) {
-		case I테스트용_가상_객체:
+		case i테스트용_가상_객체:
 			// PASS
 		default:
 			F문자열_출력_일시정지_종료()
@@ -824,7 +799,7 @@ func F참인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수
 func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수 ...interface{}) (테스트_통과 bool) {
 	if 참거짓 {
 		switch 테스트.(type) {
-		case I테스트용_가상_객체:
+		case i테스트용_가상_객체:
 			// PASS
 		default:
 			F문자열_출력_일시정지_종료()
@@ -862,7 +837,7 @@ func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변
 func F에러없음_확인(테스트 testing.TB, 에러 error) (테스트_통과 bool) {
 	if 에러 != nil {
 		switch 테스트.(type) {
-		case I테스트용_가상_객체:
+		case i테스트용_가상_객체:
 			// PASS
 		default:
 			F문자열_출력_일시정지_종료()
@@ -882,7 +857,7 @@ func F에러없음_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 func F에러발생_확인(테스트 testing.TB, 에러 error) (테스트_통과 bool) {
 	if 에러 == nil {
 		switch 테스트.(type) {
-		case I테스트용_가상_객체:
+		case i테스트용_가상_객체:
 			// PASS
 		default:
 			F문자열_출력_일시정지_종료()
@@ -907,13 +882,11 @@ func F같은값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_
 
 	if !F값_같음(값1, 값2) {
 		switch 테스트.(type) {
-		case I테스트용_가상_객체:
+		case i테스트용_가상_객체:
 			// PASS
 		default:
 			F문자열_출력_일시정지_종료()
-			F문자열_출력2(1, "서로 다름. 값1: %v %v 값2: %v %v.",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F문자열_출력2(1, "서로 다름. %v", F값_확인_문자열(값1, 값2))
 		}
 
 		테스트.FailNow()
@@ -933,13 +906,11 @@ func F다른값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_
 
 	if F값_같음(값1, 값2) {
 		switch 테스트.(type) {
-		case I테스트용_가상_객체:
+		case i테스트용_가상_객체:
 			// PASS
 		default:
 			F문자열_출력_일시정지_종료()
-			F문자열_출력2(1, "서로 같음. 값1: %v %v 값2: %v %v.",
-				reflect.TypeOf(값1), 값1,
-				reflect.TypeOf(값2), 값2)
+			F문자열_출력2(1, "서로 같음. %v.", F값_확인_문자열(값1, 값2))
 		}
 
 		테스트.FailNow()
@@ -960,17 +931,12 @@ func F패닉발생_확인(테스트 testing.TB, 함수 interface{},
 			테스트_통과 = true
 		} else {
 			switch 테스트.(type) {
-			case I테스트용_가상_객체:
+			case i테스트용_가상_객체:
 				// PASS
 			default:
 				F문자열_출력_일시정지_종료()
-				문자열 := F포맷된_문자열("패닉이 발생하지 않음. 함수 %v", reflect.TypeOf(함수))
-
-				for _, 값 := range 매개변수 {
-					문자열 = 문자열 + F포맷된_문자열(", %v %v", reflect.TypeOf(값), 값)
-				}
-
-				F문자열_출력2(1, 문자열)
+				F문자열_출력2(1, "패닉이 발생하지 않음. 함수 %v %v",
+					F값_확인_문자열(함수), F값_확인_문자열(매개변수...))
 			}
 
 			테스트_통과 = false
@@ -1061,14 +1027,38 @@ func F체크포인트(체크포인트_번호 *int, 추가_매개변수 ...interf
 	(*체크포인트_번호)++
 }
 
-func F값_확인(값 ...interface{}) {
-	fmt.Println("")
-	fmt.Println(append([]interface{}{F소스코드_위치(1), "값_확인 :"}, 값...)...)
+func F값_확인(값_모음 ...interface{}) {
+	fmt.Println(F소스코드_위치(1), "값_확인 :", F값_확인_문자열(값_모음...))
+}
+
+func F값_확인_문자열(값_모음 ...interface{}) string {
+	버퍼 := new(bytes.Buffer)
+
+	for 인덱스, 값 := range 값_모음 {
+		if 인덱스 == 0 {
+			버퍼.WriteString(" ")
+		} else {
+			버퍼.WriteString(", ")
+		}
+
+		if len(값_모음) == 1 {
+			버퍼.WriteString(
+				F포맷된_문자열("형식 : %v, 값 : %v", reflect.TypeOf(값), 값))
+		} else {
+			버퍼.WriteString(
+				F포맷된_문자열("형식%v : %v, 값%v : %v",
+					인덱스, reflect.TypeOf(값), 인덱스, 값))
+		}
+	}
+	//버퍼.WriteString("\n")
+
+	return 버퍼.String()
 }
 
 // 메모 편의 함수.
 var 이미_출력한_TODO_모음 []string = make([]string, 0)
 
+// 해야할 일을 소스코드 위치와 함께 표기해 주는 메소드. 
 func F_TODO(문자열 string) {
 	for _, 이미_출력한_TODO := range 이미_출력한_TODO_모음 {
 		if 문자열 == 이미_출력한_TODO {

@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-type I테스트용_가상_객체 interface {
+
+type i테스트용_가상_객체 interface {
 	테스트용_가상_객체()
 }
 
