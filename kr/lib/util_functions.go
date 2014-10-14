@@ -17,7 +17,7 @@ import (
 // 매개변수가 data race를 일으킬 위험이 있는 지 검사.
 // 현재는 알려진 몇몇 형식에 대해서만 제대로 작동함.
 // 이후 추가하거나, 근본적인 자동 검사가 가능하도록 개선할 것.
-func F매개변수_안전성_검사(값_모음 ...interface{}) bool {
+func F매개변수_안전성_검사(값_모음 ...I가변형) bool {
 	if P매개변수_안전성_검사_건너뛰기 {
 		return true
 	}
@@ -37,7 +37,8 @@ func F매개변수_안전성_검사(값_모음 ...interface{}) bool {
 			// CallByValue에 의해서 자동으로 복사본이 생성되는 형식.
 			continue
 		case *sC부호없는_정수64, *sC정수64, *sC실수64, *sC정밀수,
-			*sC참거짓, *sC문자열, *sC시점, *sC통화:
+			*sC참거짓, *sC문자열, *sC시점, *sC통화, *sC매개변수,
+			*s안전한_배열, *s안전한_맵:
 			// Immutable 하므로 race condition이 발생하지 않는 형식.
 			// 앞으로 여기에 검증된 상수형을 더 추가해야 됨.
 			continue
@@ -72,20 +73,20 @@ func F매개변수_안전성_검사(값_모음 ...interface{}) bool {
 
 // 몇몇 기본 자료형 매개변수를 안전한 형식으로 변환.
 // 매개변수 안전성 검사를 의도적으로 생략함.
-func F안전한_매개변수(값 interface{}) interface{} {
+func F안전한_매개변수(값 I가변형) I가변형 {
 	return F안전한_매개변수_모음(값)[0]
 }
 
 // 몇몇 기본 자료형 매개변수를 안전한 형식으로 변환.
 // 매개변수 안전성 검사를 의도적으로 생략함.
-func F안전한_매개변수_모음(값_모음 ...interface{}) []interface{} {
+func F안전한_매개변수_모음(값_모음 ...I가변형) []I가변형 {
 	if F_nil값임(값_모음) {
 		return nil
 	}
 
 	값_모음 = F중첩된_외부_슬라이스_제거(값_모음)
 
-	반환값 := make([]interface{}, len(값_모음))
+	반환값 := make([]I가변형, len(값_모음))
 
 	for 인덱스, 값 := range 값_모음 {
 		if F_nil값임(값) {
@@ -133,7 +134,7 @@ func F안전한_매개변수_모음(값_모음 ...interface{}) []interface{} {
 
 // 몇몇 기본 자료형을 'I상수형'으로 변환.
 // 매개변수 안전성 검사를 의도적으로 생략함.
-func F상수형(값 interface{}) (상수형 I상수형) {
+func F상수형(값 I가변형) I상수형 {
 	if F_nil값임(값) {
 		return nil
 	}
@@ -213,7 +214,7 @@ func F상수형(값 interface{}) (상수형 I상수형) {
 
 // 문자열로 변환 시도.
 // 매개변수 안전성 검사를 의도적으로 생략함.
-func F문자열(값 interface{}) string {
+func F문자열(값 I가변형) string {
 	if 값 == nil {
 		return "nil"
 	}
@@ -239,7 +240,7 @@ func F문자열(값 interface{}) string {
 
 // 문자열로 변환 시도.
 // 매개변수 안전성 검사를 의도적으로 생략함.
-func F포맷된_문자열(포맷_문자열 string, 추가_내용 ...interface{}) string {
+func F포맷된_문자열(포맷_문자열 string, 추가_내용 ...I가변형) string {
 	에러 := F에러_생성(포맷_문자열, 추가_내용...)
 
 	return 에러.Error()
@@ -309,7 +310,7 @@ func F마지막_0_제거(문자열 string) string {
 	return 문자열[:종료_지점]
 }
 
-func F반올림(값 interface{}, 소숫점_이하_자릿수 int) C정밀수 {
+func F반올림(값 I가변형, 소숫점_이하_자릿수 int) C정밀수 {
 	F매개변수_안전성_검사(값)
 
 	if !F숫자형식임(값) {
@@ -387,7 +388,7 @@ func F통화종류별_정밀도(통화 P통화종류) int {
 	}
 }
 
-func F통화종류(값_모음 ...interface{}) P통화종류 {
+func F통화종류(값_모음 ...I가변형) P통화종류 {
 	F매개변수_안전성_검사(값_모음...)
 
 	통화종류_맵 := make(map[P통화종류]P통화종류)
@@ -411,7 +412,7 @@ func F통화종류(값_모음 ...interface{}) P통화종류 {
 	return INVALID_CURRENCY_TYPE
 }
 
-func F통화형식임(값_모음 ...interface{}) bool {
+func F통화형식임(값_모음 ...I가변형) bool {
 	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
@@ -430,7 +431,7 @@ func F통화형식임(값_모음 ...interface{}) bool {
 	return true
 }
 
-func F통화_같음(값1, 값2 interface{}) bool {
+func F통화_같음(값1, 값2 I가변형) bool {
 	if !F통화형식임(값1, 값2) {
 		return false
 	}
@@ -446,7 +447,7 @@ func F통화_같음(값1, 값2 interface{}) bool {
 	return 통화1.G같음(통화2)
 }
 
-func F숫자형식임(값_모음 ...interface{}) bool {
+func F숫자형식임(값_모음 ...I가변형) bool {
 	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
@@ -473,7 +474,7 @@ func F숫자형식임(값_모음 ...interface{}) bool {
 	return true
 }
 
-func F숫자_같음(값1, 값2 interface{}) bool {
+func F숫자_같음(값1, 값2 I가변형) bool {
 	if !F숫자형식임(값1, 값2) {
 		return false
 	}
@@ -490,7 +491,7 @@ func F숫자_같음(값1, 값2 interface{}) bool {
 	return 정밀수1.G같음(정밀수2)
 }
 
-func F참거짓형식임(값_모음 ...interface{}) bool {
+func F참거짓형식임(값_모음 ...I가변형) bool {
 	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
@@ -509,7 +510,7 @@ func F참거짓형식임(값_모음 ...interface{}) bool {
 	return true
 }
 
-func F참거짓_같음(값1, 값2 interface{}) bool {
+func F참거짓_같음(값1, 값2 I가변형) bool {
 	if !F참거짓형식임(값1, 값2) {
 		return false
 	}
@@ -537,7 +538,7 @@ func F참거짓_같음(값1, 값2 interface{}) bool {
 	return 참거짓1 == 참거짓2
 }
 
-func F문자열형식임(값_모음 ...interface{}) bool {
+func F문자열형식임(값_모음 ...I가변형) bool {
 	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
@@ -556,7 +557,7 @@ func F문자열형식임(값_모음 ...interface{}) bool {
 	return true
 }
 
-func F문자열_같음(값1, 값2 interface{}) bool {
+func F문자열_같음(값1, 값2 I가변형) bool {
 	if !F문자열형식임(값1, 값2) {
 		return false
 	}
@@ -584,7 +585,7 @@ func F문자열_같음(값1, 값2 interface{}) bool {
 	return 문자열1 == 문자열2
 }
 
-func F시점형식임(값_모음 ...interface{}) bool {
+func F시점형식임(값_모음 ...I가변형) bool {
 	F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
@@ -603,7 +604,7 @@ func F시점형식임(값_모음 ...interface{}) bool {
 	return true
 }
 
-func F시점_같음(값1, 값2 interface{}) bool {
+func F시점_같음(값1, 값2 I가변형) bool {
 	if !F시점형식임(값1, 값2) {
 		return false
 	}
@@ -631,7 +632,7 @@ func F시점_같음(값1, 값2 interface{}) bool {
 	return 시점1.Equal(시점2)
 }
 
-func F값_같음(값1, 값2 interface{}) (값_같음 bool) {
+func F값_같음(값1, 값2 I가변형) (값_같음 bool) {
 	defer func() {
 		if 에러 := recover(); 에러 != nil {
 			F문자열_출력("%v %v", 에러, F값_확인_문자열(값1, 값2))
@@ -666,15 +667,15 @@ func F잠시_대기(반복횟수 int) {
 
 // 호출할 때 매개변수_모음 뒤에 "..."를 빼먹은 경우에 중첩된 슬라이스를
 // 정상 슬라이스로 변환하기 위함.
-func F중첩된_외부_슬라이스_제거(슬라이스 []interface{}) []interface{} {
+func F중첩된_외부_슬라이스_제거(슬라이스 []I가변형) []I가변형 {	
 	반복횟수 := 0
 
 	for len(슬라이스) == 1 {
-		if _, ok := 슬라이스[0].([]interface{}); !ok {
+		if _, ok := 슬라이스[0].([]I가변형); !ok {
 			break
 		}
 
-		슬라이스 = 슬라이스[0].([]interface{})
+		슬라이스 = 슬라이스[0].([]I가변형)
 		반복횟수++
 	}
 
@@ -685,7 +686,19 @@ func F중첩된_외부_슬라이스_제거(슬라이스 []interface{}) []interfa
 	return 슬라이스
 }
 
-func F_nil값_존재함(값_모음 ...interface{}) bool {
+func F가변형2interface(값_모음 []I가변형) []interface{} {
+	if 값_모음 == nil { return nil }
+	
+	반환값 := make([]interface{}, len(값_모음))
+	
+	for 인덱스, 값 := range 값_모음 {
+		반환값[인덱스] = 값
+	}
+	
+	return 반환값
+}
+
+func F_nil값_존재함(값_모음 ...I가변형) bool {
 	for _, 값 := range 값_모음 {
 		if F_nil값임(값) {
 			return true
@@ -695,7 +708,7 @@ func F_nil값_존재함(값_모음 ...interface{}) bool {
 	return false
 }
 
-func F_nil값임(값 interface{}) bool {
+func F_nil값임(값 I가변형) bool {
 	if 값 == nil {
 		return true
 	}
@@ -728,7 +741,7 @@ func F_nil값임(값 interface{}) bool {
 // 슬라이스를 주고 받는 것은 안전성에 문제의 소지가 있다.
 // builtin.copy()를 쓰도록 하자.
 /*
-func F슬라이스_복사(원본slice interface{}) interface{} {
+func F슬라이스_복사(원본slice I가변형) I가변형 {
 	// 슬라이스를 주고 받는 것은 안전성에 문제의 소지가 있다.
 	//if !F매개변수_안전성_검사(원본slice) { return nil }
 
@@ -768,7 +781,7 @@ func F문자열_출력_일시정지_시작()      { 문자열_출력_일시정�
 func F문자열_출력_일시정지_종료()      { 문자열_출력_일시정시.S값(false) }
 
 // '참거짓'이 false이면 Fail하는 테스트용 편의 함수.
-func F참인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수 ...interface{}) (테스트_통과 bool) {
+func F참인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수 ...I가변형) (테스트_통과 bool) {
 	if !참거짓 {
 		switch 테스트.(type) {
 		case i테스트용_가상_객체:
@@ -806,7 +819,7 @@ func F참인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수
 }
 
 // '참거짓'이 true이면 Fail하는 테스트용 편의 함수.
-func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수 ...interface{}) (테스트_통과 bool) {
+func F거짓인지_확인(테스트 testing.TB, 참거짓 bool, 추가_매개변수 ...I가변형) (테스트_통과 bool) {
 	if 참거짓 {
 		switch 테스트.(type) {
 		case i테스트용_가상_객체:
@@ -885,7 +898,7 @@ func F에러발생_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 }
 
 // 기대값과 실제값이 다르면 Fail하는 테스트용 편의 함수.
-func F같은값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_통과 bool) {
+func F같은값_확인(테스트 testing.TB, 값1, 값2 I가변형) (테스트_통과 bool) {
 	값_모음 := F안전한_매개변수_모음(값1, 값2)
 	값1 = 값_모음[0]
 	값2 = 값_모음[1]
@@ -909,7 +922,7 @@ func F같은값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_
 }
 
 // 기대값과 실제값이 같으면 Fail하는 테스트용 편의 함수.
-func F다른값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_통과 bool) {
+func F다른값_확인(테스트 testing.TB, 값1, 값2 I가변형) (테스트_통과 bool) {
 	값_모음 := F안전한_매개변수_모음(값1, 값2)
 	값1 = 값_모음[0]
 	값2 = 값_모음[1]
@@ -932,8 +945,7 @@ func F다른값_확인(테스트 testing.TB, 값1, 값2 interface{}) (테스트_
 	return true
 }
 
-func F패닉발생_확인(테스트 testing.TB, 함수 interface{},
-	매개변수 ...interface{}) (테스트_통과 bool) {
+func F패닉발생_확인(테스트 testing.TB, 함수 I가변형, 매개변수 ...I가변형) (테스트_통과 bool) {
 	defer func() {
 		에러 := recover()
 
@@ -991,29 +1003,33 @@ func F소스코드_위치(건너뛰는_단계 int) string {
 }
 
 // 에러 처리 편의 함수.
-func F에러_생성(문자열 string, 추가_내용 ...interface{}) error {
+func F에러_생성(문자열 string, 추가_내용 ...I가변형) error {
 	for strings.HasSuffix(문자열, "\n") {
 		문자열 += "\n"
 	}
+	
+	추가_내용_ := make([]interface{}, len(추가_내용))
+	
+	for 인덱스, 내용 := range 추가_내용 {
+		추가_내용_[인덱스] = 내용
+	}
 
-	return fmt.Errorf(문자열, 추가_내용...)
+	return fmt.Errorf(문자열, 추가_내용_...)
 }
 
-func F문자열_출력(문자열 string, 추가_매개변수 ...interface{}) {
+func F문자열_출력(문자열 string, 추가_매개변수 ...I가변형) {
 	F문자열_출력2(1, 문자열, 추가_매개변수...)
 }
 
-func F문자열_출력2(추가적인_건너뛰기_단계 int, 문자열 string, 추가_매개변수 ...interface{}) {
+func F문자열_출력2(추가적인_건너뛰기_단계 int, 문자열 string, 추가_매개변수 ...I가변형) {
 	if F문자열_출력_일시정지_모드() {
 		return
 	}
 
 	i := 추가적인_건너뛰기_단계
 
-	추가_매개변수 = append([]interface{}{F소스코드_위치(1 + i)}, 추가_매개변수...)
-
 	fmt.Println("")
-	fmt.Printf("%s: "+문자열+"\n", 추가_매개변수...)
+	fmt.Printf(F소스코드_위치(1 + i) + ": "+문자열+"\n", F가변형2interface(추가_매개변수)...)
 	fmt.Println(F소스코드_위치(2 + i))
 	fmt.Println(F소스코드_위치(3 + i))
 	fmt.Println(F소스코드_위치(4 + i))
@@ -1029,19 +1045,19 @@ func F문자열_출력2(추가적인_건너뛰기_단계 int, 문자열 string, 
 // 디버깅 편의 함수는 일시적으로 사용하며,
 // 실제 production 환경에서는 사용되지 않는다고 보고,
 // 매개변수의 안전성을 검사하지 않는다.
-func F체크포인트(체크포인트_번호 *int, 추가_매개변수 ...interface{}) {
-	추가_매개변수 = append([]interface{}{F소스코드_위치(1)}, 추가_매개변수...)
+func F체크포인트(체크포인트_번호 *int, 추가_매개변수 ...I가변형) {
+	추가_매개변수 = append([]I가변형{F소스코드_위치(1)}, 추가_매개변수...)
 	문자열 := F포맷된_문자열("%s체크포인트 %v ", F소스코드_위치(1), *체크포인트_번호)
 
-	fmt.Println(append([]interface{}{문자열}, 추가_매개변수...)...)
+	fmt.Println(append([]interface{}{문자열}, F가변형2interface(추가_매개변수)...)...)
 	(*체크포인트_번호)++
 }
 
-func F값_확인(값_모음 ...interface{}) {
+func F값_확인(값_모음 ...I가변형) {
 	fmt.Println(F소스코드_위치(1), "값_확인 :", F값_확인_문자열(값_모음...))
 }
 
-func F값_확인_문자열(값_모음 ...interface{}) string {
+func F값_확인_문자열(값_모음 ...I가변형) string {
 	버퍼 := new(bytes.Buffer)
 
 	for 인덱스, 값 := range 값_모음 {
@@ -1069,7 +1085,7 @@ func F값_확인_문자열(값_모음 ...interface{}) string {
 var 이미_출력한_TODO_모음 []string = make([]string, 0)
 
 // 해야할 일을 소스코드 위치와 함께 표기해 주는 메소드.
-func F_TODO(문자열 string) {
+func F메모(문자열 string) {
 	for _, 이미_출력한_TODO := range 이미_출력한_TODO_모음 {
 		if 문자열 == 이미_출력한_TODO {
 			return

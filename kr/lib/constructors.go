@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"github.com/gh-system/ghts/dep/ps"
 	"math/big"
 	"time"
 )
@@ -29,32 +30,73 @@ func NV참거짓(값 bool) V참거짓 { return &sV참거짓{s참거짓: &s참거
 
 func NC문자열(값 string) C문자열 { return &sC문자열{값} }
 
-func NC시점(값 time.Time) C시점 { return &sC시점{&s시점{값}} }
-func NC시점_문자열(값 string) C시점 {
-	시점, 에러 := F문자열2시점(값)
-
-	if 에러 != nil {
+func NC시점(값 I가변형) C시점 {
+	if !F시점형식임(값) && !F문자열형식임(값) {
 		return nil
 	}
+	
+	switch 값.(type) {
+	case time.Time:
+		return &sC시점{&s시점{값.(time.Time)}}
+	case *sC시점, *sV시점:
+		return &sC시점{&s시점{값.(I시점).G값()}}
+	case string:
+		시점, 에러 := F문자열2시점(값.(string))
 
-	return NC시점(시점)
-}
+		if 에러 != nil {
+			return nil
+		}
+		
+		return &sC시점{&s시점{시점}}
+	case *sC문자열:
+		시점, 에러 := F문자열2시점(값.(*sC문자열).G값())
 
-func NV시점(값 time.Time) V시점 {
-	return &sV시점{s시점: &s시점{값}}
-}
-
-func NV시점_문자열(값 string) V시점 {
-	시점, 에러 := F문자열2시점(값)
-
-	if 에러 != nil {
+		if 에러 != nil {
+			return nil
+		}
+		
+		return &sC시점{&s시점{시점}}
+	default:
+		F문자열_출력("예상치 못한 입력값 형식. %s", F값_확인_문자열(값))
+		
 		return nil
 	}
-
-	return NV시점(시점)
 }
 
-func NC정밀수(값 interface{}) C정밀수 {
+func NV시점(값 I가변형) V시점 {
+	if !F시점형식임(값) && !F문자열형식임(값) {
+		return nil
+	}
+	
+	switch 값.(type) {
+	case time.Time:
+		return &sV시점{s시점: &s시점{값.(time.Time)}}
+	case *sC시점, *sV시점:
+		return &sV시점{s시점: &s시점{값.(I시점).G값()}}
+	case string:
+		시점, 에러 := F문자열2시점(값.(string))
+
+		if 에러 != nil {
+			return nil
+		}
+		
+		return &sV시점{s시점: &s시점{시점}}
+	case *sC문자열:
+		시점, 에러 := F문자열2시점(값.(*sC문자열).G값())
+
+		if 에러 != nil {
+			return nil
+		}
+		
+		return &sV시점{s시점: &s시점{시점}}
+	default:
+		F문자열_출력("예상치 못한 입력값 형식. %s", F값_확인_문자열(값))
+		
+		return nil
+	}
+}
+
+func NC정밀수(값 I가변형) C정밀수 {
 	if !F숫자형식임(값) && !F문자열형식임(값) {
 		return nil
 	}
@@ -82,7 +124,7 @@ func NC정밀수(값 interface{}) C정밀수 {
 	return &sC정밀수{&s정밀수{정밀수}}
 }
 
-func NV정밀수(값 interface{}) V정밀수 {
+func NV정밀수(값 I가변형) V정밀수 {
 	if !F숫자형식임(값) && !F문자열형식임(값) {
 		return nil
 	}
@@ -111,12 +153,12 @@ func NV정밀수(값 interface{}) V정밀수 {
 }
 
 // 통화
-func NC원화(금액 interface{}) C통화  { return NC통화(KRW, 금액) }
-func NC달러(금액 interface{}) C통화  { return NC통화(USD, 금액) }
-func NC위안화(금액 interface{}) C통화 { return NC통화(CNY, 금액) }
-func NC유로화(금액 interface{}) C통화 { return NC통화(EUR, 금액) }
+func NC원화(금액 I가변형) C통화  { return NC통화(KRW, 금액) }
+func NC달러(금액 I가변형) C통화  { return NC통화(USD, 금액) }
+func NC위안화(금액 I가변형) C통화 { return NC통화(CNY, 금액) }
+func NC유로화(금액 I가변형) C통화 { return NC통화(EUR, 금액) }
 
-func NC통화(종류 P통화종류, 금액 interface{}) C통화 {
+func NC통화(종류 P통화종류, 금액 I가변형) C통화 {
 	if !F숫자형식임(금액) && !F문자열형식임(금액) {
 		return nil
 	}
@@ -134,12 +176,12 @@ func NC통화(종류 P통화종류, 금액 interface{}) C통화 {
 }
 
 // 변수형 생성자
-func NV원화(금액 interface{}) V통화  { return NV통화(KRW, 금액) }
-func NV달러(금액 interface{}) V통화  { return NV통화(USD, 금액) }
-func NV위안화(금액 interface{}) V통화 { return NV통화(CNY, 금액) }
-func NV유로화(금액 interface{}) V통화 { return NV통화(EUR, 금액) }
+func NV원화(금액 I가변형) V통화  { return NV통화(KRW, 금액) }
+func NV달러(금액 I가변형) V통화  { return NV통화(USD, 금액) }
+func NV위안화(금액 I가변형) V통화 { return NV통화(CNY, 금액) }
+func NV유로화(금액 I가변형) V통화 { return NV통화(EUR, 금액) }
 
-func NV통화(종류 P통화종류, 금액 interface{}) V통화 {
+func NV통화(종류 P통화종류, 금액 I가변형) V통화 {
 	if !F숫자형식임(금액) && !F문자열형식임(금액) {
 		return nil
 	}
@@ -156,8 +198,29 @@ func NV통화(종류 P통화종류, 금액 interface{}) V통화 {
 	return &sV통화{종류: 종류, 금액: v금액}
 }
 
-func NC매개변수(이름 string, 값 interface{}) C매개변수 {
+func NC매개변수(이름 string, 값 I가변형) C매개변수 {
 	F매개변수_안전성_검사(값)
-
+	
+	if _, ok := 값.([]I가변형); ok {
+		값 = F중첩된_외부_슬라이스_제거(값.([]I가변형))
+	}
+	
+	switch 값.(type) {
+	case *sC매개변수:
+		c매개변수 := 값.(*sC매개변수)
+		이름 = c매개변수.G이름()
+		값 = c매개변수.G값()
+	case []I가변형:
+		F중첩된_외부_슬라이스_제거(값.([]I가변형))
+	}
+	
 	return &sC매개변수{이름, 값}
+}
+
+func N안전한_배열() I안전한_배열 {
+	return &s안전한_배열{ps.NewList()}
+}
+
+func N안전한_맵() I안전한_맵 {
+	return &s안전한_맵{ps.NewMap()}
 }

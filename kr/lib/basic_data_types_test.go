@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func testI정수(테스트 *testing.T, 생성자 interface{}) {
+func testI정수(테스트 *testing.T, 생성자 I가변형) {
 	입력값 := int64(100)
 	입력값_백업 := int64(100)
 
@@ -154,7 +154,7 @@ func TestV정수(테스트 *testing.T) {
 	F문자열_출력_일시정지_종료()
 }
 
-func testI부호없는_정수(테스트 *testing.T, 생성자 interface{}) {
+func testI부호없는_정수(테스트 *testing.T, 생성자 I가변형) {
 	입력값 := uint64(100)
 	입력값_백업 := uint64(100)
 
@@ -285,7 +285,7 @@ func TestV부호없는_정수(테스트 *testing.T) {
 	F문자열_출력_일시정지_종료()
 }
 
-func testI실수(테스트 *testing.T, 생성자 interface{}) {
+func testI실수(테스트 *testing.T, 생성자 I가변형) {
 	입력값 := float64(100.1)
 	입력값_백업 := float64(100.1)
 
@@ -428,35 +428,33 @@ func TestV실수(테스트 *testing.T) {
 	F문자열_출력_일시정지_종료()
 }
 
-func testI시점(테스트 *testing.T, 생성자 interface{}) {
+func testI시점(테스트 *testing.T, 생성자 I가변형) {
 	입력값 := time.Now()
 	입력값_백업 := F시점_복사(입력값)
 	F같은값_확인(테스트, 입력값, 입력값_백업)
 
-	var i시점 I시점
+	var i시점, i시점2 I시점
 	var i기본_문자열 I기본_문자열
 	var i임의값_생성 I임의값_생성
 
 	// 생성자 테스트
 	switch 생성자.(type) {
-	case func(time.Time) C시점:
-		생성자_ := 생성자.(func(time.Time) C시점)
+	case func(I가변형) C시점:
+		생성자_ := 생성자.(func(I가변형) C시점)
 		i시점 = 생성자_(입력값)
-	case func(string) C시점:
-		생성자_ := 생성자.(func(string) C시점)
-		i시점 = 생성자_(입력값.Format(P시점_형식))
-	case func(time.Time) V시점:
-		생성자_ := 생성자.(func(time.Time) V시점)
+		i시점2 = 생성자_(입력값.Format(P시점_형식))
+	case func(I가변형) V시점:
+		생성자_ := 생성자.(func(I가변형) V시점)
 		i시점 = 생성자_(입력값)
-	case func(string) V시점:
-		생성자_ := 생성자.(func(string) V시점)
-		i시점 = 생성자_(입력값.Format(P시점_형식))
+		i시점2 = 생성자_(입력값.Format(P시점_형식))
 	case func(*sC시점) V시점:
 		생성자_ := 생성자.(func(*sC시점) V시점)
-		i시점 = 생성자_(&sC시점{&s시점{입력값}})
+		i시점 = 생성자_(&sC시점{s시점: &s시점{입력값}})
+		i시점2 = nil
 	case func(*sV시점) C시점:
 		생성자_ := 생성자.(func(*sV시점) C시점)
 		i시점 = 생성자_(&sV시점{s시점: &s시점{입력값}})
+		i시점2 = nil
 	default:
 		F문자열_출력("예상치 못한 생성자 형식. " + reflect.TypeOf(생성자).String())
 		테스트.Fail()
@@ -468,7 +466,12 @@ func testI시점(테스트 *testing.T, 생성자 interface{}) {
 	// G값() 테스트
 	F같은값_확인(테스트, i시점.G값(), 입력값)
 	F같은값_확인(테스트, i기본_문자열.String(), 입력값.Format(P시점_형식))
-
+	
+	// 문자열로 생성된 값도 확인.
+	if i시점2 != nil {
+		F같은값_확인(테스트, i시점2.G값(), 입력값)	
+	}
+	
 	// 입력값 변경 후 독립성 확인.
 	입력값 = 입력값.AddDate(0, 0, 1)
 
@@ -512,9 +515,9 @@ func testI시점(테스트 *testing.T, 생성자 interface{}) {
 	}
 
 	F참인지_확인(테스트, len(맵) > 80)
-	F참인지_확인(테스트, 미래시점_수량 > 30, "미래시점_수량 %v개, 과거시점_수량 %v개",
+	F참인지_확인(테스트, 미래시점_수량 > 25, "미래시점_수량 %v개, 과거시점_수량 %v개",
 		미래시점_수량, 과거시점_수량)
-	F참인지_확인(테스트, 과거시점_수량 > 30, "미래시점_수량 %v개, 과거시점_수량 %v개",
+	F참인지_확인(테스트, 과거시점_수량 > 25, "미래시점_수량 %v개, 과거시점_수량 %v개",
 		미래시점_수량, 과거시점_수량)
 
 	// 상수형, 변수형 혼용되지 않는 지 확인
@@ -548,7 +551,6 @@ func testI시점(테스트 *testing.T, 생성자 interface{}) {
 
 func TestC시점(테스트 *testing.T) {
 	testI시점(테스트, NC시점)
-	testI시점(테스트, NC시점_문자열)
 	testI시점(테스트, (*sC시점).G변수형)
 
 	c := NC시점(time.Now())
@@ -558,7 +560,6 @@ func TestC시점(테스트 *testing.T) {
 
 func TestV시점(테스트 *testing.T) {
 	testI시점(테스트, NV시점)
-	testI시점(테스트, NV시점_문자열)
 	testI시점(테스트, (*sV시점).G상수형)
 
 	v := NV시점(time.Now())
@@ -566,12 +567,12 @@ func TestV시점(테스트 *testing.T) {
 	F같은값_확인(테스트, c, v)
 
 	F같은값_확인(테스트,
-		NV시점_문자열("2000-01-01").S일자_더하기(1, 1, 1),
-		NC시점_문자열("2001-02-02"))
+		NV시점("2000-01-01").S일자_더하기(1, 1, 1),
+		NC시점("2001-02-02"))
 }
 
 func TestN정밀수_생성자(테스트 *testing.T) {
-	입력값_모음 := []interface{}{
+	입력값_모음 := []I가변형{
 		uint(100), uint8(100), uint16(100), uint32(100), uint64(100),
 		int(100), int8(100), int16(100), int32(100), int64(100),
 		NC부호없는_정수(100), NC정수(100)}
@@ -581,7 +582,7 @@ func TestN정밀수_생성자(테스트 *testing.T) {
 		F같은값_확인(테스트, NV정밀수(입력값), 100)
 	}
 
-	입력값_모음 = []interface{}{
+	입력값_모음 = []I가변형{
 		float32(100.025), float64(100.025),
 		NC실수(100.025), NC정밀수(100.025), "100.025"}
 
@@ -593,7 +594,7 @@ func TestN정밀수_생성자(테스트 *testing.T) {
 	F문자열_출력_일시정지_시작()
 	defer F문자열_출력_일시정지_종료()
 
-	입력값_모음 = []interface{}{
+	입력값_모음 = []I가변형{
 		nil, "변환 불가능한 문자열", true, time.Now(), NC통화(KRW, 100)}
 
 	for _, 입력값 := range 입력값_모음 {
@@ -602,7 +603,7 @@ func TestN정밀수_생성자(테스트 *testing.T) {
 	}
 }
 
-func testI정밀수(테스트 *testing.T, 생성자 interface{}) {
+func testI정밀수(테스트 *testing.T, 생성자 I가변형) {
 	입력값 := 100.1
 	입력값_백업 := 100.1
 
@@ -612,11 +613,11 @@ func testI정밀수(테스트 *testing.T, 생성자 interface{}) {
 
 	// 생성자 테스트
 	switch 생성자.(type) {
-	case func(interface{}) C정밀수:
-		생성자_ := 생성자.(func(interface{}) C정밀수)
+	case func(I가변형) C정밀수:
+		생성자_ := 생성자.(func(I가변형) C정밀수)
 		i정밀수 = 생성자_(입력값)
-	case func(interface{}) V정밀수:
-		생성자_ := 생성자.(func(interface{}) V정밀수)
+	case func(I가변형) V정밀수:
+		생성자_ := 생성자.(func(I가변형) V정밀수)
 		i정밀수 = 생성자_(입력값)
 	case func(*sC정밀수) V정밀수:
 		생성자_ := 생성자.(func(*sC정밀수) V정밀수)
@@ -671,7 +672,7 @@ func testI정밀수(테스트 *testing.T, 생성자 interface{}) {
 	F거짓인지_확인(테스트, i정밀수.G같음(입력값_백업+1))
 	F거짓인지_확인(테스트, i정밀수.G같음(입력값_백업-1))
 
-	무효한_비교값_모음 := []interface{}{
+	무효한_비교값_모음 := []I가변형{
 		nil, true, "숫자 아님", NC통화(KRW, 100), time.Now()}
 
 	for _, 무효한_비교값 := range 무효한_비교값_모음 {
@@ -683,7 +684,7 @@ func testI정밀수(테스트 *testing.T, 생성자 interface{}) {
 	F같은값_확인(테스트, i정밀수.G비교(입력값_백업), 0)
 	F같은값_확인(테스트, i정밀수.G비교(입력값_백업+1), -1)
 
-	무효한_비교값_모음 = []interface{}{
+	무효한_비교값_모음 = []I가변형{
 		nil, true, "숫자 아님", NC통화(KRW, 100), time.Now()}
 
 	for _, 무효한_비교값 := range 무효한_비교값_모음 {
@@ -793,7 +794,7 @@ func TestP통화종류(테스트 *testing.T) {
 }
 
 func TestN통화_생성자(테스트 *testing.T) {
-	입력값_모음 := []interface{}{
+	입력값_모음 := []I가변형{
 		uint(100), uint8(100), uint16(100), uint32(100), uint64(100),
 		int(100), int8(100), int16(100), int32(100), int64(100),
 		NC부호없는_정수(100), NC정수(100), float32(100), float64(100),
@@ -829,7 +830,7 @@ func TestN통화_생성자(테스트 *testing.T) {
 	F문자열_출력_일시정지_시작()
 	defer F문자열_출력_일시정지_종료()
 
-	입력값_모음 = []interface{}{nil, "변환 불가능한 문자열", true,
+	입력값_모음 = []I가변형{nil, "변환 불가능한 문자열", true,
 		time.Now(), NC통화(KRW, 100)}
 
 	for _, 입력값 := range 입력값_모음 {
@@ -850,7 +851,7 @@ func TestN통화_생성자(테스트 *testing.T) {
 	}
 }
 
-func testI통화(테스트 *testing.T, 생성자 interface{}) {
+func testI통화(테스트 *testing.T, 생성자 I가변형) {
 	// 통화종류를 임의로 선택하기.
 	통화종류 := F임의_통화종류()
 	초기값 := 11111.1111
@@ -861,20 +862,20 @@ func testI통화(테스트 *testing.T, 생성자 interface{}) {
 
 	// 생성자 테스트
 	switch 생성자.(type) {
-	case func(P통화종류, interface{}) C통화:
-		생성자_ := 생성자.(func(P통화종류, interface{}) C통화)
+	case func(P통화종류, I가변형) C통화:
+		생성자_ := 생성자.(func(P통화종류, I가변형) C통화)
 		i통화 = 생성자_(통화종류, 초기값)
-	case func(P통화종류, interface{}) V통화:
-		생성자_ := 생성자.(func(P통화종류, interface{}) V통화)
+	case func(P통화종류, I가변형) V통화:
+		생성자_ := 생성자.(func(P통화종류, I가변형) V통화)
 		i통화 = 생성자_(통화종류, 초기값)
-	case func(interface{}) C통화:
-		생성자_ := 생성자.(func(interface{}) C통화)
+	case func(I가변형) C통화:
+		생성자_ := 생성자.(func(I가변형) C통화)
 		i통화 = 생성자_(초기값)
 		if i통화.G종류() != 통화종류 {
 			통화종류 = i통화.G종류()
 		}
-	case func(interface{}) V통화:
-		생성자_ := 생성자.(func(interface{}) V통화)
+	case func(I가변형) V통화:
+		생성자_ := 생성자.(func(I가변형) V통화)
 		i통화 = 생성자_(초기값)
 		if i통화.G종류() != 통화종류 {
 			통화종류 = i통화.G종류()
@@ -1031,6 +1032,12 @@ func TestV통화(테스트 *testing.T) {
 
 func TestC매개변수(테스트 *testing.T) {
 	c := NC매개변수("이름", 1.0)
+	
+	_, ok := c.(*sC매개변수)
+	F참인지_확인(테스트, ok)
+	
+	_, ok = c.(I상수형)
+	F참인지_확인(테스트, ok)
 
 	F같은값_확인(테스트, c.G이름(), "이름")
 	F같은값_확인(테스트, c.G값(), 1.0)
@@ -1038,4 +1045,56 @@ func TestC매개변수(테스트 *testing.T) {
 	F거짓인지_확인(테스트, c.G문자열형식임())
 	F거짓인지_확인(테스트, c.G시점형식임())
 	F거짓인지_확인(테스트, c.G참거짓형식임())
+}
+
+func TestI안전한_배열(테스트 *testing.T) {
+	배열0 := N안전한_배열()
+	배열1 := 배열0.S추가("첫번째")
+	
+	// 아래 배열 2개는 달라야 함.
+	배열2_1 := 배열1.S추가("두번째-1")
+	배열2_2 := 배열1.S추가("두번째-2")
+	
+	// G비어있음() 테스트
+	F참인지_확인(테스트, 배열0.G비어있음())
+	F거짓인지_확인(테스트, 배열1.G비어있음())
+	F거짓인지_확인(테스트, 배열2_1.G비어있음())
+	F거짓인지_확인(테스트, 배열2_2.G비어있음())
+	
+	// G길이() 테스트
+	F같은값_확인(테스트, 배열0.G길이(), 0)
+	F같은값_확인(테스트, 배열1.G길이(), 1)
+	F같은값_확인(테스트, 배열2_1.G길이(), 2)
+	F같은값_확인(테스트, 배열2_2.G길이(), 2)	// 2_1과 2_2는 독립적이어야 함.
+	
+	// G슬라이스() 테스트
+	F같은값_확인(테스트, 배열1.G슬라이스()[0], "첫번째")
+	F같은값_확인(테스트, 배열2_1.G슬라이스()[0], "첫번째")
+	F같은값_확인(테스트, 배열2_1.G슬라이스()[1], "두번째-1")
+	F같은값_확인(테스트, 배열2_2.G슬라이스()[0], "첫번째")
+	F같은값_확인(테스트, 배열2_2.G슬라이스()[1], "두번째-2")
+	
+	// 유효한 값 받아들이는 지 확인.
+	입력값_모음 := []I가변형{uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
+		int(1), int8(1), int16(1), int32(1), int64(1),
+		float32(1), float64(1), true, false, "test",
+		time.Now(), NC부호없는_정수(1), NC정수(1), NC실수(1), NC정밀수(1), 
+		NC시점(time.Now()), NC문자열("테스트"), NC통화(KRW, 1), NC매개변수("테스트", 1.1)}
+	
+	for _, 입력값 := range 입력값_모음 {
+		배열 := N안전한_배열().S추가(입력값)
+		F같은값_확인(테스트, 배열.G슬라이스()[0], 입력값)
+	}
+	
+	// 무효한 값 거부하는 지 확인.
+	입력값_모음 = []I가변형{nil, NV정수(1), NV부호없는_정수(1), NV실수(1.1), NV정밀수(1.1),
+					NV참거짓(true), NV시점("2000-01-01"), NV통화(KRW, 100)}
+	
+	for _, 입력값 := range 입력값_모음 {
+		F패닉발생_확인(테스트, N안전한_배열().S추가, 입력값)
+	}
+}
+
+func TestI안전한_맵(테스트 *testing.T) {
+	F메모("TestI안전한_맵()")
 }

@@ -2,6 +2,7 @@ package lib
 
 import (
 	"bytes"
+	"github.com/gh-system/ghts/dep/ps"
 	"math"
 	"math/big"
 	"math/rand"
@@ -10,6 +11,8 @@ import (
 	"sync"
 	"time"
 )
+
+
 
 // 상수형이 immutable 하기 위해서는 생성할 때 입력되는 참조형 값이
 // 적절하게 복사되는 것을 보장해야 함.
@@ -104,8 +107,8 @@ func (s *sV정수64) S_CAS(원래값, 새로운값 int64) bool {
 }
 
 func (s *sV정수64) S_CAS_함수(
-	함수 func(*sV정수64, ...interface{}) int64,
-	매개변수 ...interface{}) (반환값 V정수) {
+	함수 func(*sV정수64, ...I가변형) int64,
+	매개변수 ...I가변형) (반환값 V정수) {
 	// 에러발생 하면 nil 반환
 	defer func() {
 		if 에러 := recover(); 에러 != nil {
@@ -136,7 +139,7 @@ func (s *sV정수64) S_CAS_함수(
 }
 func (s *sV정수64) S절대값() V정수 {
 	함수 :=
-		func(구조체 *sV정수64, 매개변수 ...interface{}) int64 {
+		func(구조체 *sV정수64, 매개변수 ...I가변형) int64 {
 			정수 := 구조체.G값()
 
 			if 정수 < 0 {
@@ -150,7 +153,7 @@ func (s *sV정수64) S절대값() V정수 {
 }
 func (s *sV정수64) S더하기(값 int64) V정수 {
 	함수 :=
-		func(구조체 *sV정수64, 매개변수 ...interface{}) int64 {
+		func(구조체 *sV정수64, 매개변수 ...I가변형) int64 {
 			정수 := 구조체.G값()
 
 			정수 = 정수 + 값
@@ -162,7 +165,7 @@ func (s *sV정수64) S더하기(값 int64) V정수 {
 }
 func (s *sV정수64) S빼기(값 int64) V정수 {
 	함수 :=
-		func(구조체 *sV정수64, 매개변수 ...interface{}) int64 {
+		func(구조체 *sV정수64, 매개변수 ...I가변형) int64 {
 			정수 := 구조체.G값()
 
 			정수 = 정수 - 값
@@ -174,7 +177,7 @@ func (s *sV정수64) S빼기(값 int64) V정수 {
 }
 func (s *sV정수64) S곱하기(값 int64) V정수 {
 	함수 :=
-		func(구조체 *sV정수64, 매개변수 ...interface{}) int64 {
+		func(구조체 *sV정수64, 매개변수 ...I가변형) int64 {
 			정수 := 구조체.G값()
 
 			정수 = 정수 * 값
@@ -186,7 +189,7 @@ func (s *sV정수64) S곱하기(값 int64) V정수 {
 }
 func (s *sV정수64) S나누기(값 int64) V정수 {
 	함수 :=
-		func(구조체 *sV정수64, 매개변수 ...interface{}) int64 {
+		func(구조체 *sV정수64, 매개변수 ...I가변형) int64 {
 			정수 := 구조체.G값()
 
 			if 값 == 0 {
@@ -287,8 +290,8 @@ func (s *sV부호없는_정수64) S_CAS(원래값, 새로운값 uint64) bool {
 }
 
 func (s *sV부호없는_정수64) S_CAS_함수(
-	함수 func(*sV부호없는_정수64, ...interface{}) uint64,
-	매개변수 ...interface{}) (반환값 V부호없는_정수) {
+	함수 func(*sV부호없는_정수64, ...I가변형) uint64,
+	매개변수 ...I가변형) (반환값 V부호없는_정수) {
 	// 에러발생 하면 nil 반환
 	defer func() {
 		if 에러 := recover(); 에러 != nil {
@@ -319,7 +322,7 @@ func (s *sV부호없는_정수64) S_CAS_함수(
 }
 func (s *sV부호없는_정수64) S더하기(값 uint64) V부호없는_정수 {
 	함수 :=
-		func(구조체 *sV부호없는_정수64, 매개변수 ...interface{}) uint64 {
+		func(구조체 *sV부호없는_정수64, 매개변수 ...I가변형) uint64 {
 			부호없는_정수 := 구조체.G값()
 
 			부호없는_정수 = 부호없는_정수 + 값
@@ -331,7 +334,7 @@ func (s *sV부호없는_정수64) S더하기(값 uint64) V부호없는_정수 {
 }
 func (s *sV부호없는_정수64) S빼기(값 uint64) V부호없는_정수 {
 	함수 :=
-		func(구조체 *sV부호없는_정수64, 매개변수 ...interface{}) uint64 {
+		func(구조체 *sV부호없는_정수64, 매개변수 ...I가변형) uint64 {
 			부호없는_정수 := 구조체.G값()
 
 			부호없는_정수 = 부호없는_정수 - 값
@@ -343,7 +346,7 @@ func (s *sV부호없는_정수64) S빼기(값 uint64) V부호없는_정수 {
 }
 func (s *sV부호없는_정수64) S곱하기(값 uint64) V부호없는_정수 {
 	함수 :=
-		func(구조체 *sV부호없는_정수64, 매개변수 ...interface{}) uint64 {
+		func(구조체 *sV부호없는_정수64, 매개변수 ...I가변형) uint64 {
 			부호없는_정수 := 구조체.G값()
 
 			부호없는_정수 = 부호없는_정수 * 값
@@ -355,7 +358,7 @@ func (s *sV부호없는_정수64) S곱하기(값 uint64) V부호없는_정수 {
 }
 func (s *sV부호없는_정수64) S나누기(값 uint64) V부호없는_정수 {
 	함수 :=
-		func(구조체 *sV부호없는_정수64, 매개변수 ...interface{}) uint64 {
+		func(구조체 *sV부호없는_정수64, 매개변수 ...I가변형) uint64 {
 			부호없는_정수 := 구조체.G값()
 
 			if 값 == 0 {
@@ -460,8 +463,8 @@ func (s *sV실수64) S_CAS(원래값, 새로운값 float64) bool {
 }
 
 func (s *sV실수64) S_CAS_함수(
-	함수 func(*sV실수64, ...interface{}) float64,
-	매개변수 ...interface{}) (반환값 V실수) {
+	함수 func(*sV실수64, ...I가변형) float64,
+	매개변수 ...I가변형) (반환값 V실수) {
 	// 에러발생 하면 nil 반환
 	defer func() {
 		if 에러 := recover(); 에러 != nil {
@@ -492,7 +495,7 @@ func (s *sV실수64) S_CAS_함수(
 }
 func (s *sV실수64) S절대값() V실수 {
 	함수 :=
-		func(구조체 *sV실수64, 매개변수 ...interface{}) float64 {
+		func(구조체 *sV실수64, 매개변수 ...I가변형) float64 {
 			실수 := 구조체.G값()
 
 			if 실수 < 0 {
@@ -506,7 +509,7 @@ func (s *sV실수64) S절대값() V실수 {
 }
 func (s *sV실수64) S더하기(값 float64) V실수 {
 	함수 :=
-		func(구조체 *sV실수64, 매개변수 ...interface{}) float64 {
+		func(구조체 *sV실수64, 매개변수 ...I가변형) float64 {
 			실수 := 구조체.G값()
 
 			실수 = 실수 + 값
@@ -518,7 +521,7 @@ func (s *sV실수64) S더하기(값 float64) V실수 {
 }
 func (s *sV실수64) S빼기(값 float64) V실수 {
 	함수 :=
-		func(구조체 *sV실수64, 매개변수 ...interface{}) float64 {
+		func(구조체 *sV실수64, 매개변수 ...I가변형) float64 {
 			실수 := 구조체.G값()
 
 			실수 = 실수 - 값
@@ -530,7 +533,7 @@ func (s *sV실수64) S빼기(값 float64) V실수 {
 }
 func (s *sV실수64) S곱하기(값 float64) V실수 {
 	함수 :=
-		func(구조체 *sV실수64, 매개변수 ...interface{}) float64 {
+		func(구조체 *sV실수64, 매개변수 ...I가변형) float64 {
 			실수 := 구조체.G값()
 
 			실수 = 실수 * 값
@@ -542,7 +545,7 @@ func (s *sV실수64) S곱하기(값 float64) V실수 {
 }
 func (s *sV실수64) S나누기(값 float64) V실수 {
 	함수 :=
-		func(구조체 *sV실수64, 매개변수 ...interface{}) float64 {
+		func(구조체 *sV실수64, 매개변수 ...I가변형) float64 {
 			실수 := 구조체.G값()
 
 			if 값 == 0 {
@@ -558,7 +561,7 @@ func (s *sV실수64) S나누기(값 float64) V실수 {
 }
 func (s *sV실수64) S역수() V실수 {
 	함수 :=
-		func(구조체 *sV실수64, 매개변수 ...interface{}) float64 {
+		func(구조체 *sV실수64, 매개변수 ...I가변형) float64 {
 			실수 := 구조체.G값()
 
 			if 실수 == 0 {
@@ -739,7 +742,7 @@ func (s *s정밀수) G실수() float64 {
 
 	return 실수
 }
-func (s *s정밀수) G같음(값 interface{}) bool {
+func (s *s정밀수) G같음(값 I가변형) bool {
 	정밀수 := NC정밀수(값)
 
 	if 정밀수 == nil {
@@ -756,7 +759,7 @@ func (s *s정밀수) G같음(값 interface{}) bool {
 	return false
 }
 
-func (s *s정밀수) G비교(값 interface{}) int {
+func (s *s정밀수) G비교(값 I가변형) int {
 	if s.G같음(값) {
 		return 0
 	}
@@ -821,17 +824,17 @@ func (s *sV정밀수) G실수() float64 {
 }
 func (s *sV정밀수) G정밀수() C정밀수 { return NC정밀수(s.G값()) }
 func (s *sV정밀수) G상수형() C정밀수 { return NC정밀수(s.G값()) }
-func (s *sV정밀수) G같음(값 interface{}) bool {
+func (s *sV정밀수) G같음(값 I가변형) bool {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
 	return s.s정밀수.G같음(값)
 }
-func (s *sV정밀수) G비교(값 interface{}) int {
+func (s *sV정밀수) G비교(값 I가변형) int {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
 	return s.s정밀수.G비교(값)
 }
-func (s *sV정밀수) S값(값 interface{}) V정밀수 {
+func (s *sV정밀수) S값(값 I가변형) V정밀수 {
 	if F_nil값임(값) ||
 		(!F숫자형식임(값) && !F문자열형식임(값)) {
 		s.잠금.Lock()
@@ -885,8 +888,8 @@ func (s *sV정밀수) S_CAS(원래값, 새로운값 *big.Rat) bool {
 }
 
 func (s *sV정밀수) S_CAS_함수(
-	함수 func(*sV정밀수, ...interface{}) *big.Rat,
-	매개변수 ...interface{}) (반환값 V정밀수) {
+	함수 func(*sV정밀수, ...I가변형) *big.Rat,
+	매개변수 ...I가변형) (반환값 V정밀수) {
 	// 에러발생 하면 nil 반환
 	defer func() {
 		if 에러 := recover(); 에러 != nil {
@@ -918,7 +921,7 @@ func (s *sV정밀수) S_CAS_함수(
 
 func (s *sV정밀수) S반올림(소숫점_이하_자릿수 int) V정밀수 {
 	함수 :=
-		func(구조체 *sV정밀수, 매개변수 ...interface{}) *big.Rat {
+		func(구조체 *sV정밀수, 매개변수 ...I가변형) *big.Rat {
 			정밀수 := 구조체.GRat()
 
 			if 정밀수 == nil {
@@ -935,7 +938,7 @@ func (s *sV정밀수) S반올림(소숫점_이하_자릿수 int) V정밀수 {
 
 func (s *sV정밀수) S절대값() V정밀수 {
 	함수 :=
-		func(구조체 *sV정밀수, 매개변수 ...interface{}) *big.Rat {
+		func(구조체 *sV정밀수, 매개변수 ...I가변형) *big.Rat {
 			정밀수 := 구조체.GRat()
 
 			if 정밀수 == nil {
@@ -947,9 +950,9 @@ func (s *sV정밀수) S절대값() V정밀수 {
 
 	return s.S_CAS_함수(함수)
 }
-func (s *sV정밀수) S더하기(값 interface{}) V정밀수 {
+func (s *sV정밀수) S더하기(값 I가변형) V정밀수 {
 	함수 :=
-		func(구조체 *sV정밀수, 매개변수 ...interface{}) *big.Rat {
+		func(구조체 *sV정밀수, 매개변수 ...I가변형) *big.Rat {
 			값 := 매개변수[0]
 
 			if 값 == nil {
@@ -972,9 +975,9 @@ func (s *sV정밀수) S더하기(값 interface{}) V정밀수 {
 
 	return s.S_CAS_함수(함수, 값)
 }
-func (s *sV정밀수) S빼기(값 interface{}) V정밀수 {
+func (s *sV정밀수) S빼기(값 I가변형) V정밀수 {
 	함수 :=
-		func(구조체 *sV정밀수, 매개변수 ...interface{}) *big.Rat {
+		func(구조체 *sV정밀수, 매개변수 ...I가변형) *big.Rat {
 			값 := 매개변수[0]
 
 			if 값 == nil {
@@ -997,9 +1000,9 @@ func (s *sV정밀수) S빼기(값 interface{}) V정밀수 {
 
 	return s.S_CAS_함수(함수, 값)
 }
-func (s *sV정밀수) S곱하기(값 interface{}) V정밀수 {
+func (s *sV정밀수) S곱하기(값 I가변형) V정밀수 {
 	함수 :=
-		func(구조체 *sV정밀수, 매개변수 ...interface{}) *big.Rat {
+		func(구조체 *sV정밀수, 매개변수 ...I가변형) *big.Rat {
 			값 := 매개변수[0]
 
 			if 값 == nil {
@@ -1022,9 +1025,9 @@ func (s *sV정밀수) S곱하기(값 interface{}) V정밀수 {
 
 	return s.S_CAS_함수(함수, 값)
 }
-func (s *sV정밀수) S나누기(값 interface{}) V정밀수 {
+func (s *sV정밀수) S나누기(값 I가변형) V정밀수 {
 	함수 :=
-		func(구조체 *sV정밀수, 매개변수 ...interface{}) *big.Rat {
+		func(구조체 *sV정밀수, 매개변수 ...I가변형) *big.Rat {
 			값 := 매개변수[0]
 
 			if 값 == nil {
@@ -1053,7 +1056,7 @@ func (s *sV정밀수) S나누기(값 interface{}) V정밀수 {
 }
 func (s *sV정밀수) S역수() V정밀수 {
 	함수 :=
-		func(구조체 *sV정밀수, 매개변수 ...interface{}) *big.Rat {
+		func(구조체 *sV정밀수, 매개변수 ...I가변형) *big.Rat {
 			정밀수 := 구조체.GRat()
 
 			if 정밀수 == nil ||
@@ -1068,7 +1071,7 @@ func (s *sV정밀수) S역수() V정밀수 {
 }
 func (s *sV정밀수) S반대부호값() V정밀수 {
 	함수 :=
-		func(구조체 *sV정밀수, 매개변수 ...interface{}) *big.Rat {
+		func(구조체 *sV정밀수, 매개변수 ...I가변형) *big.Rat {
 			정밀수 := 구조체.GRat()
 
 			if 정밀수 == nil {
@@ -1224,7 +1227,7 @@ func (s *sV통화) S종류(종류 P통화종류) {
 	defer s.잠금.Unlock()
 	s.종류 = 종류
 }
-func (s *sV통화) S값(금액 interface{}) V통화 {
+func (s *sV통화) S값(금액 I가변형) V통화 {
 	s.잠금.Lock()
 	defer s.잠금.Unlock()
 	s.금액.S값(금액)
@@ -1237,7 +1240,7 @@ func (s *sV통화) S절대값() V통화 {
 	s.금액.S절대값()
 	return s
 }
-func (s *sV통화) S더하기(값 interface{}) V통화 {
+func (s *sV통화) S더하기(값 I가변형) V통화 {
 	F매개변수_안전성_검사(값)
 
 	if F_nil값_존재함(값) ||
@@ -1254,7 +1257,7 @@ func (s *sV통화) S더하기(값 interface{}) V통화 {
 	s.금액.S더하기(값)
 	return s
 }
-func (s *sV통화) S빼기(값 interface{}) V통화 {
+func (s *sV통화) S빼기(값 I가변형) V통화 {
 	F매개변수_안전성_검사(값)
 
 	if F_nil값_존재함(값) ||
@@ -1271,7 +1274,7 @@ func (s *sV통화) S빼기(값 interface{}) V통화 {
 	s.금액.S빼기(값)
 	return s
 }
-func (s *sV통화) S곱하기(값 interface{}) V통화 {
+func (s *sV통화) S곱하기(값 I가변형) V통화 {
 	F매개변수_안전성_검사(값)
 
 	if F_nil값_존재함(값) ||
@@ -1288,7 +1291,7 @@ func (s *sV통화) S곱하기(값 interface{}) V통화 {
 	s.금액.S곱하기(값)
 	return s
 }
-func (s *sV통화) S나누기(값 interface{}) V통화 {
+func (s *sV통화) S나누기(값 I가변형) V통화 {
 	F매개변수_안전성_검사(값)
 
 	if F_nil값_존재함(값) ||
@@ -1340,12 +1343,78 @@ func (s *sV통화) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.
 // 생성자에서 매개변수의 안전성을 검사하도록 할 것.
 type sC매개변수 struct {
 	이름 string
-	값  interface{}
+	값  I가변형
 }
 
+func (s *sC매개변수) 상수형임() {}
 func (s *sC매개변수) G이름() string     { return s.이름 }
-func (s *sC매개변수) G값() interface{} { return s.값 }
+func (s *sC매개변수) G값() I가변형 { return s.값 }
 func (s *sC매개변수) G숫자형식임() bool    { return F숫자형식임(s.값) }
 func (s *sC매개변수) G문자열형식임() bool   { return F문자열형식임(s.값) }
 func (s *sC매개변수) G시점형식임() bool    { return F시점형식임(s.값) }
 func (s *sC매개변수) G참거짓형식임() bool   { return F참거짓형식임(s.값) }
+func (s *sC매개변수) String() string {
+	return s.이름 + " " + reflect.TypeOf(s.값).String() + F문자열(s.값)
+}
+func (s *sC매개변수) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
+	임의_숫자값 := 임의값_생성기.Int31()
+	임의_문자열 := NC문자열("").Generate(임의값_생성기, 크기).Interface().(string)
+	
+	값_모음 := []I가변형{ uint(임의_숫자값), int(임의_숫자값), float32(임의_숫자값),
+					float64(임의_숫자값), time.Now(), true, false, 임의_문자열,
+					NC정수(int64(임의_숫자값)), NC부호없는_정수(uint64(임의_숫자값)), 
+					NC실수(float64(임의_숫자값)), NC정밀수(임의_숫자값), 
+					NC통화(F임의_통화종류(), 임의_숫자값), NC시점(time.Now()), 
+					NC참거짓(true), NC문자열(임의_문자열)}
+	
+	이름 := 임의_문자열
+	값 := 값_모음[임의값_생성기.Int31n(int32(len(값_모음)))]
+
+	return reflect.ValueOf(NC매개변수(이름, 값))
+}
+
+// 안전한 배열
+type s안전한_배열 struct { 값 ps.List }
+
+func (s *s안전한_배열) G비어있음() bool { return s.값.IsNil() }
+func (s *s안전한_배열) G길이() int { return s.값.Size() }
+func (s *s안전한_배열) S추가(값 I가변형) I안전한_배열 {
+	F매개변수_안전성_검사(값)
+	
+	return &s안전한_배열{s.값.Cons(값)}
+}
+func (s *s안전한_배열) G슬라이스() []I가변형 {
+	반환값 := make([]I가변형, s.G길이())
+
+	if s.G비어있음() { return 반환값 }
+	
+	현재_항목 := s.값
+	var 인덱스 int 
+	
+	for !현재_항목.IsNil() {
+		인덱스 = 현재_항목.Size() - 1
+		반환값[인덱스] = 현재_항목.Head()
+		현재_항목 = 현재_항목.Tail()
+	}
+	
+	return 반환값
+}
+
+// 안전한 맵
+type s안전한_맵 struct { 값 ps.Map }
+
+func (s *s안전한_맵) G비어있음() bool { return s.값.IsNil() }
+func (s *s안전한_맵) G길이() int { return s.값.Size() }
+func (s *s안전한_맵) G키_모음() []string { return s.값.Keys() }
+func (s *s안전한_맵) G값(키 string) (I가변형, bool) { return s.값.Lookup(키) }
+func (s *s안전한_맵) S값(키 string, 값 I가변형) I안전한_맵 {
+	if !F매개변수_안전성_검사(값) { return nil }
+	
+	return &s안전한_맵{s.값.Set(키, 값)}
+}
+
+func (s *s안전한_맵) S삭제(키 string) I안전한_맵 {
+	return &s안전한_맵{s.값.Delete(키)}
+}
+
+func (s *s안전한_맵) String() string { return s.값.String() }

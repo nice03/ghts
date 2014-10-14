@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+type I가변형 interface{}
+
 type i테스트용_가상_객체 interface {
 	테스트용_가상_객체()
 }
@@ -181,8 +183,8 @@ type I정밀수 interface {
 	I실수형
 	G값() string
 	GRat() *big.Rat
-	G같음(값 interface{}) bool
-	G비교(값 interface{}) int // -1 : 더 작음, 0 : 같음, 1 : 더 큼. -2 : 숫자 아님
+	G같음(값 I가변형) bool
+	G비교(값 I가변형) int // -1 : 더 작음, 0 : 같음, 1 : 더 큼. -2 : 숫자 아님
 }
 
 type C정밀수 interface {
@@ -196,13 +198,13 @@ type V정밀수 interface {
 	I정밀수
 	G상수형() C정밀수
 
-	S값(값 interface{}) V정밀수
+	S값(값 I가변형) V정밀수
 	S반올림(소숫점_이하_자릿수 int) V정밀수
 	S절대값() V정밀수
-	S더하기(값 interface{}) V정밀수
-	S빼기(값 interface{}) V정밀수
-	S곱하기(값 interface{}) V정밀수
-	S나누기(값 interface{}) V정밀수
+	S더하기(값 I가변형) V정밀수
+	S빼기(값 I가변형) V정밀수
+	S곱하기(값 I가변형) V정밀수
+	S나누기(값 I가변형) V정밀수
 	S역수() V정밀수
 	S반대부호값() V정밀수
 }
@@ -225,23 +227,58 @@ type V통화 interface {
 	I통화
 	G상수형() C통화
 	S종류(종류 P통화종류)
-	S값(금액 interface{}) V통화
+	S값(금액 I가변형) V통화
 
 	S절대값() V통화
-	S더하기(값 interface{}) V통화
-	S빼기(값 interface{}) V통화
-	S곱하기(값 interface{}) V통화
-	S나누기(값 interface{}) V통화
+	S더하기(값 I가변형) V통화
+	S빼기(값 I가변형) V통화
+	S곱하기(값 I가변형) V통화
+	S나누기(값 I가변형) V통화
 	S반대부호값() V통화
 }
 
 type C매개변수 interface {
+	I상수형
 	G이름() string
-	G값() interface{}
+	G값() I가변형
 	G숫자형식임() bool
 	G문자열형식임() bool
 	G시점형식임() bool
 	G참거짓형식임() bool
+}
+
+// Persistent 리스트.
+// 순서가 반대인 링크드 리스트. 데이터를 공유로 인한 문제가 없음.
+// 원소를 추가하면 새로운 항목이 배열의 첫번째 항목이 됨.
+// 추가만 가능하고, 삭제나 변경이 안 되므로, 
+// 배열의 첫번째 항목이 새로 생성되는 것은 새로운 배열이 생성되는 것과 비슷한 효과를 냄.
+// ps패키지(github.com/mndrix/ps) 의 List를 한글화 했음.
+type I안전한_배열 interface {
+	G비어있음() bool
+	G길이() int
+	
+	// 반환값을 변수에 저장하지 않으면 추가한 항목은 사라짐.
+	// 메소드 체이닝은 가능함. s = S추가(1).S추가(2).S추가(3).....
+	S추가(값 I가변형) I안전한_배열	
+	G슬라이스() []I가변형
+}
+
+// Persistent 맵
+// 매번 추가, 삭제할 때마다 새로운 맵이 생성 및 할당되므로.
+// mutable 데이터를 공유하면서 생기는 문제가 없음.
+// ps패키지(github.com/mndrix/ps) 의 Map을 한글화 했음.
+type I안전한_맵 interface {
+	G비어있음() bool
+	G길이() int
+	G키_모음() []string
+	G값(이름 string) (I가변형, bool)
+	
+	// 반환값을 변수에 저장하지 않으면 추가한 항목은 사라짐.
+	S값(이름 string, 값 I가변형) I안전한_맵
+	
+	// 반환값을 변수에 저장하지 않으면 추가한 항목은 사라짐.
+	S삭제(이름 string) I안전한_맵
+	I기본_문자열
 }
 
 /*

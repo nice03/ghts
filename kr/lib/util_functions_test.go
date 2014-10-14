@@ -22,8 +22,8 @@ func Test매개변수_안전성_검사(테스트 *testing.T) {
 	// Immutable 하므로 race condition이 발생하지 않는 형식.
 	// 앞으로 여기에 검증된 상수형을 더 추가해야 됨.
 	검사_결과 = F매개변수_안전성_검사(
-		NC부호없는_정수(1), NC정수(1), NC실수(1),
-		NC시점(time.Now()), NC정밀수(1), NC통화(KRW, 1))
+		NC부호없는_정수(1), NC정수(1), NC실수(1), NC정밀수(1), NC통화(KRW, 1),
+		NC시점(time.Now()), NC문자열("테스트"), NC매개변수("테스트", 1.1))
 	F참인지_확인(테스트, 검사_결과)
 
 	// Mutable 한 타입들.
@@ -47,7 +47,7 @@ func TestF안전한_매개변수(테스트 *testing.T) {
 		NV통화(KRW, 1), NV참거짓(true), NV시점(시점),
 		big.NewInt(1), big.NewRat(11, 10)}
 
-	예상값_모음 := []interface{}{
+	예상값_모음 := []I가변형{
 		NC정수(1), NC부호없는_정수(1), NC실수(1.1), NC정밀수(1.1),
 		NC통화(KRW, 1), NC참거짓(true), NC시점(시점), NC정밀수(1), NC정밀수(1.1)}
 
@@ -66,12 +66,12 @@ func TestF안전한_매개변수(테스트 *testing.T) {
 func TestF안전한_매개변수_모음(테스트 *testing.T) {
 	시점 := time.Now()
 
-	입력값_모음 := []interface{}{
+	입력값_모음 := []I가변형{
 		NV정수(1), NV부호없는_정수(1), NV실수(1.1), NV정밀수(1.1),
 		NV통화(KRW, 1), NV참거짓(true), NV시점(시점),
 		big.NewInt(1), big.NewRat(11, 10)}
 
-	예상값_모음 := []interface{}{
+	예상값_모음 := []I가변형{
 		NC정수(1), NC부호없는_정수(1), NC실수(1.1), NC정밀수(1.1),
 		NC통화(KRW, 1), NC참거짓(true), NC시점(시점), NC정밀수(1), NC정밀수(1.1)}
 
@@ -95,27 +95,26 @@ func TestF상수형(테스트 *testing.T) {
 	F참인지_확인(테스트, F상수형(time.January) == nil)
 	F문자열_출력_일시정지_종료()
 
-	값_모음 := []interface{}{
-		time.Now(), NC시점(time.Now()), NC시점_문자열("2000-01-01"),
-		NV시점(time.Now()), NV시점_문자열("2000-01-01")}
+	값_모음 := []I가변형{
+		time.Now(), NC시점("2000-01-01"), NV시점("2000-01-01")}
 	for _, 값 := range 값_모음 {
 		_, ok := F상수형(값).(C시점)
 		F참인지_확인(테스트, ok)
 	}
 
-	값_모음 = []interface{}{"테스트", NC문자열("테스트")}
+	값_모음 = []I가변형{"테스트", NC문자열("테스트")}
 	for _, 값 := range 값_모음 {
 		_, ok := F상수형(값).(C문자열)
 		F참인지_확인(테스트, ok)
 	}
 
-	값_모음 = []interface{}{true, false, NC참거짓(true), NC참거짓(false)}
+	값_모음 = []I가변형{true, false, NC참거짓(true), NC참거짓(false)}
 	for _, 값 := range 값_모음 {
 		_, ok := F상수형(값).(C참거짓)
 		F참인지_확인(테스트, ok)
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		NC부호없는_정수(uint64(1)), NV부호없는_정수(uint64(1))}
 	for _, 값 := range 값_모음 {
@@ -123,7 +122,7 @@ func TestF상수형(테스트 *testing.T) {
 		F참인지_확인(테스트, ok)
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		int(1), int8(1), int16(1), int32(1), int64(1),
 		NC정수(int64(1)), NV정수(int64(1))}
 	for _, 값 := range 값_모음 {
@@ -131,21 +130,21 @@ func TestF상수형(테스트 *testing.T) {
 		F참인지_확인(테스트, ok)
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		float32(1), float64(1), NC실수(1), NV실수(1)}
 	for _, 값 := range 값_모음 {
 		_, ok := F상수형(값).(C실수)
 		F참인지_확인(테스트, ok)
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		big.NewInt(1), big.NewRat(1, 1), NC정밀수(1), NV정밀수(1)}
 	for _, 값 := range 값_모음 {
 		_, ok := F상수형(값).(C정밀수)
 		F참인지_확인(테스트, ok)
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		NC통화(KRW, 100), NV통화(KRW, 100)}
 	for _, 값 := range 값_모음 {
 		_, ok := F상수형(값).(C통화)
@@ -154,26 +153,25 @@ func TestF상수형(테스트 *testing.T) {
 }
 
 func TestF문자열(테스트 *testing.T) {
-	값_모음 := []interface{}{true, P참, NC참거짓(true)}
+	값_모음 := []I가변형{true, P참, NC참거짓(true)}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F문자열(값), "true")
 	}
 
-	값_모음 = []interface{}{"테스트", NC문자열("테스트")}
+	값_모음 = []I가변형{"테스트", NC문자열("테스트")}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F문자열(값), "테스트")
 	}
 
 	시점, _ := F문자열2시점("2000-01-01")
 
-	값_모음 = []interface{}{
-		시점, NC시점(시점), NC시점_문자열("2000-01-01"),
-		NV시점(시점), NV시점_문자열("2000-01-01")}
+	값_모음 = []I가변형{
+		시점, NC시점(시점), NV시점("2000-01-01")}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F문자열(값), "2000-01-01 00:00:00.000000000 (UTC) Sat +0000")
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		NC부호없는_정수(uint64(1)), NV부호없는_정수(uint64(1)),
 		int(1), int8(1), int16(1), int32(1), int64(1),
@@ -182,14 +180,14 @@ func TestF문자열(테스트 *testing.T) {
 		F같은값_확인(테스트, F문자열(값), "1")
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		float32(1.1), float64(1.1), NC실수(1.1), NV실수(1.1),
 		big.NewRat(11, 10), NC정밀수(1.1), NV정밀수(1.1)}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F문자열(값), "1.1")
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		NC통화(KRW, 100), NV통화(KRW, 100)}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F문자열(값), "KRW 100")
@@ -197,26 +195,26 @@ func TestF문자열(테스트 *testing.T) {
 }
 
 func TestF포맷된_문자열(테스트 *testing.T) {
-	값_모음 := []interface{}{true, P참, NC참거짓(true)}
+	값_모음 := []I가변형{true, P참, NC참거짓(true)}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F포맷된_문자열("%v", 값), "true")
 	}
 
-	값_모음 = []interface{}{"테스트", NC문자열("테스트")}
+	값_모음 = []I가변형{"테스트", NC문자열("테스트")}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F포맷된_문자열("%v", 값), "테스트")
 	}
 
 	시점, _ := F문자열2시점("2000-01-01")
 
-	값_모음 = []interface{}{
-		NC시점(시점), NC시점_문자열("2000-01-01"),
-		NV시점(시점), NV시점_문자열("2000-01-01")}
+	값_모음 = []I가변형{
+		NC시점(시점), NC시점("2000-01-01"),
+		NV시점(시점), NV시점("2000-01-01")}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F포맷된_문자열("%v", 값), "2000-01-01 00:00:00.000000000 (UTC) Sat +0000")
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		NC부호없는_정수(uint64(1)), NV부호없는_정수(uint64(1)),
 		int(1), int8(1), int16(1), int32(1), int64(1),
@@ -225,14 +223,14 @@ func TestF포맷된_문자열(테스트 *testing.T) {
 		F같은값_확인(테스트, F포맷된_문자열("%v", 값), "1")
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		float32(1.1), float64(1.1), NC실수(1.1), NV실수(1.1),
 		NC정밀수(1.1), NV정밀수(1.1)}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F포맷된_문자열("%v", 값), "1.1")
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		NC통화(KRW, 100), NV통화(KRW, 100)}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F포맷된_문자열("%v", 값), "KRW 100")
@@ -364,7 +362,7 @@ func TestF통화종류(테스트 *testing.T) {
 }
 
 func TestF통화형식임(테스트 *testing.T) {
-	값_모음 := []interface{}{NC통화(KRW, 100)}
+	값_모음 := []I가변형{NC통화(KRW, 100)}
 
 	F참인지_확인(테스트, F통화형식임(값_모음...))
 
@@ -373,8 +371,8 @@ func TestF통화형식임(테스트 *testing.T) {
 	}
 
 	시점_문자열 := "2000-01-01"
-	값_모음 = []interface{}{nil, true, P참, NC참거짓(true), "테스트", NC문자열("테스트"),
-		NC시점_문자열(시점_문자열).G값(), NC시점_문자열(시점_문자열),
+	값_모음 = []I가변형{nil, true, P참, NC참거짓(true), "테스트", NC문자열("테스트"),
+		NC시점(시점_문자열).G값(), NC시점(시점_문자열),
 		uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		NC부호없는_정수(uint64(1)), int(1), int8(1), int16(1), int32(1), int64(1),
 		NC정수(int64(1)), float32(1.1), float64(1.1), NC실수(1.1), NC정밀수(1.1)}
@@ -393,7 +391,7 @@ func TestF통화_같음(테스트 *testing.T) {
 }
 
 func TestF숫자형식임(테스트 *testing.T) {
-	값_모음 := []interface{}{
+	값_모음 := []I가변형{
 		uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		int(1), int8(1), int16(1), int32(1), int64(1),
 		float32(1.1), float64(1.1), NC부호없는_정수(1), NC정수(1), NC정밀수(1.1)}
@@ -404,7 +402,7 @@ func TestF숫자형식임(테스트 *testing.T) {
 		F참인지_확인(테스트, F숫자형식임(값))
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		nil, "문자열", NC문자열("문자열"), time.Now(), NC시점(time.Now()),
 		true, false, NC참거짓(true), NC통화(KRW, 100)}
 	F거짓인지_확인(테스트, F숫자형식임(값_모음...))
@@ -414,12 +412,12 @@ func TestF숫자형식임(테스트 *testing.T) {
 }
 
 func TestF숫자_같음(테스트 *testing.T) {
-	값_모음_1 := []interface{}{
+	값_모음_1 := []I가변형{
 		uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		int(1), int8(1), int16(1), int32(1), int64(1),
 		float32(1), float64(1), NC부호없는_정수(1), NC정수(1), NC정밀수(1)}
 
-	값_모음_2 := []interface{}{
+	값_모음_2 := []I가변형{
 		uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		int(1), int8(1), int16(1), int32(1), int64(1),
 		float32(1), float64(1), NC부호없는_정수(1), NC정수(1), NC정밀수(1)}
@@ -430,7 +428,7 @@ func TestF숫자_같음(테스트 *testing.T) {
 		}
 	}
 
-	값_모음_2 = []interface{}{
+	값_모음_2 = []I가변형{
 		nil, uint(2), uint8(2), uint16(2), uint32(2), uint64(2),
 		int(2), int8(2), int16(2), int32(2), int64(2),
 		float32(2), float64(2), NC부호없는_정수(2), NC정수(2), NC정밀수(2)}
@@ -441,8 +439,8 @@ func TestF숫자_같음(테스트 *testing.T) {
 		}
 	}
 
-	값_모음_1 = []interface{}{float32(1.1), float64(1.1), NC실수(1.1), NC정밀수(1.1)}
-	값_모음_2 = []interface{}{float32(1.1), float64(1.1), NC실수(1.1), NC정밀수(1.1)}
+	값_모음_1 = []I가변형{float32(1.1), float64(1.1), NC실수(1.1), NC정밀수(1.1)}
+	값_모음_2 = []I가변형{float32(1.1), float64(1.1), NC실수(1.1), NC정밀수(1.1)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -450,7 +448,7 @@ func TestF숫자_같음(테스트 *testing.T) {
 		}
 	}
 
-	값_모음_2 = []interface{}{nil, float32(2.2), float64(2.2), NC실수(2.2), NC정밀수(2.2)}
+	값_모음_2 = []I가변형{nil, float32(2.2), float64(2.2), NC실수(2.2), NC정밀수(2.2)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -460,13 +458,13 @@ func TestF숫자_같음(테스트 *testing.T) {
 }
 
 func TestF참거짓형식임(테스트 *testing.T) {
-	값_모음 := []interface{}{true, false, NC참거짓(true)}
+	값_모음 := []I가변형{true, false, NC참거짓(true)}
 	F참인지_확인(테스트, F참거짓형식임(값_모음...))
 	for _, 값 := range 값_모음 {
 		F참인지_확인(테스트, F참거짓형식임(값))
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		nil, uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		int(1), int8(1), int16(1), int32(1), int64(1),
 		float32(1.1), float64(1.1), NC부호없는_정수(1), NC정수(1), NC실수(1.1),
@@ -479,8 +477,8 @@ func TestF참거짓형식임(테스트 *testing.T) {
 }
 
 func TestF참거짓_같음(테스트 *testing.T) {
-	값_모음_1 := []interface{}{true, NC참거짓(true)}
-	값_모음_2 := []interface{}{true, NC참거짓(true)}
+	값_모음_1 := []I가변형{true, NC참거짓(true)}
+	값_모음_2 := []I가변형{true, NC참거짓(true)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -488,8 +486,8 @@ func TestF참거짓_같음(테스트 *testing.T) {
 		}
 	}
 
-	값_모음_1 = []interface{}{false, NC참거짓(false)}
-	값_모음_2 = []interface{}{false, NC참거짓(false)}
+	값_모음_1 = []I가변형{false, NC참거짓(false)}
+	값_모음_2 = []I가변형{false, NC참거짓(false)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -497,8 +495,8 @@ func TestF참거짓_같음(테스트 *testing.T) {
 		}
 	}
 
-	값_모음_1 = []interface{}{true, NC참거짓(true)}
-	값_모음_2 = []interface{}{false, NC참거짓(false)}
+	값_모음_1 = []I가변형{true, NC참거짓(true)}
+	값_모음_2 = []I가변형{false, NC참거짓(false)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -506,8 +504,8 @@ func TestF참거짓_같음(테스트 *testing.T) {
 		}
 	}
 
-	값_모음_1 = []interface{}{false, NC참거짓(false)}
-	값_모음_2 = []interface{}{true, NC참거짓(true)}
+	값_모음_1 = []I가변형{false, NC참거짓(false)}
+	값_모음_2 = []I가변형{true, NC참거짓(true)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -517,13 +515,13 @@ func TestF참거짓_같음(테스트 *testing.T) {
 }
 
 func TestF문자열형식임(테스트 *testing.T) {
-	값_모음 := []interface{}{"테스트", NC문자열("테스트")}
+	값_모음 := []I가변형{"테스트", NC문자열("테스트")}
 	F참인지_확인(테스트, F문자열형식임(값_모음...))
 	for _, 값 := range 값_모음 {
 		F참인지_확인(테스트, F문자열형식임(값))
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		nil, uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		int(1), int8(1), int16(1), int32(1), int64(1), float32(1.1),
 		float64(1.1), NC부호없는_정수(1), NC정수(1), NC실수(1.1), NC정밀수(1.1),
@@ -538,8 +536,8 @@ func TestF문자열_같음(테스트 *testing.T) {
 	문자열1 := "테스트"
 	문자열2 := "테스트"
 
-	값_모음_1 := []interface{}{문자열1, NC문자열(문자열1)}
-	값_모음_2 := []interface{}{문자열2, NC문자열(문자열2)}
+	값_모음_1 := []I가변형{문자열1, NC문자열(문자열1)}
+	값_모음_2 := []I가변형{문자열2, NC문자열(문자열2)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -548,7 +546,7 @@ func TestF문자열_같음(테스트 *testing.T) {
 	}
 
 	문자열2 = 문자열2 + "2"
-	값_모음_2 = []interface{}{문자열2, NC문자열(문자열2)}
+	값_모음_2 = []I가변형{문자열2, NC문자열(문자열2)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -559,13 +557,13 @@ func TestF문자열_같음(테스트 *testing.T) {
 
 func TestF시점형식임(테스트 *testing.T) {
 	시점 := time.Now()
-	값_모음 := []interface{}{시점, NC시점(시점)}
+	값_모음 := []I가변형{시점, NC시점(시점)}
 	F참인지_확인(테스트, F시점형식임(값_모음...))
 	for _, 값 := range 값_모음 {
 		F참인지_확인(테스트, F시점형식임(값))
 	}
 
-	값_모음 = []interface{}{
+	값_모음 = []I가변형{
 		nil, uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		int(1), int8(1), int16(1), int32(1), int64(1), float32(1.1),
 		float64(1.1), NC부호없는_정수(1), NC정수(1), NC실수(1.1), NC정밀수(1.1),
@@ -580,8 +578,8 @@ func TestF시점_같음(테스트 *testing.T) {
 	시점1 := time.Now()
 	시점2 := F시점_복사(시점1)
 
-	값_모음_1 := []interface{}{시점1, NC시점(시점1)}
-	값_모음_2 := []interface{}{시점2, NC시점(시점2)}
+	값_모음_1 := []I가변형{시점1, NC시점(시점1)}
+	값_모음_2 := []I가변형{시점2, NC시점(시점2)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -590,7 +588,7 @@ func TestF시점_같음(테스트 *testing.T) {
 	}
 
 	시점2 = 시점2.AddDate(0, 0, 1)
-	값_모음_2 = []interface{}{시점2, NC시점(시점2)}
+	값_모음_2 = []I가변형{시점2, NC시점(시점2)}
 
 	for _, 값1 := range 값_모음_1 {
 		for _, 값2 := range 값_모음_2 {
@@ -601,7 +599,7 @@ func TestF시점_같음(테스트 *testing.T) {
 
 func TestF값_같음(테스트 *testing.T) {
 	// 정수 테스트
-	값 := []interface{}{
+	값 := []I가변형{
 		uint(100), uint8(100), uint16(100), uint32(100), uint64(100),
 		int(100), int8(100), int16(100), int32(100), int64(100),
 		float32(100.0), float64(100.0),
@@ -610,14 +608,14 @@ func TestF값_같음(테스트 *testing.T) {
 	testF값_같음_도우미(테스트, 값)
 
 	// 실수 테스트
-	값 = []interface{}{
+	값 = []I가변형{
 		float32(100.0345), float64(100.0345),
 		NC정밀수(100.0345)}
 
 	testF값_같음_도우미(테스트, 값)
 
 	// 정밀한 실수 테스트
-	값 = []interface{}{
+	값 = []I가변형{
 		//float32(100.000000345), // float32에서는 에러남.
 		float64(100.000000345),
 		NC정밀수(100.000000345)}
@@ -627,29 +625,29 @@ func TestF값_같음(테스트 *testing.T) {
 	// 통화 테스트
 	통화종류 := F임의_통화종류()
 
-	값 = []interface{}{
+	값 = []I가변형{
 		NC통화(통화종류, 111.1111)}
 
 	testF값_같음_도우미(테스트, 값)
 
 	// 문자열 테스트
-	값 = []interface{}{"테스트", NC문자열("테스트")}
+	값 = []I가변형{"테스트", NC문자열("테스트")}
 	testF값_같음_도우미(테스트, 값)
 
 	// 참거짓 테스트
-	값 = []interface{}{true, P참, NC참거짓(true)}
+	값 = []I가변형{true, P참, NC참거짓(true)}
 	testF값_같음_도우미(테스트, 값)
 
-	값 = []interface{}{false, P거짓, NC참거짓(false)}
+	값 = []I가변형{false, P거짓, NC참거짓(false)}
 	testF값_같음_도우미(테스트, 값)
 
 	// 시점 테스트
 	시점 := time.Now()
-	값 = []interface{}{시점, NC시점(시점)}
+	값 = []I가변형{시점, NC시점(시점)}
 	testF값_같음_도우미(테스트, 값)
 }
 
-func testF값_같음_도우미(테스트 *testing.T, 값 []interface{}) {
+func testF값_같음_도우미(테스트 *testing.T, 값 []I가변형) {
 	for 인덱스1 := 0; 인덱스1 < (len(값) - 1); 인덱스1++ {
 		for 인덱스2 := 인덱스1 + 1; 인덱스2 < len(값); 인덱스2++ {
 			F참인지_확인(테스트, F값_같음(값[인덱스1], 값[인덱스2]),
@@ -664,11 +662,11 @@ func TestF잠시_대기(테스트 *testing.T) {
 }
 
 func TestF중첩된_외부_슬라이스_제거(테스트 *testing.T) {
-	중첩된_슬라이스 := make([]interface{}, 1)
+	중첩된_슬라이스 := make([]I가변형, 1)
 	중첩된_슬라이스[0] = 1
 
 	for 반복횟수 := 0; 반복횟수 < 10; 반복횟수++ {
-		슬라이스 := make([]interface{}, 1)
+		슬라이스 := make([]I가변형, 1)
 		슬라이스[0] = 중첩된_슬라이스
 
 		중첩된_슬라이스 = 슬라이스
