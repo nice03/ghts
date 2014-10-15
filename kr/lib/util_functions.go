@@ -110,6 +110,9 @@ func F안전한_매개변수_모음(값_모음 ...I가변형) []I가변형 {
 
 				반환값[인덱스] = 값 // I상수형 변환 실패
 			}
+		case error, reflect.Value, reflect.Type:
+			// 어떻게 해야 될 지 모르겠으니 일단 그냥 넘어가자.
+			continue
 		default:
 			종류 := reflect.TypeOf(값).Kind()
 

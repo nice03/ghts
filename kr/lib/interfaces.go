@@ -8,6 +8,16 @@ import (
 
 type I가변형 interface{}
 
+type I반환값 interface {
+	G값() I가변형
+	G에러() error
+}
+
+type I맵_반환값 interface {
+	G값() I가변형
+	G찾았음() bool
+}
+
 type i테스트용_가상_객체 interface {
 	테스트용_가상_객체()
 }
@@ -271,7 +281,7 @@ type I안전한_맵 interface {
 	G비어있음() bool
 	G길이() int
 	G키_모음() []string
-	G값(이름 string) (I가변형, bool)
+	G값(이름 string) I맵_반환값
 	
 	// 반환값을 변수에 저장하지 않으면 추가한 항목은 사라짐.
 	S값(이름 string, 값 I가변형) I안전한_맵

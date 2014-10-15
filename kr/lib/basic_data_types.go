@@ -12,6 +12,21 @@ import (
 	"time"
 )
 
+type s반환값 struct {
+	값 I가변형
+	에러 error
+}
+
+func (s *s반환값) G값() I가변형 { return s.값 }
+func (s *s반환값) G에러() error { return s.에러 }
+
+type s맵_반환값 struct {
+	값 I가변형
+	찾았음 bool
+}
+
+func (s *s맵_반환값) G값() I가변형 { return s.값 }
+func (s *s맵_반환값) G찾았음() bool { return s.찾았음 }
 
 
 // 상수형이 immutable 하기 위해서는 생성할 때 입력되는 참조형 값이
@@ -1406,7 +1421,7 @@ type s안전한_맵 struct { 값 ps.Map }
 func (s *s안전한_맵) G비어있음() bool { return s.값.IsNil() }
 func (s *s안전한_맵) G길이() int { return s.값.Size() }
 func (s *s안전한_맵) G키_모음() []string { return s.값.Keys() }
-func (s *s안전한_맵) G값(키 string) (I가변형, bool) { return s.값.Lookup(키) }
+func (s *s안전한_맵) G값(키 string) I맵_반환값 { return N맵_반환값(s.값.Lookup(키)) }
 func (s *s안전한_맵) S값(키 string, 값 I가변형) I안전한_맵 {
 	if !F매개변수_안전성_검사(값) { return nil }
 	

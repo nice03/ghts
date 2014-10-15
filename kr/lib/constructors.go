@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+func N반환값(값 I가변형, 에러 error) I반환값 { return &s반환값{ 값: 값, 에러: 에러 } }
+func N맵_반환값(값 I가변형, 찾았음 bool) I맵_반환값 { return &s맵_반환값{값,찾았음} }
+
 func NC정수(값 int64) C정수 { return &sC정수64{&s정수64{값}} }
 func NV정수(값 int64) V정수 { return &sV정수64{s정수64: &s정수64{값}} }
 
