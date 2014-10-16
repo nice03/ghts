@@ -13,16 +13,11 @@ type I반환값 interface {
 	G에러() error
 }
 
-type I맵_반환값 interface {
-	G값() I가변형
-	G찾았음() bool
-}
-
 type i테스트용_가상_객체 interface {
 	테스트용_가상_객체()
 }
 
-type I정수_식별코드 interface {
+type I식별코드 interface {
 	G식별코드() uint64
 }
 type I문자열_식별코드 interface {
@@ -281,7 +276,9 @@ type I안전한_맵 interface {
 	G비어있음() bool
 	G길이() int
 	G키_모음() []string
-	G값(이름 string) I맵_반환값
+	G존재함(키 string) bool
+	G값(키 string) I가변형
+	G맵() map[string]I가변형
 	
 	// 반환값을 변수에 저장하지 않으면 추가한 항목은 사라짐.
 	S값(이름 string, 값 I가변형) I안전한_맵
@@ -290,6 +287,79 @@ type I안전한_맵 interface {
 	S삭제(이름 string) I안전한_맵
 	I기본_문자열
 }
+
+type C종목 interface {
+	I상수형
+	G코드() string
+	G명칭() string
+}
+
+type I종목별_포트폴리오 interface {
+	G종목() C종목
+	G매입수량() uint64		// 매입(long) 포지션
+	G공매도수량() uint64	// 공매도(short) 포지션	
+	G순수량() int64
+	G총수량() uint64
+	
+	G매입금액() C통화
+	G공매도금액() C통화
+	G순금액() C통화
+	G총금액() C통화
+}
+
+type C종목별_포트폴리오 interface {
+	I상수형
+	I종목별_포트폴리오
+	G변수형() V종목별_포트폴리오
+}
+
+type V종목별_포트폴리오 interface {
+	I변수형
+	I종목별_포트폴리오
+	G상수형() C종목별_포트폴리오
+	S매입수량_변동(변동값 int64)	error
+	S공매도수량_변동(변동값 int64)	error
+}
+
+type I포트폴리오 interface {
+	G종목_모음() []C종목
+	G존재함(종목 C종목) bool
+	G종목별_포트폴리오(종목 C종목) C종목별_포트폴리오
+	G전체_포트폴리오() []C종목별_포트폴리오
+	
+	G매입수량(종목 C종목) uint64
+	G공매도수량(종목 C종목) uint64
+	G순수량(종목 C종목) int64
+	G총수량(종목 C종목) int64
+	
+	G매입금액(종목 C종목) C통화
+	G공매도금액(종목 C종목) C통화
+	G순금액(종목 C종목) C통화
+	G총금액(종목 C종목) C통화
+	
+	G전체_매입금액() C통화
+	G전체_공매도금액() C통화
+	G전체_순금액() C통화
+	G전체_총금액() C통화
+}
+
+type C포트폴리오 interface {
+	I상수형
+	I포트폴리오
+	G변수형() V포트폴리오
+}
+
+type V포트폴리오 interface {
+	I변수형
+	I포트폴리오
+	G상수형() C포트폴리오
+	S추가(종목별_포트폴리오 C종목별_포트폴리오) error
+	S복수_추가(종목별_포트폴리오_모음 []C종목별_포트폴리오) error
+	//S삭제(종목 C종목) error // 필요없음.
+	S매입수량_변동(종목 C종목, 변동값 int64)
+	S공매도수량_변동(종목 C종목, 변동값 int64)
+}
+	
 
 /*
 type I환율 interface {

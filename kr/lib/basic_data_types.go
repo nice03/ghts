@@ -20,15 +20,6 @@ type s반환값 struct {
 func (s *s반환값) G값() I가변형 { return s.값 }
 func (s *s반환값) G에러() error { return s.에러 }
 
-type s맵_반환값 struct {
-	값 I가변형
-	찾았음 bool
-}
-
-func (s *s맵_반환값) G값() I가변형 { return s.값 }
-func (s *s맵_반환값) G찾았음() bool { return s.찾았음 }
-
-
 // 상수형이 immutable 하기 위해서는 생성할 때 입력되는 참조형 값이
 // 적절하게 복사되는 것을 보장해야 함.
 // 이를 위해서는 new()를 사용해서 상수형 자료형을 생성할 수 없도록 확실히 해야함.
@@ -1421,7 +1412,29 @@ type s안전한_맵 struct { 값 ps.Map }
 func (s *s안전한_맵) G비어있음() bool { return s.값.IsNil() }
 func (s *s안전한_맵) G길이() int { return s.값.Size() }
 func (s *s안전한_맵) G키_모음() []string { return s.값.Keys() }
-func (s *s안전한_맵) G값(키 string) I맵_반환값 { return N맵_반환값(s.값.Lookup(키)) }
+func (s *s안전한_맵) G존재함(키 string) bool {
+	_, ok := s.값.Lookup(키)
+	
+	return ok
+}
+func (s *s안전한_맵) G값(키 string) I가변형 {
+	값, ok := s.값.Lookup(키)
+	
+	if !ok { return nil }
+	
+	return 값
+}
+func (s *s안전한_맵) G맵() map[string]I가변형 {
+	맵 := make(map[string]I가변형)
+	
+	키_모음 := s.G키_모음() 
+	
+	for _, 키 := range 키_모음 {
+		맵[키] = s.G값(키)
+	}
+	
+	return 맵
+}
 func (s *s안전한_맵) S값(키 string, 값 I가변형) I안전한_맵 {
 	if !F매개변수_안전성_검사(값) { return nil }
 	
