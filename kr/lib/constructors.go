@@ -1,3 +1,7 @@
+// Copyright 2014 UnHa Kim. All rights reserved.
+// Use of this source code is governed by a LGPL V3
+// license that can be found in the LICENSE file.
+
 package lib
 
 import (
@@ -6,7 +10,7 @@ import (
 	"time"
 )
 
-func N반환값(값 I가변형, 에러 error) I반환값 { return &s반환값{ 값: 값, 에러: 에러 } }
+func N반환값(값 I가변형, 에러 error) I반환값 { return &s반환값{값: 값, 에러: 에러} }
 
 func NC정수(값 int64) C정수 { return &sC정수64{&s정수64{값}} }
 func NV정수(값 int64) V정수 { return &sV정수64{s정수64: &s정수64{값}} }
@@ -36,7 +40,7 @@ func NC시점(값 I가변형) C시점 {
 	if !F시점형식임(값) && !F문자열형식임(값) {
 		return nil
 	}
-	
+
 	switch 값.(type) {
 	case time.Time:
 		return &sC시점{&s시점{값.(time.Time)}}
@@ -48,7 +52,7 @@ func NC시점(값 I가변형) C시점 {
 		if 에러 != nil {
 			return nil
 		}
-		
+
 		return &sC시점{&s시점{시점}}
 	case *sC문자열:
 		시점, 에러 := F문자열2시점(값.(*sC문자열).G값())
@@ -56,11 +60,11 @@ func NC시점(값 I가변형) C시점 {
 		if 에러 != nil {
 			return nil
 		}
-		
+
 		return &sC시점{&s시점{시점}}
 	default:
 		F문자열_출력("예상치 못한 입력값 형식. %s", F값_확인_문자열(값))
-		
+
 		return nil
 	}
 }
@@ -69,7 +73,7 @@ func NV시점(값 I가변형) V시점 {
 	if !F시점형식임(값) && !F문자열형식임(값) {
 		return nil
 	}
-	
+
 	switch 값.(type) {
 	case time.Time:
 		return &sV시점{s시점: &s시점{값.(time.Time)}}
@@ -81,7 +85,7 @@ func NV시점(값 I가변형) V시점 {
 		if 에러 != nil {
 			return nil
 		}
-		
+
 		return &sV시점{s시점: &s시점{시점}}
 	case *sC문자열:
 		시점, 에러 := F문자열2시점(값.(*sC문자열).G값())
@@ -89,17 +93,22 @@ func NV시점(값 I가변형) V시점 {
 		if 에러 != nil {
 			return nil
 		}
-		
+
 		return &sV시점{s시점: &s시점{시점}}
 	default:
 		F문자열_출력("예상치 못한 입력값 형식. %s", F값_확인_문자열(값))
-		
+
 		return nil
 	}
 }
 
 func NC정밀수(값 I가변형) C정밀수 {
-	if !F숫자형식임(값) && !F문자열형식임(값) {
+	switch {
+	case F_nil값임(값):
+		return nil
+	case FbigRat형식임(값), F숫자형식임(값):
+		// OK to PASS
+	default:
 		return nil
 	}
 
@@ -127,7 +136,12 @@ func NC정밀수(값 I가변형) C정밀수 {
 }
 
 func NV정밀수(값 I가변형) V정밀수 {
-	if !F숫자형식임(값) && !F문자열형식임(값) {
+	switch {
+	case F_nil값임(값):
+		return nil
+	case FbigRat형식임(값), F숫자형식임(값):
+		// OK to PASS
+	default:
 		return nil
 	}
 
@@ -202,11 +216,11 @@ func NV통화(종류 P통화종류, 금액 I가변형) V통화 {
 
 func NC매개변수(이름 string, 값 I가변형) C매개변수 {
 	F매개변수_안전성_검사(값)
-	
+
 	if _, ok := 값.([]I가변형); ok {
 		값 = F중첩된_외부_슬라이스_제거(값.([]I가변형))
 	}
-	
+
 	switch 값.(type) {
 	case *sC매개변수:
 		c매개변수 := 값.(*sC매개변수)
@@ -215,9 +229,16 @@ func NC매개변수(이름 string, 값 I가변형) C매개변수 {
 	case []I가변형:
 		F중첩된_외부_슬라이스_제거(값.([]I가변형))
 	}
-	
+
 	return &sC매개변수{이름, 값}
 }
+
+/*
+func NC안전한_가변형(값 I가변형) C안전한_가변형 {
+	if !F엄격한_매개변수_안전성_검사(값) { return nil }
+
+	return &sC안전한_가변형{값}
+} */
 
 func N안전한_배열() I안전한_배열 {
 	return &s안전한_배열{ps.NewList()}
@@ -235,13 +256,14 @@ func NC종목별_포트폴리오(종목 C종목, 매입수량, 매도수량 uint
 	&sC종목별_포트폴리오{종목: 종목, 매입수량: 매입수량, 매도수량: 매도수량}
 } */
 
+/*
 func NV종목별_포트폴리오(종목 C종목, 매입수량, 공매도수량 uint64) V종목별_포트폴리오 {
 	c매입수량 := NC부호없는_정수(매입수량)
 	c공매도수량 := NC부호없는_정수(공매도수량)
-	
+
 	return &sV종목별_포트폴리오{s종목별_포트폴리오:
 				&s종목별_포트폴리오{종목: 종목, 매입수량: c매입수량, 공매도수량: c공매도수량}}
-}
+} */
 
 /*
 func NC포트폴리오(종목별_포트폴리오_모음 []종목별_포트폴리오_모음) C포트폴리오 {
@@ -249,9 +271,9 @@ func NC포트폴리오(종목별_포트폴리오_모음 []종목별_포트폴리
 	return nil
 } */
 
+/*
 func NV포트폴리오(통화종류 P통화종류) V포트폴리오 {
 	F메모("sV포트폴리오 작성")
 	return nil
 	//return &sV포트폴리오{저장소: make(map[string]V종목별_포트폴리오)}
-}
-
+} */

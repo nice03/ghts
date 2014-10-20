@@ -1,3 +1,7 @@
+// Copyright 2014 UnHa Kim. All rights reserved.
+// Use of this source code is governed by a LGPL V3
+// license that can be found in the LICENSE file.
+
 package lib
 
 import (
@@ -13,6 +17,30 @@ import (
 	"testing"
 	"time"
 )
+
+func F엄격한_매개변수_안전성_검사(값_모음 ...I가변형) bool {
+	if !F매개변수_안전성_검사(값_모음...) {
+		return false
+	}
+
+	for _, 값 := range 값_모음 {
+		종류 := reflect.TypeOf(값).Kind()
+
+		if 종류 == reflect.Chan || 종류 == reflect.Func {
+			F문자열_출력("안전하지 않은 매개변수 형식 : %v", F값_확인_문자열(값))
+
+			에러 := F에러_생성("%s안전하지 않은 매개변수 형식 : %s\n%s\n%s\n%s\n%s",
+				F소스코드_위치(1), F값_확인_문자열(값),
+				F소스코드_위치(2), F소스코드_위치(3), F소스코드_위치(4), F소스코드_위치(5))
+
+			panic(에러)
+
+			return false
+		}
+	}
+
+	return true
+}
 
 // 매개변수가 data race를 일으킬 위험이 있는 지 검사.
 // 현재는 알려진 몇몇 형식에 대해서만 제대로 작동함.
@@ -38,7 +66,7 @@ func F매개변수_안전성_검사(값_모음 ...I가변형) bool {
 			continue
 		case *sC부호없는_정수64, *sC정수64, *sC실수64, *sC정밀수,
 			*sC참거짓, *sC문자열, *sC시점, *sC통화, *sC매개변수,
-			*s안전한_배열, *s안전한_맵:
+			*sC안전한_가변형, *s안전한_배열, *s안전한_맵:
 			// Immutable 하므로 race condition이 발생하지 않는 형식.
 			// 앞으로 여기에 검증된 상수형을 더 추가해야 됨.
 			continue
@@ -51,9 +79,11 @@ func F매개변수_안전성_검사(값_모음 ...I가변형) bool {
 			reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8,
 			reflect.Uint16, reflect.Uint32, reflect.Uint64,
 			reflect.Float32, reflect.Float64,
-			reflect.Complex64, reflect.Complex128,
-			reflect.Chan, reflect.Func, reflect.String:
+			reflect.Complex64, reflect.Complex128, reflect.String:
 			// CallByValue에 의해서 자동으로 복사본이 생성되는 커스텀 형식.
+			continue
+		case reflect.Chan, reflect.Func:
+			// 문제의 소지가 있지만, 상수형으로 변경할 수 없는 형식
 			continue
 		}
 
@@ -71,15 +101,9 @@ func F매개변수_안전성_검사(값_모음 ...I가변형) bool {
 	return true
 }
 
-// 몇몇 기본 자료형 매개변수를 안전한 형식으로 변환.
+// 알려진 몇몇 자료형을 안전한 형식으로 변환.
 // 매개변수 안전성 검사를 의도적으로 생략함.
-func F안전한_매개변수(값 I가변형) I가변형 {
-	return F안전한_매개변수_모음(값)[0]
-}
-
-// 몇몇 기본 자료형 매개변수를 안전한 형식으로 변환.
-// 매개변수 안전성 검사를 의도적으로 생략함.
-func F안전한_매개변수_모음(값_모음 ...I가변형) []I가변형 {
+func F안전한_형식으로_변환_시도(값_모음 ...I가변형) []I가변형 {
 	if F_nil값임(값_모음) {
 		return nil
 	}
@@ -99,37 +123,41 @@ func F안전한_매개변수_모음(값_모음 ...I가변형) []I가변형 {
 			int, int8, int16, int32, int64, float32, float64,
 			bool, string, time.Time, I상수형:
 			반환값[인덱스] = 값
+			continue
 		case *big.Int, *big.Rat, I변수형:
 			상수형 := F상수형(값)
 
 			if 상수형 != nil {
 				반환값[인덱스] = 상수형 // I상수형 변환 성공
+				continue
 			} else {
 				F문자열_출력("예상하지 못한 변수형. %v번째 입력값 %v %v.",
 					인덱스, F값_확인_문자열(값))
-
 				반환값[인덱스] = 값 // I상수형 변환 실패
+				continue
 			}
 		case error, reflect.Value, reflect.Type:
+			// 디버깅과 테스트에 자주 쓰이지만,
 			// 어떻게 해야 될 지 모르겠으니 일단 그냥 넘어가자.
 			continue
-		default:
-			종류 := reflect.TypeOf(값).Kind()
-
-			switch 종류 {
-			case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16,
-				reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8,
-				reflect.Uint16, reflect.Uint32, reflect.Uint64,
-				reflect.Float32, reflect.Float64,
-				reflect.Complex64, reflect.Complex128,
-				reflect.Chan, reflect.Func, reflect.String:
-				반환값[인덱스] = 값
-			default:
-				F문자열_출력("예상하지 못한 형식. %v번째 입력값 %v", 인덱스, F값_확인_문자열(값))
-
-				반환값[인덱스] = 값
-			}
 		}
+
+		종류 := reflect.TypeOf(값).Kind()
+
+		switch 종류 {
+		case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16,
+			reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8,
+			reflect.Uint16, reflect.Uint32, reflect.Uint64,
+			reflect.Float32, reflect.Float64,
+			reflect.Complex64, reflect.Complex128,
+			reflect.Chan, reflect.Func, reflect.String:
+			반환값[인덱스] = 값
+			continue
+		}
+
+		F문자열_출력("예상하지 못한 형식. %v번째 입력값 %v", 인덱스, F값_확인_문자열(값))
+
+		반환값[인덱스] = 값
 	}
 
 	return 반환값
@@ -416,7 +444,7 @@ func F통화종류(값_모음 ...I가변형) P통화종류 {
 }
 
 func F통화형식임(값_모음 ...I가변형) bool {
-	F매개변수_안전성_검사(값_모음...)
+	//F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
 		return false
@@ -450,8 +478,14 @@ func F통화_같음(값1, 값2 I가변형) bool {
 	return 통화1.G같음(통화2)
 }
 
+func FbigRat형식임(값 I가변형) bool {
+	_, bigRat형식임 := 값.(*big.Rat)
+
+	return bigRat형식임
+}
+
 func F숫자형식임(값_모음 ...I가변형) bool {
-	F매개변수_안전성_검사(값_모음...)
+	//F매개변수_안전성_검사(값_모음...)
 
 	if F_nil값_존재함(값_모음...) {
 		return false
@@ -462,13 +496,12 @@ func F숫자형식임(값_모음 ...I가변형) bool {
 		case uint, uint8, uint16, uint32, uint64,
 			int, int8, int16, int32, int64,
 			float32, float64, complex64, complex128,
-			*sC정수64, *sC부호없는_정수64, *sC실수64, *sC정밀수:
-			//*big.Int, *big.Rat, *sV정수64, *sV부호없는_정수64, *sV실수64, *sV정밀수
+			*sC정수64, *sC부호없는_정수64, *sC실수64, *sC정밀수,
+			*big.Int, *big.Rat, *sV정수64, *sV부호없는_정수64, *sV실수64, *sV정밀수:
 			continue
 		default:
-			_, 성공 := new(big.Rat).SetString(F문자열(값))
-
-			if !성공 {
+			문자열 := F포맷된_문자열("%v", 값)
+			if _, 에러 := strconv.ParseFloat(문자열, 64); 에러 != nil {
 				return false
 			}
 		}
@@ -659,18 +692,30 @@ func F값_같음(값1, 값2 I가변형) (값_같음 bool) {
 // Exponential Back-off
 // 실패한 후 반복하는 횟수에 따라 기다리는 최대시간이 기하급수적으로 커짐.
 func F잠시_대기(반복횟수 int) {
-	const len_대기시간_한도 = len(대기시간_한도) - 1
+	len_대기시간_한도 := len(대기시간_한도) - 1
+	var 임의_대기시간 int64
 
 	if 반복횟수 > len_대기시간_한도 {
-		time.Sleep(time.Duration(rand.Int63n(대기시간_한도[len_대기시간_한도])))
+		임의_대기시간 = rand.Int63n(대기시간_한도[len_대기시간_한도])
+		
+		if 임의_대기시간 > P최대_대기시간 {
+			F문자열_출력("'임의_대기시간'이 'PP최대_대기시간'보다 큼. %v
+			
+			")
+			임의_대기시간 = rand.Int63n(대기시간_한도[len_대기시간_한도])
+		}
 	} else {
-		time.Sleep(time.Duration(rand.Int63n(대기시간_한도[반복횟수])))
+		임의_대기시간 = rand.Int63n(P최대_대기시간)
 	}
+	
+	
+	
+	time.Sleep(time.Duration(P최소_대기시간 + 임의_대기시간))
 }
 
 // 호출할 때 매개변수_모음 뒤에 "..."를 빼먹은 경우에 중첩된 슬라이스를
 // 정상 슬라이스로 변환하기 위함.
-func F중첩된_외부_슬라이스_제거(슬라이스 []I가변형) []I가변형 {	
+func F중첩된_외부_슬라이스_제거(슬라이스 []I가변형) []I가변형 {
 	반복횟수 := 0
 
 	for len(슬라이스) == 1 {
@@ -690,14 +735,16 @@ func F중첩된_외부_슬라이스_제거(슬라이스 []I가변형) []I가변�
 }
 
 func F가변형2interface(값_모음 []I가변형) []interface{} {
-	if 값_모음 == nil { return nil }
-	
+	if 값_모음 == nil {
+		return nil
+	}
+
 	반환값 := make([]interface{}, len(값_모음))
-	
+
 	for 인덱스, 값 := range 값_모음 {
 		반환값[인덱스] = 값
 	}
-	
+
 	return 반환값
 }
 
@@ -902,7 +949,7 @@ func F에러발생_확인(테스트 testing.TB, 에러 error) (테스트_통과 
 
 // 기대값과 실제값이 다르면 Fail하는 테스트용 편의 함수.
 func F같은값_확인(테스트 testing.TB, 값1, 값2 I가변형) (테스트_통과 bool) {
-	값_모음 := F안전한_매개변수_모음(값1, 값2)
+	값_모음 := F안전한_형식으로_변환_시도(값1, 값2)
 	값1 = 값_모음[0]
 	값2 = 값_모음[1]
 
@@ -926,7 +973,7 @@ func F같은값_확인(테스트 testing.TB, 값1, 값2 I가변형) (테스트_�
 
 // 기대값과 실제값이 같으면 Fail하는 테스트용 편의 함수.
 func F다른값_확인(테스트 testing.TB, 값1, 값2 I가변형) (테스트_통과 bool) {
-	값_모음 := F안전한_매개변수_모음(값1, 값2)
+	값_모음 := F안전한_형식으로_변환_시도(값1, 값2)
 	값1 = 값_모음[0]
 	값2 = 값_모음[1]
 
@@ -1010,9 +1057,9 @@ func F에러_생성(문자열 string, 추가_내용 ...I가변형) error {
 	for strings.HasSuffix(문자열, "\n") {
 		문자열 += "\n"
 	}
-	
+
 	추가_내용_ := make([]interface{}, len(추가_내용))
-	
+
 	for 인덱스, 내용 := range 추가_내용 {
 		추가_내용_[인덱스] = 내용
 	}
@@ -1032,7 +1079,7 @@ func F문자열_출력2(추가적인_건너뛰기_단계 int, 문자열 string, 
 	i := 추가적인_건너뛰기_단계
 
 	fmt.Println("")
-	fmt.Printf(F소스코드_위치(1 + i) + ": "+문자열+"\n", F가변형2interface(추가_매개변수)...)
+	fmt.Printf(F소스코드_위치(1+i)+": "+문자열+"\n", F가변형2interface(추가_매개변수)...)
 	fmt.Println(F소스코드_위치(2 + i))
 	fmt.Println(F소스코드_위치(3 + i))
 	fmt.Println(F소스코드_위치(4 + i))

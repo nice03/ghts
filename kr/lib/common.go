@@ -1,3 +1,7 @@
+// Copyright 2014 UnHa Kim. All rights reserved.
+// Use of this source code is governed by a LGPL V3
+// license that can be found in the LICENSE file.
+
 package lib
 
 import (
@@ -18,6 +22,9 @@ const (
 	P일자_형식 string = "2006-01-02"
 
 	P매개변수_안전성_검사_건너뛰기 = P거짓
+	
+	P최소_대기시간 int64 = 10	// 10 nanosecond
+	P최대_대기시간 int64 = 1000000	// 1 millisecond
 )
 
 const (
@@ -36,16 +43,18 @@ var (
 	c참  C참거짓 = &sC참거짓{&s참거짓{true}}
 	c거짓 C참거짓 = &sC참거짓{&s참거짓{false}}
 
+	차이_한도 C정밀수 = NC정밀수(new(big.Rat).SetString(
+		"1/100000000000000000000000000000000000000000"))
+
 	문자열_후보값_모음 []string = strings.Split(
 		"1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"+
 			"~!@#$%^&*()_+|';:/?.,<>`가나다라마바사하자차카타파하", "")
 
 	// Exponential Back-off. 재시도 하기 전에 기다리는 대기시간 (단위는 나노초).
-	대기시간_한도 = [...]int64{1, 3, 7, 15, 31, 63, 127, 255, 511,
-		1023, 2047, 4095, 8191, 16383, 32767,
-		65535, 131071, 262143, 524287, 1048575,
-		2097151, 4194303, 8388607, 16777215, 33554431,
-		67108863, 100000000}
+	대기시간_한도 = [...]int64{1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 
+		4095, 8191, 16383, 32767, 65535, 131071, 262143, 524287, 1000000} 
+		//1048575, 2097151, 4194303, 8388607, 16777215, 33554431, 
+		//67108863, 100000000}
 )
 
 func 나를_위한_문구() {
@@ -67,15 +76,42 @@ func 메모() {
 	fmt.Println("1. 코드가 아닌 데이터를 보호하라.")
 	fmt.Println("2. 락을 사용한 부분에서 비싼 계산을 하지 말아라.")
 	fmt.Println("3. 락을 분리하라.")
-	fmt.Println("4. interlocked이나 atomic 작업을 사용하라.")
-	fmt.Println("5. 동기화 된 데이터 구조를 사용하라. ex) lock-free 메시지 큐")
+	fmt.Println("4. atomic 작업을 사용하라.")
+	fmt.Println("5. 동기화 된 데이터 구조를 사용하라. ex) lock-free 메시지 큐.")
 	fmt.Println("6. 가능하다면 읽기-쓰기 락을 사용하라.")
 	fmt.Println("7. 가능하다면 읽기 전용 immutable 데이터를 사용하라.")
-	fmt.Println("8. 객체 풀링을 피하라. (Go언어에서는 명시적으로 안전하다고 해 놨던 데...)")
+	fmt.Println("8. 객체 풀링을 피하라.")
 	fmt.Println("9. 지역 변수나 개별 쓰레드에 국한된 로컬 변수를 사용하라.")
 	fmt.Println("10. 핫스팟(자주 변경되어야 하는 공용 리소스)을 피하라.")
 	fmt.Println("")
+	fmt.Println(" 데드락 발생 조건. 다음 4가지가 동시에 만족되어야 데드락 발생.")
+	fmt.Println("1. Mutex.")
+	fmt.Println("2. Hold and Wait.")
+	fmt.Println("3. No preemption.")
+	fmt.Println("4. Cyclic Lock. Caused by differenct lock order.")
+	fmt.Println("")
+	fmt.Println("데드락을 피하는 방법.")
+	fmt.Println("1. Atomic operation.")
+	fmt.Println("	ㄱ. Int64, Uint64는 해당 atomic 함수를 쓰면 됨.")
+	fmt.Println("	ㄴ. 여타 자료형은 pointer로 전환 후 pointer에 대한 atomic 함수를 쓰면 됨.")
+	fmt.Println("	ㄷ. 복수 변수를 atomic하게 하려면, 해당 변수들을 하나의 struct에")
+	fmt.Println("		포함시킨 후, struct에 대한 pointer에 대해서 atomic 함수를 쓰면 됨.")
+	fmt.Println("2. Non-blocking 알고리즘 및 자료형")
+	fmt.Println("   ㄱ. Optimistic Concurrency. Copy On Write.")
+	fmt.Println("   ㄴ. Lock-free, Wait-free 자료형")
+	fmt.Println("3. 같은 순서로 Lock걸기.")
+	fmt.Println("	: Kernel lock(혹은 deadlock) verifier 처럼 ")
+	fmt.Println("	  각 Mutex나 unbuffered channel의 메모리 주소를 키로 해서 ")
+	fmt.Println("		같은 순서대로 호출되는 지 검사함.")
+	fmt.Println("")
+	fmt.Println("대부분의 경우 1, 2 정도면 충분하고, 최후의 수단으로 3이 존재한다.")
+	fmt.Println("즉, 데드락 문제는 해결가능한 문제이다.")
+	fmt.Println("")
 	fmt.Println("TODO 개요")
+	fmt.Println("	- 기본 자료형에서 0으로 나누거나, 0의 역수를 취하거나 해서 에러가 발생 시")
+	fmt.Println("		내부 구조체 포인터를 nil로 만들 것.")
+	fmt.Println("		I자료형_공통에 G_nil값임()을 추가.")
+	fmt.Println("		F_nil값임()에서는 이러한 값들의 nil여부를 적절히 판단할 것.")
 	fmt.Println("	- 기타 공용 자료형")
 	fmt.Println("	- 가격정보 취득 tool")
 	fmt.Println("	- 포트폴리오 관리.")
@@ -204,8 +240,46 @@ func 메모() {
 	fmt.Println("				검증용으로 1/4씩만 사용하여 3중 검증을 거칠 것.")
 	fmt.Println("				일단 초기 연구 대상 종목부터 선정할 것.")
 	fmt.Println("")
-	fmt.Println("PLAN : 만약 사용자 UI를 만들게 된다면 HTML5 기반으로 한다.")
-	fmt.Println("		a. GopherJS : Javascript에 적응하는 어려움을 덜어줄 가능성이 있음.")
-	fmt.Println("		b. AngularJS : DOM을 직접 조작해야 하는 어려움을 덜어줄 가능성이 있음.")
-	fmt.Println("			 			GopherJS용 바인딩도 존재함.")
+	fmt.Println("PLAN A.")
+	fmt.Println("	- Golang 기반.")
+	fmt.Println("	- 1 프로세스, 멀티 쓰레드, goroutine 및 channel 기반.")
+	fmt.Println("	- 개발이 가장 간편함.")
+	fmt.Println("	- 4대 모듈 간의 통신을 interface로 추상화 해서 PLAN B에 대비")
+	fmt.Println("	- 멀티 쓰레드는 mutable 데이터를 공유하므로 성능은 우수하지만,")
+	fmt.Println("		예상치 못한 동기화 문제가 발생할 가능성이 있음.")
+	fmt.Println("		데이터 레이스는 Go언어의 레이스 디덱터로 해결할 수 있을 지라도, ")
+	fmt.Println("		데드락, 라이브락 등의 문제는 문제의 원인을 찾기 어렵기로 유명함.")
+	fmt.Println("		내 실력으로 해결이 안 될 경우, PLAN B의 메모리 주소공간이 분리되는")
+	fmt.Println("		멀티 프로세스 모델로 전환.")
+	fmt.Println("")
+	fmt.Println("PLAN B.")
+	fmt.Println("	- Golang 기반.")
+	fmt.Println("	- 멀티 프로세스, IPC(프로세스 간 통신) 내지 MQ(메세지 큐) 기반.")
+	fmt.Println("	- PLAN A보다는 개발이 불편하지만, interface로 추상화된 통신을 ")
+	fmt.Println("		channel에서 프로세스 간 IPC, MQ로 대체하면 되므로, ")
+	fmt.Println("		PLAN C보다는 기술적 난이도가 훨씬 낮음.")
+	fmt.Println("	- 쓰레드는 메모리 주소공간을 공유하므로, mutable 데이터의 동시 조작으로 인한")
+	fmt.Println("		데드락, 라이브락등의 문제가 생길 수 있으며, 그러한 버그를 해결하기 ")
+	fmt.Println("		어렵다고 판단될 경우, 운영체제 프로세스를 이용해서 ")
+	fmt.Println("		각 모듈의 메모리 주소공간을 완벽히 분리하고, ")
+	fmt.Println("		channel 대신 IPC나 MQ로 통신함.")
+	fmt.Println("PLAN C.")
+	fmt.Println("	- Erlang(얼랭) 기반.")
+	fmt.Println("	- Erlang 프로세스, Erlang 메시지 전달, immutable 데이터 기반.")
+	fmt.Println("	- PLAN B로도 동기화 문제를 해결하지 못한다면,")
+	fmt.Println("		mutable 데이터의 공유로 인한 문제를 언어 차원에서 원천적으로 봉쇄하는")
+	fmt.Println("		Erlang을 사용해서 새로 개발.")
+	fmt.Println("	- Erlang 프로세스는 메모리 주소공간도 분리되고, ")
+	fmt.Println("		기본적으로 immutable 자료형만 존재하고, ")
+	fmt.Println("		변수 대입도 1번만 되므로 mutable 데이터 동시접근이 아예 없다.")
+	fmt.Println("		그러므로, 동시처리로 인한 온갖 복잡한 문제가 다 해결됨.")
+	fmt.Println("		문제는 Erlang은 함수형 언어이라서 프로그래밍을 완전히 새로 배우는")
+	fmt.Println("		기분으로 새로 공부해야 하고, Erlang언어가 어렵기로 유명함.")
+	fmt.Println("		가능한한 PLAN B 이내에서 배우기 쉽고 간단하고 효율적인 Go언어로")
+	fmt.Println("		문제를 해결할 수 있도록 노력할 것.")
+	fmt.Println("")
+	fmt.Println("UI PLAN : 사용자 UI가 필요하다고 판단되면 HTML5 기반으로 한다.")
+	fmt.Println("	- GopherJS : Javascript에 적응하는 어려움을 덜어줄 가능성이 있음.")
+	fmt.Println("	- Javascript를 사용하게 된다면, AJAX와 DOM 조작을 jquery로 할 예정.")
+	fmt.Println("	- AngularJS를 DOM을 직접 조작할 필요가 없다는 소문이 사실인지 확인해 볼 것.")
 }

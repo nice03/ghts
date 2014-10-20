@@ -1,3 +1,7 @@
+// Copyright 2014 UnHa Kim. All rights reserved.
+// Use of this source code is governed by a LGPL V3
+// license that can be found in the LICENSE file.
+
 package lib
 
 import (
@@ -24,6 +28,7 @@ func Test매개변수_안전성_검사(테스트 *testing.T) {
 	검사_결과 = F매개변수_안전성_검사(
 		NC부호없는_정수(1), NC정수(1), NC실수(1), NC정밀수(1), NC통화(KRW, 1),
 		NC시점(time.Now()), NC문자열("테스트"), NC매개변수("테스트", 1.1),
+		NC안전한_가변형(1),
 		N안전한_배열().S추가(1).S추가("테스트").S추가(NC정밀수(1.1)),
 		N안전한_맵().S값("1", 1).S값("2", "테스트").S값("3", NC정밀수(1.1)))
 	F참인지_확인(테스트, 검사_결과)
@@ -32,11 +37,11 @@ func Test매개변수_안전성_검사(테스트 *testing.T) {
 	// 비록 RWMutex로 보호되어 있더라도, 매개변수로 좋지 않음.
 	F문자열_출력_일시정지_시작()
 	defer F문자열_출력_일시정지_종료()
-	
+
 	정수 := 1
-	실수 := 1.1	
+	실수 := 1.1
 	위험한_값_모음 := []I가변형{NV부호없는_정수(1), NV정수(1), NV실수(1), NV정밀수(1.1),
-					NV시점(time.Now()), NV통화(KRW, 100), &정수, &실수}
+		NV시점(time.Now()), NV통화(KRW, 100), &정수, &실수}
 
 	for _, 위험한_값 := range 위험한_값_모음 {
 		F패닉발생_확인(테스트, F매개변수_안전성_검사, 위험한_값)
@@ -601,13 +606,26 @@ func TestF시점_같음(테스트 *testing.T) {
 	}
 }
 
+func TestFbigRat형식임(테스트 *testing.T) {
+	값_모음 := []I가변형{
+		nil, uint(100), uint8(100), uint16(100), uint32(100), uint64(100),
+		int(100), int8(100), int16(100), int32(100), int64(100),
+		float32(100.0), float64(100.0), NC정밀수(100), time.Now(),
+		NC시점(time.Now()), "문자열", NC문자열("문자열"), true, NC참거짓(true)}
+
+	for _, 값 := range 값_모음 {
+		F거짓인지_확인(테스트, FbigRat형식임(값))
+	}
+
+	F참인지_확인(테스트, FbigRat형식임(big.NewRat(1, 1)))
+}
+
 func TestF값_같음(테스트 *testing.T) {
 	// 정수 테스트
 	값 := []I가변형{
 		uint(100), uint8(100), uint16(100), uint32(100), uint64(100),
 		int(100), int8(100), int16(100), int32(100), int64(100),
-		float32(100.0), float64(100.0),
-		NC정밀수(100)}
+		float32(100.0), float64(100.0), NC정밀수(100)}
 
 	testF값_같음_도우미(테스트, 값)
 
