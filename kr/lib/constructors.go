@@ -5,6 +5,7 @@
 package lib
 
 import (
+	"fmt"
 	"github.com/gh-system/ghts/dep/ps"
 	"math/big"
 	"time"
@@ -248,7 +249,29 @@ func N안전한_맵() I안전한_맵 {
 	return &s안전한_맵{ps.NewMap()}
 }
 
+func N고성능_맵() I맵 {
+	중앙_저장소 := make(map[string]*s분할된_맵, 256)
+
+	for 인덱스 := 0 ; 인덱스 < 256 ; 인덱스++ {
+		중앙_저장소[fmt.Sprintf("%02x", 인덱스)] = 
+			&s분할된_맵{저장소: make(map[string]I가변형)}
+			//&s분할된_맵{저장소: make(map[string]I가변형, 2048)}
+    }
+	
+	return &s고성능_맵{저장소: 중앙_저장소}
+}
+
 func NC종목(코드, 명칭 string) C종목 { return &sC종목{코드: 코드, 명칭: 명칭} }
+
+func NV포트폴리오_구성요소(전략 C전략, 종목 C종목, 
+		롱포지션_수량, 숏포지션_수량 int64) V포트폴리오_구성요소 {
+	return &sV포트폴리오_구성요소{
+				s포트폴리오_구성요소:
+					&s포트폴리오_구성요소{
+						전략: 전략, 종목: 종목,
+						롱포지션_수량: 롱포지션_수량, 
+						숏포지션_수량: 숏포지션_수량}}
+}
 
 /*
 func NC종목별_포트폴리오(종목 C종목, 매입수량, 매도수량 uint64) {

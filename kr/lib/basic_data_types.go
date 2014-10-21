@@ -6,6 +6,8 @@ package lib
 
 import (
 	"bytes"
+	"crypto/sha1"
+	"fmt"
 	"github.com/gh-system/ghts/dep/ps"
 	"math"
 	"math/big"
@@ -762,6 +764,7 @@ func (s *sV정밀수) G같음(값 I가변형) bool {
 		return false
 	}
 
+	var 내부값 *big.Rat
 	s.잠금.RLock()
 	내부값 = s.GRat()
 	s.잠금.RUnlock()
@@ -772,9 +775,10 @@ func (s *sV정밀수) G비교(값 I가변형) int {
 	정밀수 := NC정밀수(값)
 
 	if 정밀수 == nil {
-		return false
+		return -2
 	}
 
+	var 내부값 *big.Rat
 	s.잠금.RLock()
 	내부값 = s.GRat()
 	s.잠금.RUnlock()
@@ -1126,7 +1130,7 @@ func (s *sV통화) G비교(값 I통화) int {
 	return s.G값().G비교(값.G값())
 }
 func (s *sV통화) G상수형() C통화 {
-	return NC통화(종류, s.금액.G상수형())
+	return NC통화(s.종류, s.금액.G상수형())
 }
 func (s *sV통화) S값(금액 I가변형) V통화 {
 	s.금액.S값(금액)
@@ -1139,8 +1143,6 @@ func (s *sV통화) S절대값() V통화 {
 	return s
 }
 func (s *sV통화) g금액(값 I가변형) I가변형 {
-	var 금액 I가변형
-
 	switch {
 	case F_nil값임(값):
 		return nil
@@ -1149,13 +1151,12 @@ func (s *sV통화) g금액(값 I가변형) I가변형 {
 			return nil
 		}
 
-		금액 = 값.(I통화).G값()
+		return 값.(I통화).G값()
 	case F숫자형식임(값):
-		금액 = 값
-	default:
-		return nil
+		return 값
 	}
 
+	return nil
 }
 func (s *sV통화) S더하기(값 I가변형) V통화 {
 	금액 := s.g금액(값)
@@ -1243,7 +1244,7 @@ func (s *sC매개변수) String() string {
 }
 func (s *sC매개변수) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	임의_숫자값 := 임의값_생성기.Int31()
-	임의_문자열 := NC문자열("").Generate(임의값_생성기, 크기).Interface().(string)
+	임의_문자열 := NC문자열("").(*sC문자열).Generate(임의값_생성기, 크기).Interface().(string)
 
 	값_모음 := []I가변형{uint(임의_숫자값), int(임의_숫자값), float32(임의_숫자값),
 		float64(임의_숫자값), time.Now(), true, false, 임의_문자열,
@@ -1337,3 +1338,40 @@ func (s *s안전한_맵) S삭제(키 string) I안전한_맵 {
 }
 
 func (s *s안전한_맵) String() string { return s.값.String() }
+
+
+// http://openmymind.net/Shard-Your-Hash-table-to-reduce-write-locks/
+// RWMutex의 쓰기 lock 병목 현상을 줄여주는 맵
+type s고성능_맵 struct {
+	저장소 map[string]*s분할된_맵
+}
+
+type s분할된_맵 struct {
+	잠금 sync.RWMutex
+	저장소 map[string]I가변형
+}
+
+func (s *s고성능_맵) G값(키 string) (I가변형, bool) {
+  분할된_맵 := s.g분할된_맵(키)
+  
+  분할된_맵.잠금.RLock()
+  defer 분할된_맵.잠금.RUnlock()
+  
+  값, ok := 분할된_맵.저장소[키]
+  
+  return 값, ok
+}
+
+func (s *s고성능_맵) S값(키 string, 값 I가변형) {
+  분할된_맵 := s.g분할된_맵(키)
+  분할된_맵.잠금.Lock()
+  defer 분할된_맵.잠금.Unlock()
+  분할된_맵.저장소[키] = 값
+}
+
+func (s *s고성능_맵) g분할된_맵(키 string) *s분할된_맵 {
+  hasher := sha1.New()
+  hasher.Write([]byte(키))
+  분할_키 :=  fmt.Sprintf("%x", hasher.Sum(nil))[0:2]
+  return s.저장소[분할_키]
+}

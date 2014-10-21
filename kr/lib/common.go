@@ -6,12 +6,18 @@ package lib
 
 import (
 	"fmt"
+	"math/big"
 	"strings"
 )
 
 func init() {
 	나를_위한_문구()
 	//메모()
+	
+	rat, _ := new(big.Rat).SetString(
+				"1/100000000000000000000000000000000000000000")
+				
+	차이_한도 = NC정밀수(rat)
 }
 
 const (
@@ -43,8 +49,7 @@ var (
 	c참  C참거짓 = &sC참거짓{&s참거짓{true}}
 	c거짓 C참거짓 = &sC참거짓{&s참거짓{false}}
 
-	차이_한도 C정밀수 = NC정밀수(new(big.Rat).SetString(
-		"1/100000000000000000000000000000000000000000"))
+	차이_한도 C정밀수
 
 	문자열_후보값_모음 []string = strings.Split(
 		"1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"+

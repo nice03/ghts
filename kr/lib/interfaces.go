@@ -304,6 +304,11 @@ type I안전한_맵 interface {
 	I기본_문자열
 }
 
+type I맵 interface {
+	G값(키 string) (I가변형, bool)
+	S값(키 string, 값 I가변형)
+}
+
 type C종목 interface {
 	I상수형
 	G코드() string
