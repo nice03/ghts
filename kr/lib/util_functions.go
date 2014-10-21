@@ -70,6 +70,11 @@ func F매개변수_안전성_검사(값_모음 ...I가변형) bool {
 			// Immutable 하므로 race condition이 발생하지 않는 형식.
 			// 앞으로 여기에 검증된 상수형을 더 추가해야 됨.
 			continue
+		case *sV부호없는_정수64, *sV정수64, *sV실수64, *sV정밀수,
+			*sV참거짓, *sV시점, *sV통화:
+			// Atomic 하거나 Mutex로 보호되어 있으면서도,
+			// Deadlock을 발생시키지 않는 자료형들.
+			continue
 		}
 
 		종류 := reflect.TypeOf(값).Kind()
@@ -121,14 +126,27 @@ func F안전한_형식으로_변환_시도(값_모음 ...I가변형) []I가변�
 		switch 값.(type) {
 		case nil, uint, uint8, uint16, uint32, uint64,
 			int, int8, int16, int32, int64, float32, float64,
-			bool, string, time.Time, I상수형:
+			bool, string, time.Time, 
+			*sC부호없는_정수64, *sC정수64, *sC실수64, *sC정밀수,
+			*sC참거짓, *sC문자열, *sC시점, *sC통화, *sC매개변수,
+			*sC안전한_가변형, *s안전한_배열, *s안전한_맵,
+			*sV부호없는_정수64, *sV정수64, *sV실수64, *sV정밀수,
+			*sV참거짓, *sV시점, *sV통화:
+			// 이미 안전한 형식이므로 변환이 필요없음.
 			반환값[인덱스] = 값
 			continue
-		case *big.Int, *big.Rat, I변수형:
+		case *big.Int, *big.Rat:
+			반환값[인덱스] = NC정밀수(값)
+		case error, reflect.Value, reflect.Type:
+			// 디버깅과 테스트에 자주 쓰이지만,
+			// 어떻게 해야 될 지 모르겠으니 일단 그냥 넘어가자.
+			continue
+		case I변수형:
 			상수형 := F상수형(값)
 
 			if 상수형 != nil {
-				반환값[인덱스] = 상수형 // I상수형 변환 성공
+				// I상수형 변환 성공
+				반환값[인덱스] = 상수형
 				continue
 			} else {
 				F문자열_출력("예상하지 못한 변수형. %v번째 입력값 %v %v.",
@@ -136,10 +154,6 @@ func F안전한_형식으로_변환_시도(값_모음 ...I가변형) []I가변�
 				반환값[인덱스] = 값 // I상수형 변환 실패
 				continue
 			}
-		case error, reflect.Value, reflect.Type:
-			// 디버깅과 테스트에 자주 쓰이지만,
-			// 어떻게 해야 될 지 모르겠으니 일단 그냥 넘어가자.
-			continue
 		}
 
 		종류 := reflect.TypeOf(값).Kind()
@@ -699,9 +713,7 @@ func F잠시_대기(반복횟수 int) {
 		임의_대기시간 = rand.Int63n(대기시간_한도[len_대기시간_한도])
 		
 		if 임의_대기시간 > P최대_대기시간 {
-			F문자열_출력("'임의_대기시간'이 'PP최대_대기시간'보다 큼. %v
-			
-			")
+			F문자열_출력("'임의_대기시간'이 'P최대_대기시간'보다 큼. %v", 임의_대기시간)
 			임의_대기시간 = rand.Int63n(대기시간_한도[len_대기시간_한도])
 		}
 	} else {
