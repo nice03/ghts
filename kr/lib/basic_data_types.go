@@ -1342,7 +1342,7 @@ func (s *s안전한_맵) String() string { return s.값.String() }
 
 // http://openmymind.net/Shard-Your-Hash-table-to-reduce-write-locks/
 // RWMutex의 쓰기 lock 병목 현상을 줄여주는 맵
-type s고성능_맵 struct {
+type s고성능_문자열키_맵 struct {
 	저장소 map[string]*s분할된_맵
 }
 
@@ -1352,21 +1352,31 @@ type s분할된_맵 struct {
 }
 
 func (s *s고성능_맵) G값(키 string) (I가변형, bool) {
-  분할된_맵 := s.g분할된_맵(키)
-  
-  분할된_맵.잠금.RLock()
-  defer 분할된_맵.잠금.RUnlock()
-  
-  값, ok := 분할된_맵.저장소[키]
-  
-  return 값, ok
+	분할된_맵 := s.g분할된_맵(키)
+
+	분할된_맵.잠금.RLock()
+	defer 분할된_맵.잠금.RUnlock()
+
+	값, ok := 분할된_맵.저장소[키]
+
+	return 값, ok
 }
 
 func (s *s고성능_맵) S값(키 string, 값 I가변형) {
-  분할된_맵 := s.g분할된_맵(키)
-  분할된_맵.잠금.Lock()
-  defer 분할된_맵.잠금.Unlock()
-  분할된_맵.저장소[키] = 값
+	분할된_맵 := s.g분할된_맵(키)
+	분할된_맵.잠금.Lock()
+	defer 분할된_맵.잠금.Unlock()
+	분할된_맵.저장소[키] = 값
+}
+
+func (s *s고성능_맵) S없으면_추가(키 string, 값 I가변형) {
+	분할된_맵 := s.g분할된_맵(키)
+	분할된_맵.잠금.Lock()
+	defer 분할된_맵.잠금.Unlock()
+  
+	if _, ok := 분할된_맵.저장소[키]; !ok {
+		분할된_맵.저장소[키] = 값
+	}
 }
 
 func (s *s고성능_맵) g분할된_맵(키 string) *s분할된_맵 {
