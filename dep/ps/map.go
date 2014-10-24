@@ -1,12 +1,14 @@
-// Fully persistent data structures. A persistent data structure is a data
+// COPIED FROM http://github.com/mndrix/ps/
+//
+// Fully persistent data structures. 
+// A persistent data structure is a data
 // structure that always preserves the previous version of itself when
 // it is modified. Such data structures are effectively immutable,
 // as their operations do not update the structure in-place, but instead
 // always yield a new structure.
 //
-// Persistent
-// data structures typically share structure among themselves.  This allows
-// operations to avoid copying the entire data structure.
+// Persistent data structures typically share structure among themselves.  
+// This allows operations to avoid copying the entire data structure.
 package ps
 
 import . "fmt"

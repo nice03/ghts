@@ -6,8 +6,8 @@ package lib
 
 import (
 	"bytes"
-	"crypto/sha1"
-	"fmt"
+	//"crypto/sha1"
+	//"fmt"
 	"github.com/gh-system/ghts/dep/ps"
 	"math"
 	"math/big"
@@ -161,8 +161,10 @@ func (s *sV정수64) S곱하기(값 int64) V정수 {
 func (s *sV정수64) S나누기(값 int64) V정수 {
 	if 값 == 0 {
 		F문자열_출력("0으로 나눌 수 없음.")
-		F메모("S나누기() 실패 후 내부값을 INF로 설정할 것.")
 		s.s정수64 = nil
+		
+		panic(F에러_생성("0으로 나눌 수 없음."))
+		
 		return nil
 	}
 
@@ -172,7 +174,7 @@ func (s *sV정수64) S나누기(값 int64) V정수 {
 			값 := 매개변수[0].(int64)
 
 			정수 = 정수 / 값
-
+			
 			return 정수
 		}
 
@@ -290,9 +292,10 @@ func (s *sV부호없는_정수64) S곱하기(값 uint64) V부호없는_정수 {
 func (s *sV부호없는_정수64) S나누기(값 uint64) V부호없는_정수 {
 	if 값 == 0 {
 		F문자열_출력("0으로 나눌 수 없음.")
-		F메모("S나누기() 실패 후 내부값을 INF로 설정할 것.")
 		s.s부호없는_정수64 = nil
-
+		
+		panic(F에러_생성("0으로 나눌 수 없음."))
+		
 		return nil
 	}
 
@@ -365,36 +368,28 @@ func (s *sV실수64) S값(값 float64) V실수 {
 
 	return s
 }
-
 // CAS(Compare And Set). float64에 대해서는 내장된 atomic 함수가 없음.
-func (s *sV실수64) s_CAS(원래값, 새로운값 float64) bool {
-	s.잠금.Lock()
-	defer s.잠금.Unlock()
-
-	if 원래값 == s.s실수64.값 {
-		// 다른 goroutine에서 값을 변경하지 않았음.
-		s.s실수64.값 = 새로운값
-
-		return true
-	}
-
-	return false
-}
-
 func (s *sV실수64) s_CAS_함수(
 	함수 func(*sV실수64, ...I가변형) float64,
-	매개변수 ...I가변형) (반환값 V실수) {
+	매개변수 ...I가변형) V실수 {
 	var 원래값, 새로운값 float64
 	var 반복횟수 int = 0
 
 	for {
 		원래값 = s.G값()
 		새로운값 = 함수(s, 매개변수...)
+		
+		s.잠금.Lock()
 
 		// 내부값이 변하지 않았을 경우에만 새로운 값으로 설정.
-		if s.s_CAS(원래값, 새로운값) {
+		if 원래값 == s.s실수64.값 {
+			s.s실수64.값 = 새로운값
+			s.잠금.Unlock()
+			
 			return s
 		}
+		
+		s.잠금.Unlock()
 
 		// 함수()가 실행되는 동안 다른 goroutine이 내부값을 변경한 경우에는
 		// s.s_CAS()가 실패하며, 그럴 경우 처음부터 새로 계산함.
@@ -455,10 +450,14 @@ func (s *sV실수64) S곱하기(값 float64) V실수 {
 func (s *sV실수64) S나누기(값 float64) V실수 {
 	if 값 == 0.0 {
 		F문자열_출력("0으로 나눌 수 없음.")
-		F메모("S나누기() 실패 후 내부값을 INF로 설정할 것.")
-		s.s실수64 = nil
+		
+		if s.s실수64.값 * 값 >= 0 {
+			s.s실수64.값 = F양의_무한()
+		} else {
+			s.s실수64.값 = F음의_무한()
+		}
 
-		return nil
+		return s
 	}
 
 	함수 :=
@@ -475,10 +474,10 @@ func (s *sV실수64) S나누기(값 float64) V실수 {
 func (s *sV실수64) S역수() V실수 {
 	if s.G값() == 0.0 {
 		F문자열_출력("0의 역수를 구할 수 없음.")
-		F메모("S역수() 실패 후 내부값을 INF로 설정할 것.")
-		s.s실수64 = nil
-
-		return nil
+		
+		s.s실수64.값 = F양의_무한()
+	
+		return s
 	}
 
 	함수 :=
@@ -694,7 +693,7 @@ func (s *s정밀수) G비교(값 I가변형) int {
 	if 정밀수 == nil {
 		return -2
 	}
-
+		
 	return s.값.Cmp(정밀수.GRat())
 }
 func (s *s정밀수) String() string {
@@ -783,7 +782,8 @@ func (s *sV정밀수) G비교(값 I가변형) int {
 	내부값 = s.GRat()
 	s.잠금.RUnlock()
 
-	return 정밀수.G비교(내부값)
+	// 비교 순서가 거꾸로 이므로, 부호를 바꿔준다.
+	return (정밀수.G비교(내부값) * -1)
 }
 func (s *sV정밀수) S값(값 I가변형) V정밀수 {
 	정밀수 := NC정밀수(값)
@@ -820,10 +820,12 @@ func (s *sV정밀수) s_CAS(원래값, 새로운값 *big.Rat) bool {
 
 func (s *sV정밀수) s_CAS_함수(함수 func(*sV정밀수, ...I가변형) *big.Rat,
 	매개변수 ...I가변형) (반환값 V정밀수) {
+	var 쓰기_잠금 bool = false
+	
 	// 에러발생 하면 nil 반환
 	defer func() {
 		if 에러 := recover(); 에러 != nil {
-			s.잠금.Lock()
+			if !쓰기_잠금 { s.잠금.Lock() }
 			defer s.잠금.Unlock()
 			s.s정밀수.값 = nil
 			반환값 = nil
@@ -846,16 +848,19 @@ func (s *sV정밀수) s_CAS_함수(함수 func(*sV정밀수, ...I가변형) *big
 		}
 
 		s.잠금.Lock()
+		쓰기_잠금 = true
 
 		// 내부값이 변하지 않았을 경우에만 새로운 값으로 설정.
 		if s.s정밀수.값.Cmp(원래값) == 0 {
 			s.s정밀수.값.Set(새로운값)
 			s.잠금.Unlock()
+			쓰기_잠금 = false
 
 			return s
 		}
 
 		s.잠금.Unlock()
+		쓰기_잠금 = false
 
 		// 함수()가 실행되는 동안 다른 goroutine이 내부값을 변경한 경우에는 처음부터 새로 계산함.
 		// 이렇게 약간의 비효율성이 발생하지만, 대신에 골치아픈 데드락이 원천적으로 발생하지 않음.
@@ -1264,6 +1269,13 @@ type sC안전한_가변형 struct{ 값 I가변형 }
 
 func (s *sC안전한_가변형) 상수형임()    {}
 func (s *sC안전한_가변형) G값() I가변형 { return s.값 }
+func (s *sC안전한_가변형) String() string {
+	if _, ok := s.값.(I기본_문자열); ok {
+		return s.값.(I기본_문자열).String()
+	}
+	
+	return F포맷된_문자열("%v", s.값)
+}
 
 // 안전한 배열
 type s안전한_배열 struct{ 값 ps.List }
@@ -1340,48 +1352,3 @@ func (s *s안전한_맵) S삭제(키 string) I안전한_맵 {
 func (s *s안전한_맵) String() string { return s.값.String() }
 
 
-// http://openmymind.net/Shard-Your-Hash-table-to-reduce-write-locks/
-// RWMutex의 쓰기 lock 병목 현상을 줄여주는 맵
-type s고성능_문자열키_맵 struct {
-	저장소 map[string]*s분할된_맵
-}
-
-type s분할된_맵 struct {
-	잠금 sync.RWMutex
-	저장소 map[string]I가변형
-}
-
-func (s *s고성능_맵) G값(키 string) (I가변형, bool) {
-	분할된_맵 := s.g분할된_맵(키)
-
-	분할된_맵.잠금.RLock()
-	defer 분할된_맵.잠금.RUnlock()
-
-	값, ok := 분할된_맵.저장소[키]
-
-	return 값, ok
-}
-
-func (s *s고성능_맵) S값(키 string, 값 I가변형) {
-	분할된_맵 := s.g분할된_맵(키)
-	분할된_맵.잠금.Lock()
-	defer 분할된_맵.잠금.Unlock()
-	분할된_맵.저장소[키] = 값
-}
-
-func (s *s고성능_맵) S없으면_추가(키 string, 값 I가변형) {
-	분할된_맵 := s.g분할된_맵(키)
-	분할된_맵.잠금.Lock()
-	defer 분할된_맵.잠금.Unlock()
-  
-	if _, ok := 분할된_맵.저장소[키]; !ok {
-		분할된_맵.저장소[키] = 값
-	}
-}
-
-func (s *s고성능_맵) g분할된_맵(키 string) *s분할된_맵 {
-  hasher := sha1.New()
-  hasher.Write([]byte(키))
-  분할_키 :=  fmt.Sprintf("%x", hasher.Sum(nil))[0:2]
-  return s.저장소[분할_키]
-}
