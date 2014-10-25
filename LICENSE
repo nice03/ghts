@@ -26,15 +26,25 @@ If not, see <http://www.gnu.org/licenses/>.
 
 
 ---------------------------------------------------------------------
-Following source code package is included as a dependency.
+Following source code package is included asis or with modification as a dependency.
 They follows their respective licensing term.
 
 1. Persistent data structures for Go - By Michael Hendricks
-   : List and Map data type safe from data race condition.
-	 => Similar effect of immutable data type.
+   : List and Map, which are effectively immutable.
    : MIT License
    : http://github.com/mndrix/ps
    
+2. Sharded Map - By Karl Seguin
+	: Map  with multiple concurrent write-lock.
+	: No copyright term specified.
+	: http://openmymind.net/Shard-Your-Hash-table-to-reduce-write-locks/
+	
+3. Testing Functions for Go - By Ben Johnson
+	: Helper functions for Testing.
+	: MIT License
+	: http://github.com/benbjohnson/testing
+	: http://medium.com/@benbjohnson/structuring-tests-in-go-46ddee7a25c
+
 ---------------------------------------------------------------------
 
 Copyright (C) 2014 김운하
@@ -74,6 +84,17 @@ GHTS는 외부에서 작성된 몇몇 소스코드 패키지에 의존하며, de
    : MIT License
    : http://github.com/mndrix/ps
    
+2. 분할된 맵 - 개발자 Karl Seguin
+	: 복수의 동시 쓰기 락을 가진 맵 자료형.
+	: 저작권이 명시되지 않음.
+	: http://openmymind.net/Shard-Your-Hash-table-to-reduce-write-locks/
+	
+3. 테스트 도우미 함수 - 저작권자 Ben Johnson
+	: Assert 와 비슷한 테스트용 함수 모음.
+	: MIT License
+	: http://github.com/benbjohnson/testing
+	: http://medium.com/@benbjohnson/structuring-tests-in-go-46ddee7a25c
+
 ---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
