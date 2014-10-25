@@ -15,6 +15,8 @@ import (
 )
 
 func TestS반환값(테스트 *testing.T) {
+	테스트.Parallel()
+
 	값_모음 := []I가변형{nil, uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		int(1), int8(1), int16(1), int32(1), int64(1),
 		float32(1), float64(1), true, false, "test", time.Now(),
@@ -34,7 +36,7 @@ func TestS반환값(테스트 *testing.T) {
 	}
 }
 
-func testI정수(테스트 *testing.T, 생성자 I가변형) {
+func testI정수(테스트 *testing.T, 생성자 I가변형) {	
 	입력값 := int64(100)
 	입력값_백업 := int64(100)
 
@@ -149,6 +151,8 @@ func testI정수(테스트 *testing.T, 생성자 I가변형) {
 }
 
 func TestC정수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI정수(테스트, NC정수)
 	testI정수(테스트, (*sC정수64).G변수형)
 
@@ -158,6 +162,8 @@ func TestC정수(테스트 *testing.T) {
 }
 
 func TestV정수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI정수(테스트, NV정수)
 	testI정수(테스트, (*sV정수64).G상수형)
 
@@ -176,7 +182,7 @@ func TestV정수(테스트 *testing.T) {
 	F패닉발생_확인(테스트, NV정수(100).S나누기, 0)
 }
 
-func testI부호없는_정수(테스트 *testing.T, 생성자 I가변형) {
+func testI부호없는_정수(테스트 *testing.T, 생성자 I가변형) {	
 	입력값 := uint64(100)
 	입력값_백업 := uint64(100)
 
@@ -280,6 +286,8 @@ func testI부호없는_정수(테스트 *testing.T, 생성자 I가변형) {
 }
 
 func TestC부호없는_정수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI부호없는_정수(테스트, NC부호없는_정수)
 	testI부호없는_정수(테스트, (*sC부호없는_정수64).G변수형)
 
@@ -289,6 +297,8 @@ func TestC부호없는_정수(테스트 *testing.T) {
 }
 
 func TestV부호없는_정수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI부호없는_정수(테스트, NV부호없는_정수)
 	testI부호없는_정수(테스트, (*sV부호없는_정수64).G상수형)
 
@@ -419,6 +429,8 @@ func testI실수(테스트 *testing.T, 생성자 I가변형) {
 }
 
 func TestC실수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI실수(테스트, NC실수)
 	testI실수(테스트, (*sC실수64).G변수형)
 
@@ -428,6 +440,8 @@ func TestC실수(테스트 *testing.T) {
 }
 
 func TestV실수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI실수(테스트, NV실수)
 	testI실수(테스트, (*sV실수64).G상수형)
 
@@ -572,6 +586,8 @@ func testI시점(테스트 *testing.T, 생성자 I가변형) {
 }
 
 func TestC시점(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI시점(테스트, NC시점)
 	testI시점(테스트, (*sC시점).G변수형)
 
@@ -581,6 +597,8 @@ func TestC시점(테스트 *testing.T) {
 }
 
 func TestV시점(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI시점(테스트, NV시점)
 	testI시점(테스트, (*sV시점).G상수형)
 
@@ -594,6 +612,8 @@ func TestV시점(테스트 *testing.T) {
 }
 
 func TestN정밀수_생성자(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	입력값_모음 := []I가변형{
 		uint(100), uint8(100), uint16(100), uint32(100), uint64(100),
 		int(100), int8(100), int16(100), int32(100), int64(100),
@@ -768,6 +788,8 @@ func testI정밀수(테스트 *testing.T, 생성자 I가변형) {
 }
 
 func TestC정밀수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI정밀수(테스트, NC정밀수)
 	testI정밀수(테스트, (*sC정밀수).G변수형)
 
@@ -777,6 +799,8 @@ func TestC정밀수(테스트 *testing.T) {
 }
 
 func TestV정밀수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI정밀수(테스트, NV정밀수)
 	testI정밀수(테스트, (*sV정밀수).G상수형)
 
@@ -809,6 +833,8 @@ func TestV정밀수(테스트 *testing.T) {
 }
 
 func TestP통화종류(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F같은값_확인(테스트, KRW.String(), "KRW")
 	F같은값_확인(테스트, USD.String(), "USD")
 	F같은값_확인(테스트, CNY.String(), "CNY")
@@ -817,6 +843,8 @@ func TestP통화종류(테스트 *testing.T) {
 }
 
 func TestN통화_생성자(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	입력값_모음 := []I가변형{
 		uint(100), uint8(100), uint16(100), uint32(100), uint64(100),
 		int(100), int8(100), int16(100), int32(100), int64(100),
@@ -1011,6 +1039,8 @@ func testI통화(테스트 *testing.T, 생성자 I가변형) {
 }
 
 func TestC통화(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI통화(테스트, NC통화)
 	testI통화(테스트, (*sC통화).G변수형)
 	testI통화(테스트, NC원화)
@@ -1024,6 +1054,8 @@ func TestC통화(테스트 *testing.T) {
 }
 
 func TestV통화(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	testI통화(테스트, NV통화)
 	testI통화(테스트, (*sV통화).G상수형)
 	testI통화(테스트, NV원화)
@@ -1054,6 +1086,8 @@ func TestV통화(테스트 *testing.T) {
 }
 
 func TestC매개변수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	c := NC매개변수("이름", 1.0)
 
 	_, ok := c.(*sC매개변수)
@@ -1071,6 +1105,8 @@ func TestC매개변수(테스트 *testing.T) {
 }
 
 func TestC안전한_가변형(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	채널 := make(chan int)
 	함수 := func () {}
 	
@@ -1098,6 +1134,8 @@ func TestC안전한_가변형(테스트 *testing.T) {
 }
 
 func TestI안전한_배열(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	배열0 := N안전한_배열()
 	배열1 := 배열0.S추가("첫번째")
 
@@ -1140,6 +1178,8 @@ func TestI안전한_배열(테스트 *testing.T) {
 }
 
 func TestI안전한_맵(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	맵 := N안전한_맵()
 
 	F참인지_확인(테스트, 맵.G비어있음())

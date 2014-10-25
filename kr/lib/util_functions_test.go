@@ -16,6 +16,8 @@ import (
 )
 
 func TestF매개변수_안전성_검사(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	// CallByValue에 의해서 자동으로 복사본이 생성되는 형식.
 	검사_결과 := F매개변수_안전성_검사(
 		nil, uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
@@ -57,6 +59,8 @@ func TestF매개변수_안전성_검사(테스트 *testing.T) {
 }
 
 func TestF안전한_형식으로_변환_시도(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	시점 := time.Now()
 
 	값_모음 := []I가변형{
@@ -88,6 +92,8 @@ func TestF안전한_형식으로_변환_시도(테스트 *testing.T) {
 }
 
 func TestF상수형(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F참인지_확인(테스트, F상수형(nil) == nil)
 
 	F문자열_출력_일시정지_시작()
@@ -152,6 +158,8 @@ func TestF상수형(테스트 *testing.T) {
 }
 
 func TestF문자열(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	값_모음 := []I가변형{true, P참, NC참거짓(true)}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F문자열(값), "true")
@@ -194,6 +202,8 @@ func TestF문자열(테스트 *testing.T) {
 }
 
 func TestF포맷된_문자열(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	값_모음 := []I가변형{true, P참, NC참거짓(true)}
 	for _, 값 := range 값_모음 {
 		F같은값_확인(테스트, F포맷된_문자열("%v", 값), "true")
@@ -237,6 +247,8 @@ func TestF포맷된_문자열(테스트 *testing.T) {
 }
 
 func TestF금액_문자열(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F같은값_확인(테스트, F금액_문자열("100"), "100")
 	F같은값_확인(테스트, F금액_문자열("100.1"), "100.1")
 	F같은값_확인(테스트, F금액_문자열("1000"), "1,000")
@@ -248,6 +260,8 @@ func TestF금액_문자열(테스트 *testing.T) {
 }
 
 func TestF마지막_0_제거(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F같은값_확인(테스트, F마지막_0_제거("100"), "100")
 	F같은값_확인(테스트, F마지막_0_제거("100.0"), "100")
 	F같은값_확인(테스트, F마지막_0_제거("100.1"), "100.1")
@@ -256,16 +270,22 @@ func TestF마지막_0_제거(테스트 *testing.T) {
 }
 
 func TestF양의_무한(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F참인지_확인(테스트, math.IsInf(F양의_무한(), 0))
 	F참인지_확인(테스트, math.IsInf(F양의_무한(), 1))
 }
 
 func TestF음의_무한(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F참인지_확인(테스트, math.IsInf(F음의_무한(), 0))
 	F참인지_확인(테스트, math.IsInf(F음의_무한(), -1))
 }
 
 func TestF반올림(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F같은값_확인(테스트, F반올림(100.0045, 2).G실수(), 100.0)
 	F같은값_확인(테스트, F반올림(100.0045, 3).G실수(), 100.005)
 
@@ -275,6 +295,8 @@ func TestF반올림(테스트 *testing.T) {
 }
 
 func TestF문자열2실수(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	실수, 에러 := F문자열2실수("1.1")
 
 	F에러없음_확인(테스트, 에러)
@@ -289,6 +311,8 @@ func TestF문자열2실수(테스트 *testing.T) {
 }
 
 func TestF문자열2시점(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	시점_원래값 := time.Now()
 
 	시점, 에러 := F문자열2시점(시점_원래값.Format(P시점_형식))
@@ -301,12 +325,16 @@ func TestF문자열2시점(테스트 *testing.T) {
 }
 
 func TestF시점_문자열(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	시점_원래값 := time.Now()
 
 	F같은값_확인(테스트, F시점_문자열(시점_원래값), 시점_원래값.Format(P시점_형식))
 }
 
 func TestF일자_문자열(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	일자 := time.Date(2000, time.Month(1), 1, 0, 0, 0, 0, time.Now().Location())
 
 	F같은값_확인(테스트, F일자_문자열(일자), "2000-01-01")
@@ -317,6 +345,8 @@ func TestF일자_문자열(테스트 *testing.T) {
 }
 
 func TestF시점_복사(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	시점 := time.Now()
 	복사본 := F시점_복사(시점)
 
@@ -328,6 +358,8 @@ func TestF시점_복사(테스트 *testing.T) {
 }
 
 func TestF임의_통화종류(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	통화종류_맵 := make(map[P통화종류]int)
 
 	for 반복횟수 := 0; 반복횟수 < 100; 반복횟수++ {
@@ -355,6 +387,8 @@ func TestF임의_통화종류(테스트 *testing.T) {
 }
 
 func TestF통화종류별_정밀도(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F같은값_확인(테스트, F통화종류별_정밀도(KRW), 0)
 	F같은값_확인(테스트, F통화종류별_정밀도(USD), 2)
 	F같은값_확인(테스트, F통화종류별_정밀도(CNY), 2)
@@ -363,6 +397,8 @@ func TestF통화종류별_정밀도(테스트 *testing.T) {
 }
 
 func TestF통화종류(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F같은값_확인(테스트, F통화종류(nil, nil), INVALID_CURRENCY_TYPE)
 	F같은값_확인(테스트, F통화종류(NC통화(KRW, 100), nil), KRW)
 	F같은값_확인(테스트, F통화종류(nil, NC통화(KRW, 100)), KRW)
@@ -371,6 +407,8 @@ func TestF통화종류(테스트 *testing.T) {
 }
 
 func TestF통화형식임(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	값_모음 := []I가변형{NC통화(KRW, 100)}
 
 	F참인지_확인(테스트, F통화형식임(값_모음...))
@@ -394,12 +432,16 @@ func TestF통화형식임(테스트 *testing.T) {
 }
 
 func TestF통화_같음(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F참인지_확인(테스트, F통화_같음(NC통화(KRW, 1), NC통화(KRW, 1)))
 	F거짓인지_확인(테스트, F통화_같음(NC통화(KRW, 1), NC통화(USD, 1)))
 	F거짓인지_확인(테스트, F통화_같음(NC통화(KRW, 1), NC통화(KRW, 100)))
 }
 
 func TestF숫자형식임(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	값_모음 := []I가변형{
 		uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		int(1), int8(1), int16(1), int32(1), int64(1),
@@ -421,6 +463,8 @@ func TestF숫자형식임(테스트 *testing.T) {
 }
 
 func TestF숫자_같음(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	값_모음_1 := []I가변형{
 		uint(1), uint8(1), uint16(1), uint32(1), uint64(1),
 		int(1), int8(1), int16(1), int32(1), int64(1),
@@ -467,6 +511,8 @@ func TestF숫자_같음(테스트 *testing.T) {
 }
 
 func TestF참거짓형식임(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	값_모음 := []I가변형{true, false, NC참거짓(true)}
 	F참인지_확인(테스트, F참거짓형식임(값_모음...))
 	for _, 값 := range 값_모음 {
@@ -486,6 +532,8 @@ func TestF참거짓형식임(테스트 *testing.T) {
 }
 
 func TestF참거짓_같음(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	값_모음_1 := []I가변형{true, NC참거짓(true)}
 	값_모음_2 := []I가변형{true, NC참거짓(true)}
 
@@ -524,6 +572,8 @@ func TestF참거짓_같음(테스트 *testing.T) {
 }
 
 func TestF문자열형식임(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	값_모음 := []I가변형{"테스트", NC문자열("테스트")}
 	F참인지_확인(테스트, F문자열형식임(값_모음...))
 	for _, 값 := range 값_모음 {
@@ -542,6 +592,8 @@ func TestF문자열형식임(테스트 *testing.T) {
 }
 
 func TestF문자열_같음(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	문자열1 := "테스트"
 	문자열2 := "테스트"
 
@@ -565,6 +617,8 @@ func TestF문자열_같음(테스트 *testing.T) {
 }
 
 func TestF시점형식임(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	시점 := time.Now()
 	값_모음 := []I가변형{시점, NC시점(시점)}
 	F참인지_확인(테스트, F시점형식임(값_모음...))
@@ -584,6 +638,8 @@ func TestF시점형식임(테스트 *testing.T) {
 }
 
 func TestF시점_같음(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	시점1 := time.Now()
 	시점2 := F시점_복사(시점1)
 
@@ -607,6 +663,8 @@ func TestF시점_같음(테스트 *testing.T) {
 }
 
 func TestFbigRat형식임(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	값_모음 := []I가변형{
 		nil, uint(100), uint8(100), uint16(100), uint32(100), uint64(100),
 		int(100), int8(100), int16(100), int32(100), int64(100),
@@ -621,6 +679,8 @@ func TestFbigRat형식임(테스트 *testing.T) {
 }
 
 func TestF값_같음(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	// 정수 테스트
 	값 := []I가변형{
 		uint(100), uint8(100), uint16(100), uint32(100), uint64(100),
@@ -669,7 +729,7 @@ func TestF값_같음(테스트 *testing.T) {
 	testF값_같음_도우미(테스트, 값)
 }
 
-func testF값_같음_도우미(테스트 *testing.T, 값 []I가변형) {
+func testF값_같음_도우미(테스트 *testing.T, 값 []I가변형) {	
 	for 인덱스1 := 0; 인덱스1 < (len(값) - 1); 인덱스1++ {
 		for 인덱스2 := 인덱스1 + 1; 인덱스2 < len(값); 인덱스2++ {
 			F참인지_확인(테스트, F값_같음(값[인덱스1], 값[인덱스2]),
@@ -679,11 +739,15 @@ func testF값_같음_도우미(테스트 *testing.T, 값 []I가변형) {
 }
 
 func TestF잠시_대기(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F잠시_대기(1)
 	F잠시_대기(100)
 }
 
 func TestF중첩된_외부_슬라이스_제거(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	중첩된_슬라이스 := make([]I가변형, 1)
 	중첩된_슬라이스[0] = 1
 
@@ -702,12 +766,16 @@ func TestF중첩된_외부_슬라이스_제거(테스트 *testing.T) {
 }
 
 func TestF_nil값_존재함(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F참인지_확인(테스트, F_nil값_존재함(1, 2, nil))
 	F참인지_확인(테스트, F_nil값_존재함(nil, nil))
 	F거짓인지_확인(테스트, F_nil값_존재함(1, 2))
 }
 
 func TestF_nil값임(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F참인지_확인(테스트, F_nil값임(nil))
 	F거짓인지_확인(테스트, F_nil값임(1))
 }
@@ -749,6 +817,8 @@ func (s s가상TB) Skipped() bool                             { return false }
 func (s s가상TB) 테스트용_가상_객체()                               {}
 
 func TestS가상TB(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	가상_테스트 := new(s가상TB)
 	var tb testing.TB = 가상_테스트
 	tb.Failed()
@@ -793,6 +863,8 @@ func TestS가상TB(테스트 *testing.T) {
 }
 
 func TestF참인지_확인(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	가상_테스트 := new(s가상TB)
 
 	// 간단한 형식
@@ -836,6 +908,8 @@ func TestF참인지_확인(테스트 *testing.T) {
 }
 
 func TestF거짓인지_확인(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	가상_테스트 := new(s가상TB)
 
 	// 간단한 형식
@@ -879,6 +953,8 @@ func TestF거짓인지_확인(테스트 *testing.T) {
 }
 
 func TestF에러없음_확인(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	가상_테스트 := new(s가상TB)
 
 	테스트_통과 = true
@@ -911,6 +987,8 @@ func TestF에러발생_확인(테스트 *testing.T) {
 }
 
 func TestF같은값_확인(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	가상_테스트 := new(s가상TB)
 
 	테스트_통과 = true
@@ -926,7 +1004,9 @@ func TestF같은값_확인(테스트 *testing.T) {
 	}
 }
 
-func TestF다른값_확인(테스트 *testing.T) {
+func TestF다른값_확인(테스트 *testing.T) {	
+	테스트.Parallel()
+	
 	가상_테스트 := new(s가상TB)
 
 	테스트_통과 = true
@@ -943,6 +1023,8 @@ func TestF다른값_확인(테스트 *testing.T) {
 }
 
 func TestF패닉발생_확인(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	가상_테스트 := new(s가상TB)
 
 	테스트_통과 = true
@@ -960,10 +1042,14 @@ func TestF패닉발생_확인(테스트 *testing.T) {
 	}
 }
 
-func test매개변수_안전성_검사_패닉() { panic("테스트") }
+func test매개변수_안전성_검사_패닉() {
+	panic("테스트")
+}
 func test매개변수_안전성_검사_정상() {}
 
 func TestF소스코드_위치(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	소스코드_위치 := strings.Split(F소스코드_위치(-1), ":")
 	파일명, 행_번호 := 소스코드_위치[0], 소스코드_위치[1]
 
@@ -978,10 +1064,14 @@ func TestF소스코드_위치(테스트 *testing.T) {
 }
 
 func TestF에러_생성(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	F같은값_확인(테스트, F에러_생성("테스트 %v, %v", 1, 2.2).Error(), "테스트 1, 2.2")
 }
 
 func TestF값_확인_문자열(테스트 *testing.T) {
+	테스트.Parallel()
+	
 	문자열 := F값_확인_문자열(1)
 	F참인지_확인(테스트, strings.Contains(문자열, "int"))
 	F참인지_확인(테스트, strings.Contains(문자열, "1"))

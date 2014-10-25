@@ -7,12 +7,16 @@ package lib
 import (
 	"fmt"
 	"math/big"
+	"runtime"
 	"strings"
 )
 
 func init() {
 	나를_위한_문구()
 	//메모()
+	
+	// 병렬처리 가능하게 설정.
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	
 	rat, _ := new(big.Rat).SetString(
 				"1/100000000000000000000000000000000000000000")
