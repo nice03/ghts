@@ -1027,6 +1027,107 @@ func F패닉발생_확인(테스트 testing.TB, 함수 I가변형, 매개변수 
 	return false
 }
 
+func F임의_부호(임의값_생성기 *rand.Rand) int8 {
+	if 임의값_생성기.Int31n(2) == 0 {
+		return -1
+	} else {
+		return 1
+	}
+}
+
+func F임의값_생성(크기 int) []I가변형 {
+	생성자_모음 := [...](func(r *rand.Rand) I가변형) {
+		func(r *rand.Rand) I가변형 { return uint(r.Int31()) },
+		func(r *rand.Rand) I가변형 { return uint8(r.Int31n(256)) },
+		func(r *rand.Rand) I가변형 { return uint16(r.Int31n(65536)) },
+		func(r *rand.Rand) I가변형 { return uint32(r.Int63n(4294967296)) },
+		func(r *rand.Rand) I가변형 { return uint64(r.Int63()) },
+		func(r *rand.Rand) I가변형 { return int(r.Int31()) * int(F임의_부호(r)) },
+		func(r *rand.Rand) I가변형 { return int8(r.Int31n(128)) * int8(F임의_부호(r)) },
+		func(r *rand.Rand) I가변형 { return int16(r.Int31n(32768)) * int16(F임의_부호(r)) },
+		func(r *rand.Rand) I가변형 { return int32(r.Int31() * int32(F임의_부호(r))) },
+		func(r *rand.Rand) I가변형 { return int64(r.Int63() * int64(F임의_부호(r))) }, 
+		func(r *rand.Rand) I가변형 {
+			return r.Float32() * float32(r.Int63()) * float32(F임의_부호(r)) },
+		func(r *rand.Rand) I가변형 {
+			return r.Float64() * float64(r.Int63()) * float64(F임의_부호(r)) },
+		func(r *rand.Rand) I가변형 { return NC부호없는_정수(uint64(r.Int63())) },
+		func(r *rand.Rand) I가변형 { return NV부호없는_정수(uint64(r.Int63())) },
+		func(r *rand.Rand) I가변형 { return NC정수(
+			r.Int63() * int64(F임의_부호(r))) },
+		func(r *rand.Rand) I가변형 { return NV정수(
+			r.Int63() * int64(F임의_부호(r))) },
+		func(r *rand.Rand) I가변형 { return NC실수(
+			r.Float64() * float64(r.Int63()) * float64(F임의_부호(r))) },
+		func(r *rand.Rand) I가변형 { return NV실수(
+			r.Float64() * float64(r.Int63()) * float64(F임의_부호(r))) },
+		func(r *rand.Rand) I가변형 { return NC정밀수(
+			r.Float64() * float64(r.Int63()) * float64(F임의_부호(r))) },
+		func(r *rand.Rand) I가변형 { return NV정밀수(
+			r.Float64() * float64(r.Int63()) * float64(F임의_부호(r))) },
+		func(r *rand.Rand) I가변형 { return time.Now() },
+		func(r *rand.Rand) I가변형 { return NC시점(time.Now()) },
+		func(r *rand.Rand) I가변형 { return NV시점(time.Now()) },
+		func(r *rand.Rand) I가변형 {
+			반복횟수_최대값 := int(r.Int31n(20))
+			길이 := int32(len(문자열_후보값_모음))
+			버퍼 := new(bytes.Buffer)
+
+			for 반복횟수 := 0; 반복횟수 < 반복횟수_최대값; 반복횟수++ {
+				버퍼.WriteString(
+					문자열_후보값_모음[int(r.Int31n(길이))])
+			}
+			
+			return 버퍼.String()
+		},
+		func(r *rand.Rand) I가변형 {
+			반복횟수_최대값 := int(r.Int31n(20))
+			길이 := int32(len(문자열_후보값_모음))
+			버퍼 := new(bytes.Buffer)
+
+			for 반복횟수 := 0; 반복횟수 < 반복횟수_최대값; 반복횟수++ {
+				버퍼.WriteString(
+					문자열_후보값_모음[int(r.Int31n(길이))])
+			}
+			
+			return NC문자열(버퍼.String())
+		},
+		func(r *rand.Rand) I가변형 {
+			if r.Int31n(2) == 0 { return false } 
+			return true 
+		},
+		func(r *rand.Rand) I가변형 {
+			if r.Int31n(2) == 0 { return NC참거짓(false) }
+			return NC참거짓(true)
+		},
+		func(r *rand.Rand) I가변형 {
+			if r.Int31n(2) == 0 { return NV참거짓(false) }
+			return NV참거짓(true)
+		},
+		func(r *rand.Rand) I가변형 {
+			종류 := F임의_통화종류()
+			금액 := r.Float64() * float64(r.Int63()) * float64(F임의_부호(r))
+			return NC통화(종류, 금액)
+		},
+		func(r *rand.Rand) I가변형 {
+			종류 := F임의_통화종류()
+			금액 := r.Float64() * float64(r.Int63()) * float64(F임의_부호(r))
+			return NV통화(종류, 금액)
+		},
+	}
+	
+	임의값_모음 := make([]I가변형, 크기)
+	생성자_모음_길이 := int32(len(생성자_모음))	
+	임의값_생성기 := rand.New(rand.NewSource(time.Now().UnixNano()))
+	
+	for 인덱스 := 0 ; 인덱스 < 크기 ; 인덱스++ {
+		생성자 := 생성자_모음[임의값_생성기.Int31n(생성자_모음_길이)]	
+		임의값_모음[인덱스] = 생성자(임의값_생성기)
+	}
+	
+	return 임의값_모음
+}
+
 // 소스코드 위치를 나타내는 함수. runtime.Caller()의 한글화 버전임.
 // '건너뛰는_단계'값이 커질수록 호출 경로를 거슬러 올라감.
 //

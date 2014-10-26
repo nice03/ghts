@@ -5,7 +5,7 @@
 package lib
 
 import (
-	//"fmt"
+	"fmt"
 	"github.com/gh-system/ghts/dep/ps"
 	"math/big"
 	"time"
@@ -248,4 +248,17 @@ func N안전한_배열() I안전한_배열 {
 
 func N안전한_맵() I안전한_맵 {
 	return &s안전한_맵{ps.NewMap()}
+}
+
+func NV문자열키_맵() V문자열키_맵 {
+	중앙_저장소 := make(map[string]*sV문자열키_맵_조각, 256)
+
+	for 인덱스 := 0; 인덱스 < 256; 인덱스++ {
+		키 := fmt.Sprintf("%02x", 인덱스) // 2자리 16진수. 16 * 16 = 256.
+		저장소 := make(map[string]I가변형)
+
+		중앙_저장소[키] = &sV문자열키_맵_조각{저장소: 저장소}
+	}
+
+	return &sV문자열키_맵{중앙_저장소: 중앙_저장소}
 }
