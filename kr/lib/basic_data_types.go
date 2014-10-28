@@ -61,7 +61,7 @@ func (s *s정수64) generate(임의값_생성기 *rand.Rand) int64 {
 
 type sC정수64 struct{ *s정수64 }
 
-func (s *sC정수64) 상수형임()     {}
+func (s *sC정수64) G상수형임()     {}
 func (s *sC정수64) G변수형() V정수 { return NV정수(s.G값()) }
 func (s *sC정수64) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	return reflect.ValueOf(NC정수(s.s정수64.generate(임의값_생성기)))
@@ -71,7 +71,7 @@ type sV정수64 struct {
 	*s정수64
 }
 
-func (s *sV정수64) 변수형임() {}
+func (s *sV정수64) G변수형임() {}
 func (s *sV정수64) G상수형() C정수 {
 	return NC정수(s.G값())
 }
@@ -202,7 +202,7 @@ func (s *s부호없는_정수64) String() string { return strconv.FormatUint(s.G
 
 type sC부호없는_정수64 struct{ *s부호없는_정수64 }
 
-func (s *sC부호없는_정수64) 상수형임() {}
+func (s *sC부호없는_정수64) G상수형임() {}
 func (s *sC부호없는_정수64) G변수형() V부호없는_정수 {
 	return NV부호없는_정수(s.G값())
 }
@@ -215,7 +215,7 @@ type sV부호없는_정수64 struct {
 	*s부호없는_정수64
 }
 
-func (s *sV부호없는_정수64) 변수형임() {}
+func (s *sV부호없는_정수64) G변수형임() {}
 func (s *sV부호없는_정수64) G상수형() C부호없는_정수 {
 	return NC부호없는_정수(s.G값())
 }
@@ -339,7 +339,7 @@ func (s *s실수64) generate(임의값_생성기 *rand.Rand) float64 {
 
 type sC실수64 struct{ *s실수64 }
 
-func (s *sC실수64) 상수형임()     {}
+func (s *sC실수64) G상수형임()     {}
 func (s *sC실수64) G변수형() V실수 { return NV실수(s.s실수64.값) }
 func (s *sC실수64) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	return reflect.ValueOf(NC실수(s.s실수64.generate(임의값_생성기)))
@@ -350,7 +350,7 @@ type sV실수64 struct {
 	*s실수64
 }
 
-func (s *sV실수64) 변수형임() {}
+func (s *sV실수64) G변수형임() {}
 func (s *sV실수64) G값() float64 {
 	var 값 float64
 	s.잠금.RLock()
@@ -517,7 +517,7 @@ func (s *s참거짓) generate(임의값_생성기 *rand.Rand) bool {
 
 type sC참거짓 struct{ *s참거짓 }
 
-func (s *sC참거짓) 상수형임()      {}
+func (s *sC참거짓) G상수형임()      {}
 func (s *sC참거짓) G변수형() V참거짓 { return NV참거짓(s.s참거짓.값) }
 func (s *sC참거짓) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	return reflect.ValueOf(NC참거짓(s.s참거짓.generate(임의값_생성기)))
@@ -528,7 +528,7 @@ type sV참거짓 struct {
 	*s참거짓
 }
 
-func (s *sV참거짓) 변수형임() {}
+func (s *sV참거짓) G변수형임() {}
 func (s *sV참거짓) G값() bool {
 	var 값 bool
 	s.잠금.RLock()
@@ -560,7 +560,7 @@ func (s *sV참거짓) Generate(임의값_생성기 *rand.Rand, 크기 int) refle
 // 문자열
 type sC문자열 struct{ 값 string }
 
-func (s *sC문자열) 상수형임()          {}
+func (s *sC문자열) G상수형임()          {}
 func (s *sC문자열) G값() string     { return s.값 }
 func (s *sC문자열) String() string { return s.값 }
 func (s *sC문자열) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
@@ -601,7 +601,7 @@ func (s *s시점) generate(임의값_생성기 *rand.Rand) time.Time {
 
 type sC시점 struct{ *s시점 }
 
-func (s *sC시점) 상수형임()     {}
+func (s *sC시점) G상수형임()     {}
 func (s *sC시점) G변수형() V시점 { return NV시점(s.s시점.값) }
 func (s *sC시점) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
 	return reflect.ValueOf(NC시점(s.s시점.generate(임의값_생성기)))
@@ -612,7 +612,7 @@ type sV시점 struct {
 	*s시점
 }
 
-func (s *sV시점) 변수형임() {}
+func (s *sV시점) G변수형임() {}
 func (s *sV시점) G값() time.Time {
 	var 값 time.Time
 	s.잠금.RLock()
@@ -720,7 +720,7 @@ func (s *s정밀수) Generate도우미(임의값_생성기 *rand.Rand) s정밀�
 
 type sC정밀수 struct{ *s정밀수 }
 
-func (s *sC정밀수) 상수형임()      {}
+func (s *sC정밀수) G상수형임()      {}
 func (s *sC정밀수) G정밀수() C정밀수 { return s }
 func (s *sC정밀수) G변수형() V정밀수 { return NV정밀수(s) }
 func (s *sC정밀수) Generate(임의값_생성기 *rand.Rand, 크기 int) reflect.Value {
@@ -733,7 +733,7 @@ type sV정밀수 struct {
 	*s정밀수
 }
 
-func (s *sV정밀수) 변수형임() {}
+func (s *sV정밀수) G변수형임() {}
 func (s *sV정밀수) G값() string {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
@@ -1047,7 +1047,7 @@ type sC통화 struct {
 	금액 C정밀수
 }
 
-func (s *sC통화) 상수형임()      {}
+func (s *sC통화) G상수형임()      {}
 func (s *sC통화) G종류() P통화종류 { return s.종류 }
 func (s *sC통화) G값() C정밀수   { return s.금액 }
 func (s *sC통화) G같음(값 I통화) bool {
@@ -1107,7 +1107,7 @@ type sV통화 struct {
 	금액 V정밀수
 }
 
-func (s *sV통화) 변수형임()      {}
+func (s *sV통화) G변수형임()      {}
 func (s *sV통화) G종류() P통화종류 { return s.종류 }
 func (s *sV통화) G값() C정밀수   { return s.금액.G상수형() }
 func (s *sV통화) G같음(값 I통화) bool {
@@ -1238,7 +1238,7 @@ type sC매개변수 struct {
 	값  I가변형
 }
 
-func (s *sC매개변수) 상수형임()         {}
+func (s *sC매개변수) G상수형임()         {}
 func (s *sC매개변수) G이름() string   { return s.이름 }
 func (s *sC매개변수) G값() I가변형      { return s.값 }
 func (s *sC매개변수) G숫자형식임() bool  { return F숫자형식임(s.값) }
@@ -1268,7 +1268,7 @@ func (s *sC매개변수) Generate(임의값_생성기 *rand.Rand, 크기 int) re
 // 안전한 가변형
 type sC안전한_가변형 struct{ 값 I가변형 }
 
-func (s *sC안전한_가변형) 상수형임()    {}
+func (s *sC안전한_가변형) G상수형임()    {}
 func (s *sC안전한_가변형) G값() I가변형 { return s.값 }
 func (s *sC안전한_가변형) String() string {
 	if _, ok := s.값.(I기본_문자열); ok {
@@ -1429,8 +1429,6 @@ type sV문자열키_맵 struct {
 }
 
 func (s *sV문자열키_맵) G키_모음() []string {
-	F메모("goroutine을 사용한 메소드는 어떻게 테스트 하지?")
-
 	키_모음 := make([]string, 0)
 
 	동시처리_수량 := int(math.Max(float64(runtime.NumCPU() * 3), 10.0))

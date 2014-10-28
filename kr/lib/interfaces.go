@@ -44,12 +44,12 @@ type I자료형_공통 interface {
 
 type I상수형 interface {
 	I자료형_공통
-	상수형임()
+	G상수형임()
 }
 
 type I변수형 interface {
 	I자료형_공통
-	변수형임()
+	G변수형임()
 }
 
 type I문자열형 interface {
