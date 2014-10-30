@@ -1047,6 +1047,16 @@ func test매개변수_안전성_검사_패닉() {
 }
 func test매개변수_안전성_검사_정상() {}
 
+func TestF임의_문자열(테스트 *testing.T) {
+	맵 := make(map[string]bool)
+	
+	for 반복횟수 := 0 ; 반복횟수 < 100 ; 반복횟수++ {
+		맵[F임의_문자열(20)] = true
+	}
+	
+	F참인지_확인(테스트, len(맵) > 90)
+}
+
 func TestF임의값_생성(테스트 *testing.T) {
 	테스트.Parallel()
 	

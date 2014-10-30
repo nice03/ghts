@@ -1035,6 +1035,21 @@ func F임의_부호(임의값_생성기 *rand.Rand) int8 {
 	}
 }
 
+func F임의_문자열(최대_길이 int) string {
+	if 최대_길이 == 0 { 최대_길이 = 10 }
+	
+	길이 := int(rand.Int31n(int32(최대_길이)))
+	후보값_모음_길이 := int32(len(문자열_후보값_모음))
+	버퍼 := new(bytes.Buffer)
+
+	for 반복횟수 := 0; 반복횟수 < 길이; 반복횟수++ {
+		버퍼.WriteString(
+			문자열_후보값_모음[int(rand.Int31n(후보값_모음_길이))])
+	}
+	
+	return 버퍼.String()
+}
+
 func F임의값_생성(크기 int) []I가변형 {
 	생성자_모음 := [...](func(r *rand.Rand) I가변형) {
 		func(r *rand.Rand) I가변형 { return uint(r.Int31()) },
@@ -1068,29 +1083,9 @@ func F임의값_생성(크기 int) []I가변형 {
 		func(r *rand.Rand) I가변형 { return time.Now() },
 		func(r *rand.Rand) I가변형 { return NC시점(time.Now()) },
 		func(r *rand.Rand) I가변형 { return NV시점(time.Now()) },
+		func(r *rand.Rand) I가변형 { return F임의_문자열(int(r.Int31n(20))) },
 		func(r *rand.Rand) I가변형 {
-			반복횟수_최대값 := int(r.Int31n(20))
-			길이 := int32(len(문자열_후보값_모음))
-			버퍼 := new(bytes.Buffer)
-
-			for 반복횟수 := 0; 반복횟수 < 반복횟수_최대값; 반복횟수++ {
-				버퍼.WriteString(
-					문자열_후보값_모음[int(r.Int31n(길이))])
-			}
-			
-			return 버퍼.String()
-		},
-		func(r *rand.Rand) I가변형 {
-			반복횟수_최대값 := int(r.Int31n(20))
-			길이 := int32(len(문자열_후보값_모음))
-			버퍼 := new(bytes.Buffer)
-
-			for 반복횟수 := 0; 반복횟수 < 반복횟수_최대값; 반복횟수++ {
-				버퍼.WriteString(
-					문자열_후보값_모음[int(r.Int31n(길이))])
-			}
-			
-			return NC문자열(버퍼.String())
+			return NC문자열(F임의_문자열(int(r.Int31n(20))))
 		},
 		func(r *rand.Rand) I가변형 {
 			if r.Int31n(2) == 0 { return false } 
