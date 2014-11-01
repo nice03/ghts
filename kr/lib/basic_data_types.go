@@ -1424,6 +1424,9 @@ func (s *sV문자열키_맵_조각) S없으면_추가(키 string, 값 I가변형
 	s.저장소[키] = 값
 }
 
+// RWMutex의 쓰기 lock 병목 현상을 줄여주는 맵
+// COPIED from 
+// http://openmymind.net/Shard-Your-Hash-table-to-reduce-write-locks/
 type sV문자열키_맵 struct {
 	중앙_저장소 map[string]*sV문자열키_맵_조각
 }

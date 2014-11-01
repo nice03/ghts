@@ -15,6 +15,11 @@ import (
 	"time"
 )
 
+func TestF최근_단가(테스트 *testing.T) {
+	F메모("F최근_단가() 및 테스트 구현할 것.\n" +
+			"\t\t\t처음에는 간단하게 전일종가로 하고, 나중에 현재가에 가깝게 변경.")
+}
+
 func TestF매개변수_안전성_검사(테스트 *testing.T) {
 	테스트.Parallel()
 	
