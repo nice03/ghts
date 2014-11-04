@@ -1361,12 +1361,22 @@ type sC키_값_string_I가변형 struct {
 func (s *sC키_값_string_I가변형) G키() string { return s.키 }
 func (s *sC키_값_string_I가변형) G값() I가변형   { return s.값 }
 
-type sV문자열키_맵_조각 struct {
+// 'V문자열키_맵'의 기본 구현체
+type sV기본_문자열키_맵 struct {
 	잠금  sync.RWMutex
 	저장소 map[string]I가변형
 }
 
-func (s *sV문자열키_맵_조각) G키_모음() []string {
+func (s *sV기본_문자열키_맵) G변수형임() {}
+
+func (s *sV기본_문자열키_맵) G수량() int {
+	s.잠금.RLock()
+	defer s.잠금.RUnlock()
+	
+	return len(s.저장소)
+}
+
+func (s *sV기본_문자열키_맵) G키_모음() []string {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
 
@@ -1381,7 +1391,7 @@ func (s *sV문자열키_맵_조각) G키_모음() []string {
 	return 키_모음
 }
 
-func (s *sV문자열키_맵_조각) G값(키 string) (I가변형, bool) {
+func (s *sV기본_문자열키_맵) G값(키 string) (I가변형, bool) {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
 
@@ -1390,7 +1400,22 @@ func (s *sV문자열키_맵_조각) G값(키 string) (I가변형, bool) {
 	return 값, 존재함
 }
 
-func (s *sV문자열키_맵_조각) G키_값_모음() []C키_값_string_I가변형 {
+func (s *sV기본_문자열키_맵) G값_모음() []I가변형 {
+	s.잠금.RLock()
+	defer s.잠금.RUnlock()
+	
+	값_모음 := make([]I가변형, len(s.저장소))
+	인덱스 := 0
+	
+	for _, 값 := range s.저장소 {
+		값_모음[인덱스] = 값
+		인덱스++
+	}
+
+	return 값_모음
+}
+
+func (s *sV기본_문자열키_맵) G키_값_모음() []C키_값_string_I가변형 {
 	s.잠금.RLock()
 	defer s.잠금.RUnlock()
 
@@ -1405,14 +1430,14 @@ func (s *sV문자열키_맵_조각) G키_값_모음() []C키_값_string_I가변�
 	return 키_값_모음
 }
 
-func (s *sV문자열키_맵_조각) S값(키 string, 값 I가변형) {
+func (s *sV기본_문자열키_맵) S값(키 string, 값 I가변형) {
 	s.잠금.Lock()
 	defer s.잠금.Unlock()
 
 	s.저장소[키] = 값
 }
 
-func (s *sV문자열키_맵_조각) S없으면_추가(키 string, 값 I가변형) {
+func (s *sV기본_문자열키_맵) S없으면_추가(키 string, 값 I가변형) {
 	s.잠금.Lock()
 	defer s.잠금.Unlock()
 
@@ -1424,18 +1449,54 @@ func (s *sV문자열키_맵_조각) S없으면_추가(키 string, 값 I가변형
 	s.저장소[키] = 값
 }
 
-// RWMutex의 쓰기 lock 병목 현상을 줄여주는 맵
-// COPIED from 
+func (s *sV기본_문자열키_맵) String() string { return F포맷된_문자열("%v\n", s) }
+
+// 'V문자열키_맵'의 고성능 구현체.
+// 뮤텍스의 쓰기 lock 병목 현상을 분산시켜 준다.
+// COPIED & MODIFIED from 
 // http://openmymind.net/Shard-Your-Hash-table-to-reduce-write-locks/
-type sV문자열키_맵 struct {
-	중앙_저장소 map[string]*sV문자열키_맵_조각
+type sV고성능_문자열키_맵 struct {
+	중앙_저장소 map[string]*sV기본_문자열키_맵
 }
 
-func (s *sV문자열키_맵) G키_모음() []string {
+func (s *sV고성능_문자열키_맵) G변수형임() {}
+
+func (s *sV고성능_문자열키_맵) G수량() int {
+	수량 := 0
+
+	동시처리_수량 := int(math.Max(float64(runtime.NumCPU() * 3), 10.0))
+	입력_채널 := make(chan *sV기본_문자열키_맵, 동시처리_수량)
+	출력_채널 := make(chan int, 동시처리_수량 * 2)
+	defer close(입력_채널)
+
+	for 반복횟수 := 0; 반복횟수 < 동시처리_수량; 반복횟수++ {
+		go func() {
+			for 맵_조각 := range 입력_채널 {
+				출력_채널 <- 맵_조각.G수량()
+			}
+		}()
+	}
+	
+	go func() {
+		for _, 맵_조각 := range s.중앙_저장소 {
+			입력_채널 <- 맵_조각
+		}
+	}()
+
+	for 반복횟수 := 0; 반복횟수 < len(s.중앙_저장소); 반복횟수++ {
+		조각별_수량 := <-출력_채널
+
+		수량 += 조각별_수량
+	}
+
+	return 수량
+}
+
+func (s *sV고성능_문자열키_맵) G키_모음() []string {
 	키_모음 := make([]string, 0)
 
 	동시처리_수량 := int(math.Max(float64(runtime.NumCPU() * 3), 10.0))
-	입력_채널 := make(chan *sV문자열키_맵_조각, 동시처리_수량)
+	입력_채널 := make(chan *sV기본_문자열키_맵, 동시처리_수량)
 	출력_채널 := make(chan []string, 동시처리_수량 * 2)
 	defer close(입력_채널)
 
@@ -1462,17 +1523,48 @@ func (s *sV문자열키_맵) G키_모음() []string {
 	return 키_모음
 }
 
-func (s *sV문자열키_맵) G값(키 string) (I가변형, bool) {
+func (s *sV고성능_문자열키_맵) G값(키 string) (I가변형, bool) {
 	값, 존재함 := s.g맵_조각(키).G값(키)
 
 	return 값, 존재함
 }
 
-func (s *sV문자열키_맵) G키_값_모음() []C키_값_string_I가변형 {
+func (s *sV고성능_문자열키_맵) G값_모음() []I가변형 {
+	값_모음 := make([]I가변형, 0)
+	
+	동시처리_수량 := int(math.Max(float64(runtime.NumCPU() * 3), 10.0))
+	입력_채널 := make(chan *sV기본_문자열키_맵, 동시처리_수량)
+	출력_채널 := make(chan []I가변형, 동시처리_수량)
+	defer close(입력_채널)
+
+	for 반복횟수 := 0; 반복횟수 < 동시처리_수량; 반복횟수++ {
+		go func() {
+			for 맵_조각 := range 입력_채널 {
+				출력_채널 <- 맵_조각.G값_모음()
+			}
+		}()
+	}
+	
+	go func() {
+		for _, 맵_조각 := range s.중앙_저장소 {
+			입력_채널 <- 맵_조각
+		}
+	}()
+
+	for 반복횟수 := 0; 반복횟수 < len(s.중앙_저장소); 반복횟수++ {
+		조각별_값_모음 := <-출력_채널
+
+		값_모음 = append(값_모음, 조각별_값_모음...)
+	}
+
+	return 값_모음
+}
+
+func (s *sV고성능_문자열키_맵) G키_값_모음() []C키_값_string_I가변형 {
 	키_값_모음 := make([]C키_값_string_I가변형, 0)
 
 	동시처리_수량 := int(math.Max(float64(runtime.NumCPU() * 3), 10.0))
-	입력_채널 := make(chan *sV문자열키_맵_조각, 동시처리_수량)
+	입력_채널 := make(chan *sV기본_문자열키_맵, 동시처리_수량)
 	출력_채널 := make(chan []C키_값_string_I가변형, 동시처리_수량)
 	defer close(입력_채널)
 
@@ -1499,15 +1591,15 @@ func (s *sV문자열키_맵) G키_값_모음() []C키_값_string_I가변형 {
 	return 키_값_모음
 }
 
-func (s *sV문자열키_맵) S값(키 string, 값 I가변형) {
+func (s *sV고성능_문자열키_맵) S값(키 string, 값 I가변형) {
 	s.g맵_조각(키).S값(키, 값)
 }
 
-func (s *sV문자열키_맵) S없으면_추가(키 string, 값 I가변형) {
+func (s *sV고성능_문자열키_맵) S없으면_추가(키 string, 값 I가변형) {
 	s.g맵_조각(키).S없으면_추가(키, 값)
 }
 
-func (s *sV문자열키_맵) g맵_조각(키 string) *sV문자열키_맵_조각 {
+func (s *sV고성능_문자열키_맵) g맵_조각(키 string) *sV기본_문자열키_맵 {
 	// 균일하게 각 조각 맵에 퍼뜨리기 위해서 SHA1 해쉬함수를 이용한다.
 	hasher := sha1.New()
 	hasher.Write([]byte(키))
@@ -1515,3 +1607,5 @@ func (s *sV문자열키_맵) g맵_조각(키 string) *sV문자열키_맵_조각 
 
 	return s.중앙_저장소[맵_조각_키]
 }
+
+func (s *sV고성능_문자열키_맵) String() string { return F포맷된_문자열("%v\n", s) }

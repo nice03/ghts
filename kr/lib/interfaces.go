@@ -310,8 +310,11 @@ type C키_값_string_I가변형 interface {
 }
 
 type V문자열키_맵 interface {
+	I변수형
+	G수량() int
 	G키_모음() []string
 	G값(키 string) (I가변형, bool)
+	G값_모음() []I가변형
 	G키_값_모음() []C키_값_string_I가변형
 	S값(키 string, 값 I가변형)
 	S없으면_추가(키 string, 값 I가변형)
@@ -395,7 +398,9 @@ type C전략별_포트폴리오 interface {
 	G총_금액() C통화
 }
 
-type V전체_포트폴리오 interface {
+type V포트폴리오 interface {
+	G자본() C통화
+	
 	G종목_모음() []C종목
 	G종목별_포트폴리오(종목 C종목) C종목별_포트폴리오
 	G종목별_포트폴리오_모음() []C종목별_포트폴리오
@@ -410,6 +415,4 @@ type V전체_포트폴리오 interface {
 	G총_금액() C통화
 	
 	S변동(변동내역 C포트폴리오_변동내역)
-
-	G자본() C통화
 }
