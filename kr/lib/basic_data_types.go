@@ -1430,6 +1430,17 @@ func (s *sV기본_문자열키_맵) G키_값_모음() []C키_값_string_I가변�
 	return 키_값_모음
 }
 
+func (s *sV기본_문자열키_맵) G임의값() I가변형 {
+	s.잠금.RLock()
+	defer s.잠금.RUnlock()
+	
+	for _, 값 := range s.저장소 {
+		return 값
+	}
+	
+	return nil
+}
+
 func (s *sV기본_문자열키_맵) S값(키 string, 값 I가변형) {
 	s.잠금.Lock()
 	defer s.잠금.Unlock()
@@ -1442,7 +1453,7 @@ func (s *sV기본_문자열키_맵) S없으면_추가(키 string, 값 I가변형
 	defer s.잠금.Unlock()
 
 	// 이미 존재하는 지 확인.
-	if _, 존재함 := s.저장소[키]; 존재함 {
+	if _, 이미_존재함 := s.저장소[키]; 이미_존재함 {
 		return
 	}
 
@@ -1589,6 +1600,16 @@ func (s *sV고성능_문자열키_맵) G키_값_모음() []C키_값_string_I가�
 	}
 
 	return 키_값_모음
+}
+
+func (s *sV고성능_문자열키_맵) G임의값() I가변형 {
+	for _, 조각_맵 := range s.중앙_저장소 {
+		값 := 조각_맵.G임의값()
+		
+		if 값 != nil { return 값 }
+	}
+	
+	return nil
 }
 
 func (s *sV고성능_문자열키_맵) S값(키 string, 값 I가변형) {

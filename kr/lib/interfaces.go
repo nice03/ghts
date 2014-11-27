@@ -316,6 +316,7 @@ type V문자열키_맵 interface {
 	G값(키 string) (I가변형, bool)
 	G값_모음() []I가변형
 	G키_값_모음() []C키_값_string_I가변형
+	G임의값() I가변형
 	S값(키 string, 값 I가변형)
 	S없으면_추가(키 string, 값 I가변형)
 }
